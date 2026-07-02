@@ -1,0 +1,14 @@
+SPRINT 004 — Content Engine
+
+1) Envie este ZIP para:
+~/vitrine-ai-social-enterprise
+
+2) No terminal:
+cd ~/vitrine-ai-social-enterprise
+unzip -o SPRINT_004_CONTENT_ENGINE.zip
+php artisan migrate
+php artisan db:seed --class=PromptTemplateSeeder
+php artisan optimize:clear
+git add .
+git commit -m "Implementa Sprint 004 Content Engine"
+GIT_SSH_COMMAND="ssh -i ~/.ssh/vitrine_github" git push origin main
