@@ -1,0 +1,18 @@
+SPRINT 005 — Interface de Conteúdo no Filament
+
+1) Envie este ZIP para:
+~/vitrine-ai-social-enterprise
+
+2) No terminal:
+cd ~/vitrine-ai-social-enterprise
+unzip -o SPRINT_005_FILAMENT_CONTENT_UI.zip
+php artisan optimize:clear
+php artisan route:list | grep -i content
+php artisan route:list | grep -i prompt
+
+3) Salvar no Git:
+git rm --cached SPRINT_004_CONTENT_ENGINE.zip error_log 2>/dev/null || true
+rm -f SPRINT_004_CONTENT_ENGINE.zip error_log
+git add .
+git commit -m "Implementa Sprint 005 interface de conteúdo"
+GIT_SSH_COMMAND="ssh -i ~/.ssh/vitrine_github" git push origin main
