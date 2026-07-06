@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+set -e
+
+cd ~/vitrine-ai-social-enterprise
+
+GIT_SSH_COMMAND="ssh -i ~/.ssh/vitrine_github" git pull origin main
+
+composer install --no-dev --optimize-autoloader
+
+php artisan optimize:clear
+php artisan migrate --force
+php artisan storage:link || true
+php artisan filament:upgrade || true
+php artisan filament:assets || true
+php artisan view:clear
+php artisan route:clear
+php artisan config:clear
+php artisan cache:clear
+php artisan optimize
+
+echo "Deploy/refresh concluído. Acesse /admin novamente."
