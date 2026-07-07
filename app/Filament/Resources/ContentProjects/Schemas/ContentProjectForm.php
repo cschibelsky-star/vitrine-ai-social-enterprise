@@ -17,19 +17,30 @@ class ContentProjectForm
     {
         return $schema
             ->components([
-                Section::make('Briefing')
+                Section::make('1. Cliente e Brand Kit')
+                    ->description('Escolha para quem este conteúdo será criado. O Brand Kit orienta tom de voz, público e estilo da IA.')
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('client_id')
                                 ->label('Cliente')
                                 ->options(fn () => Client::query()->orderBy('name')->pluck('name', 'id'))
-                                ->searchable(),
+                                ->searchable()
+                                ->preload()
+                                ->required(),
 
                             Select::make('brand_id')
                                 ->label('Brand Kit')
                                 ->options(fn () => Brand::query()->orderBy('name')->pluck('name', 'id'))
-                                ->searchable(),
+                                ->searchable()
+                                ->preload()
+                                ->required(),
+                        ]),
+                    ]),
 
+                Section::make('2. Estratégia do conteúdo')
+                    ->description('Defina o objetivo, rede social e formato. Esta etapa funciona como o briefing do BestContent.')
+                    ->schema([
+                        Grid::make(3)->schema([
                             Select::make('objective')
                                 ->label('Objetivo')
                                 ->options([
@@ -42,6 +53,18 @@ class ContentProjectForm
                                 ->default('engagement')
                                 ->required(),
 
+                            Select::make('channel')
+                                ->label('Canal')
+                                ->options([
+                                    'instagram' => 'Instagram',
+                                    'facebook' => 'Facebook',
+                                    'linkedin' => 'LinkedIn',
+                                    'tiktok' => 'TikTok',
+                                    'whatsapp' => 'WhatsApp',
+                                ])
+                                ->default('instagram')
+                                ->required(),
+
                             Select::make('format')
                                 ->label('Formato')
                                 ->options([
@@ -49,47 +72,48 @@ class ContentProjectForm
                                     'carousel_portrait' => 'Carrossel Portrait',
                                     'stories' => 'Stories',
                                     'reels' => 'Reels',
-                                    'facebook_post' => 'Facebook',
+                                    'facebook_post' => 'Facebook Post',
+                                    'linkedin_post' => 'LinkedIn Post',
                                 ])
                                 ->default('post_portrait')
                                 ->required(),
-
-                            Select::make('channel')
-                                ->label('Canal')
-                                ->options([
-                                    'instagram' => 'Instagram',
-                                    'facebook' => 'Facebook',
-                                ])
-                                ->default('instagram')
-                                ->required(),
-
-                            Select::make('status')
-                                ->label('Status')
-                                ->options([
-                                    'draft' => 'Rascunho',
-                                    'editing' => 'Em edição',
-                                    'ready' => 'Pronto',
-                                    'scheduled' => 'Agendado',
-                                    'published' => 'Publicado',
-                                ])
-                                ->default('draft')
-                                ->required(),
                         ]),
+                    ]),
 
+                Section::make('3. Ideia principal')
+                    ->description('Escreva em linguagem simples. Ao criar o projeto, a IA gera título, legenda, CTA, hashtags, score e slides.')
+                    ->schema([
                         Textarea::make('idea')
-                            ->label('Descreva a ideia')
+                            ->label('O que você deseja comunicar?')
+                            ->placeholder('Ex.: Criar uma campanha para divulgar uma promoção de inverno no Instagram.')
                             ->rows(5)
                             ->required()
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('Resultado gerado')
+                Section::make('4. Resultado gerado pela IA')
+                    ->description('Depois que o conteúdo for criado, estes campos serão preenchidos automaticamente e poderão ser editados.')
                     ->schema([
-                        TextInput::make('title')->label('Título'),
-                        Textarea::make('caption')->label('Legenda')->rows(8)->columnSpanFull(),
+                        Grid::make(2)->schema([
+                            TextInput::make('title')->label('Título gerado'),
+                            TextInput::make('score')->label('Score IA')->numeric(),
+                        ]),
+
+                        Textarea::make('caption')->label('Legenda final')->rows(8)->columnSpanFull(),
                         Textarea::make('cta')->label('CTA')->rows(2),
                         Textarea::make('hashtags')->label('Hashtags')->rows(2),
-                        TextInput::make('score')->label('Score')->numeric(),
+
+                        Select::make('status')
+                            ->label('Status')
+                            ->options([
+                                'draft' => 'Rascunho',
+                                'editing' => 'Em edição',
+                                'ready' => 'Pronto',
+                                'scheduled' => 'Agendado',
+                                'published' => 'Publicado',
+                            ])
+                            ->default('draft')
+                            ->required(),
                     ]),
             ]);
     }
