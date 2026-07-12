@@ -4,11 +4,14 @@ namespace App\Filament\Resources\ContentProjects\Schemas;
 
 use App\Models\Brand;
 use App\Models\Client;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
+use Filament\Schemas\Components\Wizard;
+use Filament\Schemas\Components\Wizard\Step;
 use Filament\Schemas\Schema;
 
 class ContentProjectForm
@@ -17,94 +20,131 @@ class ContentProjectForm
     {
         return $schema
             ->components([
-                Section::make('1. Cliente e Brand Kit')
-                    ->description('Escolha para quem este conteúdo será criado. O Brand Kit orienta tom de voz, público e estilo da IA.')
-                    ->schema([
-                        Grid::make(2)->schema([
+                Wizard::make([
+                    Step::make('Cliente')
+                        ->icon('heroicon-o-user-group')
+                        ->description('Escolha para quem o conteúdo será criado.')
+                        ->schema([
                             Select::make('client_id')
                                 ->label('Cliente')
                                 ->options(fn () => Client::query()->orderBy('name')->pluck('name', 'id'))
                                 ->searchable()
                                 ->preload()
+                                ->live()
+                                ->afterStateUpdated(fn ($set) => $set('brand_id', null))
                                 ->required(),
 
                             Select::make('brand_id')
                                 ->label('Brand Kit')
-                                ->options(fn () => Brand::query()->orderBy('name')->pluck('name', 'id'))
+                                ->options(function ($get) {
+                                    $clientId = $get('client_id');
+
+                                    if (! $clientId) {
+                                        return [];
+                                    }
+
+                                    return Brand::query()
+                                        ->where('client_id', $clientId)
+                                        ->where('status', 'active')
+                                        ->orderBy('name')
+                                        ->pluck('name', 'id');
+                                })
                                 ->searchable()
                                 ->preload()
-                                ->required(),
+                                ->required()
+                                ->disabled(fn ($get) => blank($get('client_id'))),
                         ]),
-                    ]),
 
-                Section::make('2. Estratégia do conteúdo')
-                    ->description('Defina o objetivo, rede social e formato. Esta etapa funciona como o briefing do BestContent.')
-                    ->schema([
-                        Grid::make(3)->schema([
+                    Step::make('Formato')
+                        ->icon('heroicon-o-device-phone-mobile')
+                        ->description('Defina rede social e tipo de conteúdo.')
+                        ->schema([
+                            Grid::make(2)->schema([
+                                Select::make('channel')
+                                    ->label('Rede social')
+                                    ->options([
+                                        'instagram' => 'Instagram',
+                                        'facebook' => 'Facebook',
+                                        'linkedin' => 'LinkedIn',
+                                        'tiktok' => 'TikTok',
+                                        'threads' => 'Threads',
+                                        'whatsapp' => 'WhatsApp',
+                                    ])
+                                    ->default('instagram')
+                                    ->required(),
+
+                                Select::make('format')
+                                    ->label('O que deseja criar?')
+                                    ->options([
+                                        'post_portrait' => 'Post para feed',
+                                        'carousel_portrait' => 'Carrossel',
+                                        'stories' => 'Story',
+                                        'reels' => 'Reels',
+                                        'facebook_post' => 'Post para Facebook',
+                                        'linkedin_post' => 'Post para LinkedIn',
+                                    ])
+                                    ->default('post_portrait')
+                                    ->required(),
+                            ]),
+                        ]),
+
+                    Step::make('Objetivo')
+                        ->icon('heroicon-o-bullseye')
+                        ->description('Informe o resultado que o conteúdo deve gerar.')
+                        ->schema([
                             Select::make('objective')
-                                ->label('Objetivo')
+                                ->label('Objetivo principal')
                                 ->options([
-                                    'engagement' => 'Engajar',
                                     'sales' => 'Vender',
-                                    'education' => 'Educar',
-                                    'authority' => 'Autoridade',
-                                    'community' => 'Comunidade',
+                                    'engagement' => 'Gerar engajamento',
+                                    'authority' => 'Construir autoridade',
+                                    'education' => 'Educar o público',
+                                    'community' => 'Fortalecer comunidade',
+                                    'institutional' => 'Conteúdo institucional',
+                                    'event' => 'Divulgar evento',
+                                    'launch' => 'Divulgar lançamento',
                                 ])
                                 ->default('engagement')
                                 ->required(),
-
-                            Select::make('channel')
-                                ->label('Canal')
-                                ->options([
-                                    'instagram' => 'Instagram',
-                                    'facebook' => 'Facebook',
-                                    'linkedin' => 'LinkedIn',
-                                    'tiktok' => 'TikTok',
-                                    'whatsapp' => 'WhatsApp',
-                                ])
-                                ->default('instagram')
-                                ->required(),
-
-                            Select::make('format')
-                                ->label('Formato')
-                                ->options([
-                                    'post_portrait' => 'Post Portrait',
-                                    'carousel_portrait' => 'Carrossel Portrait',
-                                    'stories' => 'Stories',
-                                    'reels' => 'Reels',
-                                    'facebook_post' => 'Facebook Post',
-                                    'linkedin_post' => 'LinkedIn Post',
-                                ])
-                                ->default('post_portrait')
-                                ->required(),
                         ]),
-                    ]),
 
-                Section::make('3. Ideia principal')
-                    ->description('Escreva em linguagem simples. Ao criar o projeto, a IA gera título, legenda, CTA, hashtags, score e slides.')
-                    ->schema([
-                        Textarea::make('idea')
-                            ->label('O que você deseja comunicar?')
-                            ->placeholder('Ex.: Criar uma campanha para divulgar uma promoção de inverno no Instagram.')
-                            ->rows(5)
-                            ->required()
-                            ->columnSpanFull(),
-                    ]),
+                    Step::make('Tema')
+                        ->icon('heroicon-o-sparkles')
+                        ->description('Escreva apenas a ideia. O Studio fará o restante.')
+                        ->schema([
+                            Textarea::make('idea')
+                                ->label('Sobre o que devemos criar?')
+                                ->placeholder('Ex.: Campanha de inverno com desconto especial durante esta semana.')
+                                ->helperText('Inclua datas, oferta, produto ou informação obrigatória quando necessário.')
+                                ->rows(7)
+                                ->required()
+                                ->columnSpanFull(),
 
-                Section::make('4. Resultado gerado pela IA')
-                    ->description('Depois que o conteúdo for criado, estes campos serão preenchidos automaticamente e poderão ser editados.')
+                            Hidden::make('status')->default('draft'),
+                            Hidden::make('generation_method')->default('from_scratch'),
+                        ]),
+                ])
+                    ->columnSpanFull()
+                    ->persistStepInQueryString('etapa'),
+
+                Section::make('Conteúdo gerado')
+                    ->description('Edite o material após a geração automática do Studio.')
+                    ->visibleOn('edit')
                     ->schema([
                         Grid::make(2)->schema([
-                            TextInput::make('title')->label('Título gerado'),
+                            TextInput::make('title')->label('Título'),
                             TextInput::make('score')->label('Score IA')->numeric(),
                         ]),
 
-                        Textarea::make('caption')->label('Legenda final')->rows(8)->columnSpanFull(),
-                        Textarea::make('cta')->label('CTA')->rows(2),
-                        Textarea::make('hashtags')->label('Hashtags')->rows(2),
+                        Textarea::make('caption')->label('Legenda')->rows(10)->columnSpanFull(),
+
+                        Grid::make(2)->schema([
+                            Textarea::make('cta')->label('Chamada para ação')->rows(3),
+                            Textarea::make('hashtags')->label('Hashtags')->rows(3),
+                        ]),
 
                         Select::make('status')
-                            ->label('Status')
+                            ->label('Status editorial')
                             ->options([
                                 'draft' => 'Rascunho',
                                 'editing' => 'Em edição',
