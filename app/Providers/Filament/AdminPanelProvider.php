@@ -2,7 +2,9 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Widgets\RecentContent;
 use App\Filament\Widgets\StudioOverview;
+use App\Filament\Widgets\StudioQuickCreate;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -29,7 +31,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Vitrine AI STUDIO PRO')
+            ->brandName('Vitrine IA STUDIO PRO')
             ->colors([
                 'primary' => Color::Cyan,
             ])
@@ -45,7 +47,9 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
                 AccountWidget::class,
+                StudioQuickCreate::class,
                 StudioOverview::class,
+                RecentContent::class,
             ])
             ->middleware([
                 EncryptCookies::class,
