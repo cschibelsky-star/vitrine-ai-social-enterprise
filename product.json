@@ -1,0 +1,41 @@
+{
+  "key": "vitrine-ai-social-enterprise",
+  "name": "Vitrine AI Social Enterprise",
+  "version": "0.9.0",
+  "status": "homologation",
+  "runtime": {
+    "type": "laravel-13-filament-5",
+    "database": "sqlite-local",
+    "containerized": true
+  },
+  "health": {
+    "path": "/health",
+    "expected_status": 200
+  },
+  "core": {
+    "authentication": "local-filament-migrate-to-core",
+    "licensing": "core-future",
+    "commercial_leads": "core-future"
+  },
+  "dependencies": [
+    "PHP 8.3",
+    "Laravel 13.8",
+    "Filament 5.6",
+    "Redis disponível no ambiente Docker",
+    "Vitrine AI Pro CORE para autenticação e licenciamento futuros"
+  ],
+  "capabilities": [
+    "AI Content Studio",
+    "wizard de criação de conteúdo",
+    "preview visual",
+    "histórico e versionamento",
+    "refinamento de conteúdo",
+    "worker e scheduler"
+  ],
+  "notes": [
+    "O README ainda era o padrão do Laravel e não descrevia o produto.",
+    "SQLite é o padrão local declarado no .env.example.",
+    "O deploy atual usa compose.studio.yml e containers separados para app, worker e scheduler.",
+    "Autenticação e licenciamento ainda não estão integrados ao CORE."
+  ]
+}

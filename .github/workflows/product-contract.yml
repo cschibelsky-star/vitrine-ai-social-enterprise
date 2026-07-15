@@ -1,0 +1,26 @@
+name: Product Contract
+
+on:
+  pull_request:
+    paths:
+      - 'product.json'
+      - 'routes/web.php'
+      - '.github/workflows/product-contract.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: Validate manifest
+        run: php -r '$data=json_decode(file_get_contents("product.json"), true, 512, JSON_THROW_ON_ERROR); foreach (["key","name","version","status","runtime","health","core","dependencies"] as $field) { if (!array_key_exists($field, $data)) { fwrite(STDERR, "Campo ausente: $field\n"); exit(1); } }'
+      - name: Validate PHP syntax
+        run: php -l routes/web.php
