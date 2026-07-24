@@ -2,6 +2,8 @@
 
 namespace App\Filament\Resources\EditorialPlannings\Tables;
 
+use App\Filament\Resources\EditorialPlannings\EditorialPlanningResource;
+use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
@@ -51,6 +53,11 @@ class EditorialPlanningsTable
                 ]),
             ])
             ->recordActions([
+                Action::make('workspace')
+                    ->label('Workspace')
+                    ->icon('heroicon-o-rectangle-group')
+                    ->color('primary')
+                    ->url(fn ($record): string => EditorialPlanningResource::getUrl('workspace', ['record' => $record])),
                 EditAction::make(),
             ])
             ->toolbarActions([
