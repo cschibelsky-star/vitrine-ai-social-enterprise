@@ -4,6 +4,7 @@ namespace App\Filament\Resources\EditorialPlannings;
 
 use App\Filament\Resources\EditorialPlannings\Pages\CreateEditorialPlanning;
 use App\Filament\Resources\EditorialPlannings\Pages\EditEditorialPlanning;
+use App\Filament\Resources\EditorialPlannings\Pages\EditorialPlanningWorkspace;
 use App\Filament\Resources\EditorialPlannings\Pages\ListEditorialPlannings;
 use App\Filament\Resources\EditorialPlannings\Schemas\EditorialPlanningForm;
 use App\Filament\Resources\EditorialPlannings\Tables\EditorialPlanningsTable;
@@ -38,6 +39,7 @@ class EditorialPlanningResource extends Resource
         return [
             'index' => ListEditorialPlannings::route('/'),
             'create' => CreateEditorialPlanning::route('/create'),
+            'workspace' => EditorialPlanningWorkspace::route('/{record}/workspace'),
             'edit' => EditEditorialPlanning::route('/{record}/edit'),
         ];
     }
