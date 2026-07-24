@@ -29,8 +29,9 @@
                 </div>
 
                 @if (! $this->record->contentProject)
-                    <x-filament::button wire:click="startProduction" icon="heroicon-o-play">
-                        Iniciar produção
+                    <x-filament::button wire:click="startProduction" wire:loading.attr="disabled" wire:target="startProduction" icon="heroicon-o-play">
+                        <span wire:loading.remove wire:target="startProduction">Iniciar produção</span>
+                        <span wire:loading wire:target="startProduction">Iniciando...</span>
                     </x-filament::button>
                 @else
                     <span class="rounded-full bg-success-50 px-3 py-1 text-sm font-medium text-success-700 dark:bg-success-500/10 dark:text-success-400">
@@ -59,29 +60,42 @@
                     <div class="mt-4 space-y-4">
                         <div>
                             <label class="mb-1 block text-sm font-medium">Legenda</label>
-                            <textarea wire:model.defer="caption" rows="10" class="w-full rounded-lg border-gray-300 shadow-sm dark:border-white/10 dark:bg-gray-950"></textarea>
+                            <textarea wire:model.live.debounce.400ms="caption" rows="10" class="w-full rounded-lg border-gray-300 shadow-sm dark:border-white/10 dark:bg-gray-950"></textarea>
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-medium">Chamada para ação</label>
-                            <input wire:model.defer="cta" type="text" class="w-full rounded-lg border-gray-300 shadow-sm dark:border-white/10 dark:bg-gray-950">
+                            <input wire:model.live.debounce.400ms="cta" type="text" class="w-full rounded-lg border-gray-300 shadow-sm dark:border-white/10 dark:bg-gray-950">
                         </div>
                         <div>
                             <label class="mb-1 block text-sm font-medium">Hashtags</label>
-                            <textarea wire:model.defer="hashtags" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm dark:border-white/10 dark:bg-gray-950"></textarea>
+                            <textarea wire:model.live.debounce.400ms="hashtags" rows="3" class="w-full rounded-lg border-gray-300 shadow-sm dark:border-white/10 dark:bg-gray-950"></textarea>
                         </div>
                     </div>
 
                     <div class="mt-5 flex flex-wrap gap-3">
-                        <x-filament::button wire:click="saveDraft" icon="heroicon-o-check" :disabled="! $this->record->contentProject">
-                            Salvar rascunho
+                        <x-filament::button wire:click="saveDraft" wire:loading.attr="disabled" wire:target="saveDraft" icon="heroicon-o-check" :disabled="! $this->record->contentProject">
+                            <span wire:loading.remove wire:target="saveDraft">Salvar rascunho</span>
+                            <span wire:loading wire:target="saveDraft">Salvando...</span>
                         </x-filament::button>
-                        <x-filament::button color="gray" icon="heroicon-o-sparkles" disabled>
-                            Gerar com IA
+
+                        <x-filament::button
+                            wire:click="generateWithAI"
+                            wire:loading.attr="disabled"
+                            wire:target="generateWithAI"
+                            icon="heroicon-o-sparkles"
+                        >
+                            <span wire:loading.remove wire:target="generateWithAI">Gerar com IA</span>
+                            <span wire:loading wire:target="generateWithAI">Gerando conteúdo...</span>
                         </x-filament::button>
+
                         <x-filament::button color="gray" icon="heroicon-o-photo" disabled>
                             Gerar imagem
                         </x-filament::button>
                     </div>
+
+                    <p wire:loading wire:target="generateWithAI" class="mt-3 text-sm text-primary-600 dark:text-primary-400">
+                        Consultando a biblioteca, verificando créditos e produzindo o conteúdo.
+                    </p>
                 </div>
 
                 <div class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm dark:border-white/10 dark:bg-gray-900">
