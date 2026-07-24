@@ -3,31 +3,35 @@
 namespace App\Filament\Resources\EditorialPlannings\Pages;
 
 use App\Filament\Resources\EditorialPlannings\EditorialPlanningResource;
+use App\Models\AiCreditTransaction;
 use App\Models\ContentProject;
+use App\Services\CreditService;
+use App\Services\OpenAiContentService;
+use App\Services\SocialContentPromptBuilder;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\Concerns\InteractsWithRecord;
 use Filament\Resources\Pages\Page;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Throwable;
 
 class EditorialPlanningWorkspace extends Page
 {
     use InteractsWithRecord;
 
     protected static string $resource = EditorialPlanningResource::class;
-
     protected string $view = 'filament.resources.editorial-plannings.pages.editorial-planning-workspace';
 
     public ?string $caption = null;
-
     public ?string $cta = null;
-
     public ?string $hashtags = null;
+    public bool $generatingWithAi = false;
 
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
         $this->record->load(['client', 'contentProject']);
-
         $this->fillEditorFromProject();
     }
 
@@ -45,7 +49,6 @@ class EditorialPlanningWorkspace extends Page
     {
         if ($this->record->contentProject) {
             $this->fillEditorFromProject();
-
             return;
         }
 
@@ -73,11 +76,83 @@ class EditorialPlanningWorkspace extends Page
         $this->record->refresh()->load(['client', 'contentProject']);
         $this->fillEditorFromProject();
 
-        Notification::make()
-            ->title('Produção iniciada')
-            ->body('O workspace foi vinculado a um novo projeto de conteúdo.')
-            ->success()
-            ->send();
+        Notification::make()->title('Produção iniciada')->success()->send();
+    }
+
+    public function generateWithAI(
+        SocialContentPromptBuilder $promptBuilder,
+        CreditService $creditService,
+        OpenAiContentService $openAiContentService,
+    ): void {
+        if ($this->generatingWithAi) {
+            return;
+        }
+
+        $this->generatingWithAi = true;
+        $transaction = null;
+
+        try {
+            if (! $this->record->contentProject) {
+                $this->startProduction();
+            }
+
+            $cacheKey = $promptBuilder->cacheKey($this->record);
+            $result = Cache::get($cacheKey);
+            $fromCache = is_array($result);
+
+            if (! $fromCache) {
+                $transaction = $creditService->reserve(
+                    $this->record->client,
+                    'text',
+                    'social_content_generation',
+                    (string) Str::uuid(),
+                    metadata: ['editorial_planning_id' => $this->record->getKey()],
+                );
+
+                $result = $openAiContentService->generate($promptBuilder->caption($this->record));
+                Cache::put($cacheKey, $result, now()->addDays(30));
+            }
+
+            $this->caption = $result['caption'];
+            $this->cta = $result['cta'];
+            $this->hashtags = $result['hashtags'];
+
+            $this->record->contentProject->update([
+                'caption' => $this->caption,
+                'cta' => $this->cta,
+                'hashtags' => $this->hashtags,
+                'generation_method' => $fromCache ? 'ai_cache' : 'ai',
+                'status' => 'writing',
+            ]);
+
+            if ($transaction instanceof AiCreditTransaction) {
+                $creditService->confirm(
+                    $transaction,
+                    'openai',
+                    $result['model'] ?? null,
+                    $result['estimated_cost'] ?? null,
+                );
+            }
+
+            Notification::make()
+                ->title($fromCache ? 'Conteúdo recuperado da biblioteca' : 'Conteúdo gerado com IA')
+                ->success()
+                ->send();
+        } catch (Throwable $exception) {
+            if ($transaction instanceof AiCreditTransaction) {
+                $creditService->rollback($transaction, ['error' => $exception->getMessage()]);
+            }
+
+            report($exception);
+
+            Notification::make()
+                ->title('Não foi possível gerar o conteúdo')
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
+        } finally {
+            $this->generatingWithAi = false;
+        }
     }
 
     public function saveDraft(): void
@@ -85,11 +160,7 @@ class EditorialPlanningWorkspace extends Page
         $project = $this->record->contentProject;
 
         if (! $project) {
-            Notification::make()
-                ->title('Inicie a produção primeiro')
-                ->warning()
-                ->send();
-
+            Notification::make()->title('Inicie a produção primeiro')->warning()->send();
             return;
         }
 
@@ -100,16 +171,12 @@ class EditorialPlanningWorkspace extends Page
             'status' => 'writing',
         ]);
 
-        Notification::make()
-            ->title('Rascunho salvo')
-            ->success()
-            ->send();
+        Notification::make()->title('Rascunho salvo')->success()->send();
     }
 
     private function fillEditorFromProject(): void
     {
         $project = $this->record->contentProject;
-
         $this->caption = $project?->caption;
         $this->cta = $project?->cta;
         $this->hashtags = $project?->hashtags;
