@@ -25,6 +25,17 @@ class Client extends Model
         return $this->hasOne(AiCreditWallet::class);
     }
 
+    public function brands(): HasMany
+    {
+        return $this->hasMany(Brand::class);
+    }
+
+    public function activeBrand(): HasOne
+    {
+        return $this->hasOne(Brand::class)
+            ->ofMany('id', 'max', fn ($query) => $query->where('status', 'active'));
+    }
+
     public function editorialPlannings(): HasMany
     {
         return $this->hasMany(EditorialPlanning::class);
