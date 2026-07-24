@@ -29,11 +29,19 @@ class EditorialPlanningWorkspace extends Page
     public ?string $hashtags = null;
     public bool $generatingWithAi = false;
 
+    /** @var array<int, array{id:int,title:string,channel:?string,format:?string,similarity:int,caption:string}> */
+    public array $libraryMatches = [];
+
+    public string $generationStage = 'ready';
+    public ?string $generationSource = null;
+    public ?string $generationMessage = null;
+
     public function mount(int|string $record): void
     {
         $this->record = $this->resolveRecord($record);
-        $this->record->load(['client', 'contentProject']);
+        $this->reloadWorkspaceData();
         $this->fillEditorFromProject();
+        $this->refreshLibraryMatches();
     }
 
     public function getTitle(): string
@@ -74,8 +82,10 @@ class EditorialPlanningWorkspace extends Page
             ]);
         });
 
-        $this->record->refresh()->load(['client', 'contentProject']);
+        $this->record->refresh();
+        $this->reloadWorkspaceData();
         $this->fillEditorFromProject();
+        $this->refreshLibraryMatches();
 
         Notification::make()->title('Produção iniciada')->success()->send();
     }
@@ -91,6 +101,9 @@ class EditorialPlanningWorkspace extends Page
         }
 
         $this->generatingWithAi = true;
+        $this->generationStage = 'searching_library';
+        $this->generationSource = null;
+        $this->generationMessage = 'Consultando conteúdos semelhantes.';
         $transaction = null;
 
         try {
@@ -109,6 +122,10 @@ class EditorialPlanningWorkspace extends Page
                 $this->caption = $project->caption;
                 $this->cta = $project->cta;
                 $this->hashtags = $project->hashtags;
+                $this->generationStage = 'completed';
+                $this->generationSource = 'library';
+                $this->generationMessage = 'Conteúdo reutilizado da Biblioteca Inteligente sem consumo de créditos.';
+                $this->refreshLibraryMatches();
 
                 Notification::make()
                     ->title('Conteúdo reutilizado da Biblioteca Inteligente')
@@ -119,11 +136,17 @@ class EditorialPlanningWorkspace extends Page
                 return;
             }
 
+            $this->generationStage = 'checking_cache';
+            $this->generationMessage = 'Nenhuma reutilização automática encontrada. Verificando o cache.';
+
             $cacheKey = $promptBuilder->cacheKey($this->record);
             $result = Cache::get($cacheKey);
             $fromCache = is_array($result);
 
             if (! $fromCache) {
+                $this->generationStage = 'generating_ai';
+                $this->generationMessage = 'Gerando novo conteúdo com inteligência artificial.';
+
                 $transaction = $creditService->reserve(
                     $this->record->client,
                     'text',
@@ -157,6 +180,13 @@ class EditorialPlanningWorkspace extends Page
                 );
             }
 
+            $this->generationStage = 'completed';
+            $this->generationSource = $fromCache ? 'cache' : 'ai';
+            $this->generationMessage = $fromCache
+                ? 'Conteúdo recuperado do cache sem consumo de créditos.'
+                : 'Novo conteúdo gerado e salvo no projeto.';
+            $this->refreshLibraryMatches();
+
             Notification::make()
                 ->title($fromCache ? 'Conteúdo recuperado do cache' : 'Conteúdo gerado com IA')
                 ->body($fromCache ? 'Nenhum crédito foi consumido.' : null)
@@ -166,6 +196,10 @@ class EditorialPlanningWorkspace extends Page
             if ($transaction instanceof AiCreditTransaction) {
                 $creditService->rollback($transaction, ['error' => $exception->getMessage()]);
             }
+
+            $this->generationStage = 'failed';
+            $this->generationSource = null;
+            $this->generationMessage = 'A geração não foi concluída. Revise a mensagem de erro e tente novamente.';
 
             report($exception);
 
@@ -195,7 +229,36 @@ class EditorialPlanningWorkspace extends Page
             'status' => 'writing',
         ]);
 
+        $this->generationStage = 'completed';
+        $this->generationSource = 'manual';
+        $this->generationMessage = 'Rascunho salvo manualmente.';
+        $this->refreshLibraryMatches();
+
         Notification::make()->title('Rascunho salvo')->success()->send();
+    }
+
+    private function reloadWorkspaceData(): void
+    {
+        $this->record->load([
+            'client.activeBrand',
+            'client.aiCreditWallet',
+            'contentProject',
+        ]);
+    }
+
+    private function refreshLibraryMatches(): void
+    {
+        $this->libraryMatches = app(ContentLibraryService::class)
+            ->matches($this->record, 5)
+            ->map(fn (array $match): array => [
+                'id' => (int) $match['project']->getKey(),
+                'title' => $match['project']->title ?: 'Conteúdo sem título',
+                'channel' => $match['project']->channel,
+                'format' => $match['project']->format,
+                'similarity' => (int) round($match['similarity'] * 100),
+                'caption' => Str::limit((string) $match['project']->caption, 150),
+            ])
+            ->all();
     }
 
     private function fillEditorFromProject(): void
