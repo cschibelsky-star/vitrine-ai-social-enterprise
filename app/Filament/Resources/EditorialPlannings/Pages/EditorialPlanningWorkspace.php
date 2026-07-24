@@ -5,6 +5,7 @@ namespace App\Filament\Resources\EditorialPlannings\Pages;
 use App\Filament\Resources\EditorialPlannings\EditorialPlanningResource;
 use App\Models\AiCreditTransaction;
 use App\Models\ContentProject;
+use App\Services\ContentLibraryService;
 use App\Services\CreditService;
 use App\Services\OpenAiContentService;
 use App\Services\SocialContentPromptBuilder;
@@ -81,6 +82,7 @@ class EditorialPlanningWorkspace extends Page
 
     public function generateWithAI(
         SocialContentPromptBuilder $promptBuilder,
+        ContentLibraryService $contentLibraryService,
         CreditService $creditService,
         OpenAiContentService $openAiContentService,
     ): void {
@@ -94,6 +96,27 @@ class EditorialPlanningWorkspace extends Page
         try {
             if (! $this->record->contentProject) {
                 $this->startProduction();
+            }
+
+            $libraryMatch = $contentLibraryService->bestReusableMatch($this->record);
+
+            if ($libraryMatch) {
+                $project = $contentLibraryService->reuse(
+                    $libraryMatch['project'],
+                    $this->record->contentProject,
+                );
+
+                $this->caption = $project->caption;
+                $this->cta = $project->cta;
+                $this->hashtags = $project->hashtags;
+
+                Notification::make()
+                    ->title('Conteúdo reutilizado da Biblioteca Inteligente')
+                    ->body('Similaridade encontrada: '.number_format($libraryMatch['similarity'] * 100, 0).'% — nenhum crédito foi consumido.')
+                    ->success()
+                    ->send();
+
+                return;
             }
 
             $cacheKey = $promptBuilder->cacheKey($this->record);
@@ -135,7 +158,8 @@ class EditorialPlanningWorkspace extends Page
             }
 
             Notification::make()
-                ->title($fromCache ? 'Conteúdo recuperado da biblioteca' : 'Conteúdo gerado com IA')
+                ->title($fromCache ? 'Conteúdo recuperado do cache' : 'Conteúdo gerado com IA')
+                ->body($fromCache ? 'Nenhum crédito foi consumido.' : null)
                 ->success()
                 ->send();
         } catch (Throwable $exception) {
