@@ -18,12 +18,15 @@ class ContentProjectForm
 {
     public static function configure(Schema $schema): Schema
     {
+        $category = self::selectedCategory();
+        $content = self::categoryContent($category);
+
         return $schema
             ->components([
                 Wizard::make([
                     Step::make('Cliente')
                         ->icon('heroicon-o-user-group')
-                        ->description('Escolha para quem o conteúdo será criado.')
+                        ->description('Para quem vamos criar este conteúdo?')
                         ->schema([
                             Select::make('client_id')
                                 ->label('Cliente')
@@ -35,7 +38,7 @@ class ContentProjectForm
                                 ->required(),
 
                             Select::make('brand_id')
-                                ->label('Brand Kit')
+                                ->label('Identidade visual')
                                 ->options(function ($get) {
                                     $clientId = $get('client_id');
 
@@ -55,9 +58,26 @@ class ContentProjectForm
                                 ->disabled(fn ($get) => blank($get('client_id'))),
                         ]),
 
-                    Step::make('Formato')
+                    Step::make($content['step'])
+                        ->icon($content['icon'])
+                        ->description($content['description'])
+                        ->schema([
+                            Textarea::make('idea')
+                                ->label($content['question'])
+                                ->placeholder($content['placeholder'])
+                                ->helperText('Escreva do seu jeito. Inclua preço, data, oferta ou outra informação importante, quando houver. A VIA organiza o restante.')
+                                ->rows(7)
+                                ->required()
+                                ->columnSpanFull(),
+
+                            Hidden::make('objective')->default($content['objective']),
+                            Hidden::make('status')->default('draft'),
+                            Hidden::make('generation_method')->default('from_scratch'),
+                        ]),
+
+                    Step::make('Onde publicar')
                         ->icon('heroicon-o-device-phone-mobile')
-                        ->description('Defina rede social e tipo de conteúdo.')
+                        ->description('Escolha o canal e o formato. A VIA já sugere as opções mais simples.')
                         ->schema([
                             Grid::make(2)->schema([
                                 Select::make('channel')
@@ -74,7 +94,7 @@ class ContentProjectForm
                                     ->required(),
 
                                 Select::make('format')
-                                    ->label('O que deseja criar?')
+                                    ->label('Formato')
                                     ->options([
                                         'post_portrait' => 'Post para feed',
                                         'carousel_portrait' => 'Carrossel',
@@ -86,42 +106,6 @@ class ContentProjectForm
                                     ->default('post_portrait')
                                     ->required(),
                             ]),
-                        ]),
-
-                    Step::make('Objetivo')
-                        ->icon('heroicon-o-bullseye')
-                        ->description('Informe o resultado que o conteúdo deve gerar.')
-                        ->schema([
-                            Select::make('objective')
-                                ->label('Objetivo principal')
-                                ->options([
-                                    'sales' => 'Vender',
-                                    'engagement' => 'Gerar engajamento',
-                                    'authority' => 'Construir autoridade',
-                                    'education' => 'Educar o público',
-                                    'community' => 'Fortalecer comunidade',
-                                    'institutional' => 'Conteúdo institucional',
-                                    'event' => 'Divulgar evento',
-                                    'launch' => 'Divulgar lançamento',
-                                ])
-                                ->default('engagement')
-                                ->required(),
-                        ]),
-
-                    Step::make('Tema')
-                        ->icon('heroicon-o-sparkles')
-                        ->description('Escreva apenas a ideia. O Studio fará o restante.')
-                        ->schema([
-                            Textarea::make('idea')
-                                ->label('Sobre o que devemos criar?')
-                                ->placeholder('Ex.: Campanha de inverno com desconto especial durante esta semana.')
-                                ->helperText('Inclua datas, oferta, produto ou informação obrigatória quando necessário.')
-                                ->rows(7)
-                                ->required()
-                                ->columnSpanFull(),
-
-                            Hidden::make('status')->default('draft'),
-                            Hidden::make('generation_method')->default('from_scratch'),
                         ]),
                 ])
                     ->columnSpanFull()
@@ -156,5 +140,87 @@ class ContentProjectForm
                             ->required(),
                     ]),
             ]);
+    }
+
+    private static function selectedCategory(): string
+    {
+        $category = (string) request()->query('category', 'outro');
+
+        return array_key_exists($category, self::categories()) ? $category : 'outro';
+    }
+
+    private static function categoryContent(string $category): array
+    {
+        return self::categories()[$category];
+    }
+
+    private static function categories(): array
+    {
+        return [
+            'promocao' => [
+                'step' => 'Sua promoção',
+                'icon' => 'heroicon-o-tag',
+                'description' => 'Vamos transformar sua oferta em uma publicação atrativa.',
+                'question' => 'Conte qual produto ou serviço está em promoção.',
+                'placeholder' => 'Ex.: Pizza grande por R$ 49,90 até domingo.',
+                'objective' => 'sales',
+            ],
+            'produto_servico' => [
+                'step' => 'Produto ou serviço',
+                'icon' => 'heroicon-o-shopping-bag',
+                'description' => 'Apresente o que sua empresa oferece de forma clara.',
+                'question' => 'Qual produto ou serviço você quer apresentar?',
+                'placeholder' => 'Ex.: Limpeza de pele com avaliação personalizada.',
+                'objective' => 'sales',
+            ],
+            'evento' => [
+                'step' => 'Seu evento',
+                'icon' => 'heroicon-o-calendar-days',
+                'description' => 'Informe os dados principais e a VIA prepara a divulgação.',
+                'question' => 'Conte qual evento você quer divulgar.',
+                'placeholder' => 'Ex.: Feira de negócios, sábado, às 10h, no centro da cidade.',
+                'objective' => 'event',
+            ],
+            'dica' => [
+                'step' => 'Sua dica',
+                'icon' => 'heroicon-o-light-bulb',
+                'description' => 'Compartilhe uma orientação útil com seu público.',
+                'question' => 'Qual dica você quer compartilhar?',
+                'placeholder' => 'Ex.: Três cuidados para conservar melhor seus alimentos.',
+                'objective' => 'education',
+            ],
+            'novidade' => [
+                'step' => 'Sua novidade',
+                'icon' => 'heroicon-o-newspaper',
+                'description' => 'Conte o que mudou ou chegou de novo na sua empresa.',
+                'question' => 'Qual novidade você quer contar?',
+                'placeholder' => 'Ex.: Agora também atendemos aos sábados.',
+                'objective' => 'engagement',
+            ],
+            'data_especial' => [
+                'step' => 'Data especial',
+                'icon' => 'heroicon-o-heart',
+                'description' => 'Crie uma homenagem adequada à ocasião.',
+                'question' => 'Qual data ou ocasião você quer homenagear?',
+                'placeholder' => 'Ex.: Dia das Mães, com uma mensagem carinhosa para nossas clientes.',
+                'objective' => 'community',
+            ],
+            'comunicado' => [
+                'step' => 'Seu comunicado',
+                'icon' => 'heroicon-o-megaphone',
+                'description' => 'Transmita uma informação importante com clareza.',
+                'question' => 'O que você precisa comunicar?',
+                'placeholder' => 'Ex.: Não abriremos na segunda-feira por causa do feriado.',
+                'objective' => 'institutional',
+            ],
+            'outro' => [
+                'step' => 'Sua ideia',
+                'icon' => 'heroicon-o-sparkles',
+                'description' => 'Conte sua ideia. A VIA ajuda a transformar em conteúdo.',
+                'question' => 'Que conteúdo você quer criar?',
+                'placeholder' => 'Escreva sua ideia com as informações que considerar importantes.',
+                'objective' => 'engagement',
+            ],
+        ];
     }
 }
