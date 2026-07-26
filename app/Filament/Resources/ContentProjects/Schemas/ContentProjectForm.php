@@ -71,41 +71,10 @@ class ContentProjectForm
                                 ->columnSpanFull(),
 
                             Hidden::make('objective')->default($content['objective']),
+                            Hidden::make('channel')->default('instagram'),
+                            Hidden::make('format')->default('post_portrait'),
                             Hidden::make('status')->default('draft'),
                             Hidden::make('generation_method')->default('from_scratch'),
-                        ]),
-
-                    Step::make('Onde publicar')
-                        ->icon('heroicon-o-device-phone-mobile')
-                        ->description('Escolha o canal e o formato. A VIA já sugere as opções mais simples.')
-                        ->schema([
-                            Grid::make(2)->schema([
-                                Select::make('channel')
-                                    ->label('Rede social')
-                                    ->options([
-                                        'instagram' => 'Instagram',
-                                        'facebook' => 'Facebook',
-                                        'linkedin' => 'LinkedIn',
-                                        'tiktok' => 'TikTok',
-                                        'threads' => 'Threads',
-                                        'whatsapp' => 'WhatsApp',
-                                    ])
-                                    ->default('instagram')
-                                    ->required(),
-
-                                Select::make('format')
-                                    ->label('Formato')
-                                    ->options([
-                                        'post_portrait' => 'Post para feed',
-                                        'carousel_portrait' => 'Carrossel',
-                                        'stories' => 'Story',
-                                        'reels' => 'Reels',
-                                        'facebook_post' => 'Post para Facebook',
-                                        'linkedin_post' => 'Post para LinkedIn',
-                                    ])
-                                    ->default('post_portrait')
-                                    ->required(),
-                            ]),
                         ]),
                 ])
                     ->columnSpanFull()
