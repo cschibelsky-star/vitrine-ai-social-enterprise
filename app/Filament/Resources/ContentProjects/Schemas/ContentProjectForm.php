@@ -63,7 +63,15 @@ class ContentProjectForm
                         ->description($content['description'])
                         ->schema([
                             Textarea::make('idea')
-                                ->label($content['question'])
+                                ->label(function ($get) use ($content): string {
+                                    $clientName = Client::query()->whereKey($get('client_id'))->value('name');
+
+                                    if (! $clientName) {
+                                        return $content['question'];
+                                    }
+
+                                    return "Vamos criar este conteúdo para {$clientName}. {$content['question']}";
+                                })
                                 ->placeholder($content['placeholder'])
                                 ->helperText('Escreva do seu jeito. Inclua preço, data, oferta ou outra informação importante, quando houver. A VIA organiza o restante.')
                                 ->rows(7)
