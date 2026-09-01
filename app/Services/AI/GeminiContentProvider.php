@@ -14,7 +14,7 @@ class GeminiContentProvider
     public function generate(ContentProject $project, $brand = null, $template = null): array
     {
         $apiKey = (string) config('services.gemini.key');
-        $model = (string) config('services.gemini.model', 'gemini-3.7-flash');
+        $model = (string) config('services.gemini.model', 'gemini-2.5-flash');
         $timeout = (int) config('services.gemini.timeout', 45);
 
         if ($apiKey === '') {
@@ -76,7 +76,7 @@ class GeminiContentProvider
 
     public function model(): string
     {
-        return (string) config('services.gemini.model', 'gemini-3.7-flash');
+        return (string) config('services.gemini.model', 'gemini-2.5-flash');
     }
 
     private function buildPrompt(ContentProject $project, $brand = null, $template = null): string
