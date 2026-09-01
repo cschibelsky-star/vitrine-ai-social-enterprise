@@ -11,7 +11,7 @@ return new class extends Migration
         Schema::table('users', function (Blueprint $table) {
             $table->foreignId('client_id')->nullable()->after('id')->constrained()->nullOnDelete();
             $table->foreignId('brand_id')->nullable()->after('client_id')->constrained()->nullOnDelete();
-            $table->string('role', 32)->default('client')->after('password');
+            $table->string('role', 32)->default('admin')->after('password');
             $table->string('status', 32)->default('active')->after('role');
             $table->index(['client_id', 'role', 'status']);
         });
