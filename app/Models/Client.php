@@ -17,4 +17,39 @@ class Client extends Model
         'facebook',
         'status',
     ];
+
+    public function brands()
+    {
+        return $this->hasMany(Brand::class);
+    }
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
+    public function subscriptions()
+    {
+        return $this->hasMany(ClientSubscription::class);
+    }
+
+    public function modules()
+    {
+        return $this->hasMany(ClientModule::class);
+    }
+
+    public function balances()
+    {
+        return $this->hasMany(ClientBalance::class);
+    }
+
+    public function consumptionLedger()
+    {
+        return $this->hasMany(ConsumptionLedger::class);
+    }
+
+    public function activeSubscription()
+    {
+        return $this->hasOne(ClientSubscription::class)->where('status', 'active')->latestOfMany();
+    }
 }
