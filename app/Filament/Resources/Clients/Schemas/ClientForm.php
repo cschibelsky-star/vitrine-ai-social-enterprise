@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Clients\Schemas;
 
+use App\Filament\Resources\Clients\Pages\CreateClient;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Grid;
@@ -39,6 +40,7 @@ class ClientForm
 
                 Section::make('Plano e saldo inicial')
                     ->description('Provisiona o primeiro período de uso para que o cliente não seja criado sem saldo operacional.')
+                    ->visible(fn ($livewire): bool => $livewire instanceof CreateClient)
                     ->schema([
                         Grid::make(2)->schema([
                             Select::make('initial_plan_code')
