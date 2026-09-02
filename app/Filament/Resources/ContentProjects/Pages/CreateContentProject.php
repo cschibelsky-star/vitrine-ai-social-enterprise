@@ -6,7 +6,9 @@ use App\Filament\Resources\ContentProjects\ContentProjectResource;
 use App\Services\ContentGenerationService;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class CreateContentProject extends CreateRecord
 {
@@ -20,10 +22,19 @@ class CreateContentProject extends CreateRecord
         return $data;
     }
 
+    protected function handleRecordCreation(array $data): Model
+    {
+        return DB::transaction(function () use ($data): Model {
+            $record = parent::handleRecordCreation($data);
+
+            app(ContentGenerationService::class)->generate($record, Auth::user());
+
+            return $record;
+        });
+    }
+
     protected function afterCreate(): void
     {
-        app(ContentGenerationService::class)->generate($this->record, Auth::user());
-
         Notification::make()
             ->title('Conteudo gerado com IA')
             ->body('Titulo, legenda, CTA, hashtags, score e slides foram gerados automaticamente.')
