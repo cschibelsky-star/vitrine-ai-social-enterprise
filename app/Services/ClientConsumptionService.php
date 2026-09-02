@@ -13,6 +13,12 @@ use Illuminate\Validation\ValidationException;
 
 class ClientConsumptionService
 {
+    private const MAX_AMOUNT = 999999999999.99;
+
+    private const MAX_UNIT_PRICE = 9999999999.9999;
+
+    private const MAX_CHARGED_AMOUNT = 999999999999.99;
+
     public function consume(
         Client $client,
         string $balanceType,
@@ -46,6 +52,26 @@ class ClientConsumptionService
             ]);
         }
 
+        if ($amount > self::MAX_AMOUNT) {
+            throw ValidationException::withMessages([
+                'amount' => 'O consumo excede o limite suportado para armazenamento.',
+            ]);
+        }
+
+        if ($unitPrice !== null && $unitPrice > self::MAX_UNIT_PRICE) {
+            throw ValidationException::withMessages([
+                'unit_price' => 'O preço unitário excede o limite suportado para armazenamento.',
+            ]);
+        }
+
+        $chargedAmount = $unitPrice !== null ? round($amount * $unitPrice, 2) : null;
+
+        if ($chargedAmount !== null && (! is_finite($chargedAmount) || $chargedAmount > self::MAX_CHARGED_AMOUNT)) {
+            throw ValidationException::withMessages([
+                'charged_amount' => 'O valor cobrado excede o limite suportado para armazenamento.',
+            ]);
+        }
+
         if ($reference) {
             $referenceClientId = $reference->getAttribute('client_id');
 
@@ -68,6 +94,7 @@ class ClientConsumptionService
             $amount,
             $unit,
             $unitPrice,
+            $chargedAmount,
             $reference,
             $description,
             $actor,
@@ -105,7 +132,6 @@ class ClientConsumptionService
             }
 
             $after = round($before - $amount, 2);
-            $chargedAmount = $unitPrice !== null ? round($amount * $unitPrice, 2) : null;
 
             $balance->forceFill([
                 'consumed' => round((float) $balance->consumed + $amount, 2),
