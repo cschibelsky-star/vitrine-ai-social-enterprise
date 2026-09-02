@@ -24,7 +24,6 @@ class ClientBalanceProvisioningService
                 ->where('client_id', $client->getKey())
                 ->where('plan_code', $planCode)
                 ->where('status', 'active')
-                ->where('starts_at', $periodStart)
                 ->first();
 
             if (! $matchingSubscription) {
@@ -38,7 +37,7 @@ class ClientBalanceProvisioningService
                     'plan_code' => $planCode,
                     'status' => 'active',
                     'starts_at' => $periodStart,
-                    'ends_at' => $periodEnd,
+                    'ends_at' => null,
                     'source' => $source,
                 ]);
             }
@@ -73,5 +72,34 @@ class ClientBalanceProvisioningService
                 );
             }
         });
+    }
+
+    public function renewCurrentPeriod(Client $client, string $source = 'scheduler'): void
+    {
+        $subscription = ClientSubscription::query()
+            ->where('client_id', $client->getKey())
+            ->where('status', 'active')
+            ->latest('id')
+            ->first();
+
+        $latestContentBalance = ClientBalance::query()
+            ->where('client_id', $client->getKey())
+            ->where('balance_type', 'content_credit')
+            ->orderByDesc('period_start')
+            ->orderByDesc('id')
+            ->first();
+
+        $periodStart = now()->startOfMonth();
+
+        $this->provision(
+            client: $client,
+            planCode: $subscription?->plan_code ?? 'essencial',
+            allowances: [
+                'content_credit' => $latestContentBalance ? (float) $latestContentBalance->granted : 1.00,
+            ],
+            periodStart: $periodStart,
+            periodEnd: $periodStart->copy()->endOfMonth(),
+            source: $source,
+        );
     }
 }
