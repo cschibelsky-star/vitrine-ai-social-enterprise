@@ -23,9 +23,12 @@ class ClientConsumptionService
         ?User $actor = null,
         array $metadata = [],
     ): ConsumptionLedger {
+        $amount = round($amount, 2);
+        $unitPrice = $unitPrice !== null ? round($unitPrice, 4) : null;
+
         if ($amount <= 0) {
             throw ValidationException::withMessages([
-                'amount' => 'O consumo deve ser maior que zero.',
+                'amount' => 'O consumo deve ser maior que zero após normalização para 2 casas decimais.',
             ]);
         }
 
@@ -59,7 +62,7 @@ class ClientConsumptionService
                 ]);
             }
 
-            $before = (float) $balance->available;
+            $before = round((float) $balance->available, 2);
             if ($before < $amount) {
                 throw ValidationException::withMessages([
                     'balance' => "Saldo insuficiente para {$balanceType}.",
