@@ -37,6 +37,29 @@ class ClientForm
                         ]),
                     ]),
 
+                Section::make('Plano e saldo inicial')
+                    ->description('Provisiona o primeiro período de uso para que o cliente não seja criado sem saldo operacional.')
+                    ->schema([
+                        Grid::make(2)->schema([
+                            Select::make('initial_plan_code')
+                                ->label('Plano inicial')
+                                ->options([
+                                    'essencial' => 'Essencial',
+                                    'pro' => 'Pro',
+                                    'premium' => 'Premium',
+                                ])
+                                ->default('essencial')
+                                ->required(),
+
+                            TextInput::make('initial_content_credits')
+                                ->label('Créditos de conteúdo iniciais')
+                                ->numeric()
+                                ->minValue(1)
+                                ->default(1)
+                                ->required(),
+                        ]),
+                    ]),
+
                 Section::make('Contato')
                     ->schema([
                         Grid::make(2)->schema([
