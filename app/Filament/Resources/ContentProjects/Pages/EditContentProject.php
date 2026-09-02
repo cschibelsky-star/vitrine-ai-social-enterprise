@@ -4,11 +4,12 @@ namespace App\Filament\Resources\ContentProjects\Pages;
 
 use App\Filament\Resources\ContentProjects\ContentProjectResource;
 use App\Filament\Widgets\ContentStudioPreview;
-use App\Services\AI\AiContentService;
 use App\Services\AI\ContentRefinementService;
+use App\Services\ContentGenerationService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Auth;
 
 class EditContentProject extends EditRecord
 {
@@ -29,7 +30,7 @@ class EditContentProject extends EditRecord
                 ->icon('heroicon-o-sparkles')
                 ->color('primary')
                 ->action(function () {
-                    app(AiContentService::class)->generateProject($this->record);
+                    app(ContentGenerationService::class)->generate($this->record, Auth::user());
                     $this->refreshStudio();
                     $this->notify('Conteúdo gerado novamente');
                 }),
