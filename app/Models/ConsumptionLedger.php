@@ -12,6 +12,10 @@ class ConsumptionLedger extends Model
         'balance_type',
         'movement_type',
         'amount',
+        'unit',
+        'unit_price',
+        'charged_amount',
+        'metadata',
         'reference_type',
         'reference_id',
         'description',
@@ -22,6 +26,9 @@ class ConsumptionLedger extends Model
 
     protected $casts = [
         'amount' => 'decimal:2',
+        'unit_price' => 'decimal:4',
+        'charged_amount' => 'decimal:2',
+        'metadata' => 'array',
         'balance_before' => 'decimal:2',
         'balance_after' => 'decimal:2',
     ];
