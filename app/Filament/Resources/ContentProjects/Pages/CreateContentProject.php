@@ -3,9 +3,10 @@
 namespace App\Filament\Resources\ContentProjects\Pages;
 
 use App\Filament\Resources\ContentProjects\ContentProjectResource;
-use App\Services\AI\AiContentService;
+use App\Services\ContentGenerationService;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Auth;
 
 class CreateContentProject extends CreateRecord
 {
@@ -21,7 +22,7 @@ class CreateContentProject extends CreateRecord
 
     protected function afterCreate(): void
     {
-        app(AiContentService::class)->generateProject($this->record);
+        app(ContentGenerationService::class)->generate($this->record, Auth::user());
 
         Notification::make()
             ->title('Conteudo gerado com IA')
