@@ -15,7 +15,16 @@ class ClientBalanceOverview extends StatsOverviewWidget
 
         $balances = ClientBalance::query()
             ->where('client_id', $clientId)
+            ->where(function ($query) {
+                $query->whereNull('period_start')->orWhere('period_start', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('period_end')->orWhere('period_end', '>=', now());
+            })
+            ->orderByDesc('period_start')
+            ->orderByDesc('id')
             ->get()
+            ->unique('balance_type')
             ->keyBy('balance_type');
 
         $content = $balances->get('content_credit');
