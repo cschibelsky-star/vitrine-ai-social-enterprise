@@ -49,13 +49,15 @@ class ClientBalanceProvisioningService
                     ]);
                 }
 
-                $granted = round((float) $granted, 2);
+                $granted = (float) $granted;
 
-                if ($granted < 0) {
+                if (! is_finite($granted) || $granted < 0 || $granted > 999999999999.99) {
                     throw ValidationException::withMessages([
-                        'allowances' => "O saldo inicial de {$balanceType} não pode ser negativo.",
+                        'allowances' => "O saldo inicial de {$balanceType} está fora do limite suportado.",
                     ]);
                 }
+
+                $granted = round($granted, 2);
 
                 ClientBalance::query()->firstOrCreate(
                     [
@@ -76,6 +78,20 @@ class ClientBalanceProvisioningService
 
     public function renewCurrentPeriod(Client $client, string $source = 'scheduler'): void
     {
+        $periodStart = now()->startOfMonth();
+
+        $this->provisionPeriod($client, $periodStart, $source);
+    }
+
+    public function provisionNextPeriod(Client $client, string $source = 'scheduler'): void
+    {
+        $periodStart = now()->addMonthNoOverflow()->startOfMonth();
+
+        $this->provisionPeriod($client, $periodStart, $source);
+    }
+
+    private function provisionPeriod(Client $client, CarbonInterface $periodStart, string $source): void
+    {
         $subscription = ClientSubscription::query()
             ->where('client_id', $client->getKey())
             ->where('status', 'active')
@@ -88,8 +104,6 @@ class ClientBalanceProvisioningService
             ->orderByDesc('period_start')
             ->orderByDesc('id')
             ->first();
-
-        $periodStart = now()->startOfMonth();
 
         $this->provision(
             client: $client,
