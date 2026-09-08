@@ -1,20 +1,24 @@
 <?php
 
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
     public function up(): void
     {
-        $periodStart = now()->startOfMonth();
+        // Historical recovery period for Build 1.1. Keep this deterministic so
+        // future installs do not silently provision balances for the month in
+        // which the migration happens to be executed.
+        $periodStart = Carbon::create(2026, 9, 1, 0, 0, 0);
         $periodEnd = $periodStart->copy()->endOfMonth();
-        $now = now();
+        $timestamp = $periodStart->copy();
 
         DB::table('clients')
             ->where('status', 'active')
             ->orderBy('id')
-            ->chunkById(100, function ($clients) use ($periodStart, $periodEnd, $now): void {
+            ->chunkById(100, function ($clients) use ($periodStart, $periodEnd, $timestamp): void {
                 foreach ($clients as $client) {
                     $activeSubscription = DB::table('client_subscriptions')
                         ->where('client_id', $client->id)
@@ -30,9 +34,9 @@ return new class extends Migration
                             'starts_at' => $periodStart,
                             'ends_at' => null,
                             'core_subscription_id' => null,
-                            'source' => 'build-1-1-backfill',
-                            'created_at' => $now,
-                            'updated_at' => $now,
+                            'source' => 'build-1-1-backfill-2026-09',
+                            'created_at' => $timestamp,
+                            'updated_at' => $timestamp,
                         ]);
                     }
 
@@ -49,6 +53,7 @@ return new class extends Migration
                     $latestGranted = DB::table('client_balances')
                         ->where('client_id', $client->id)
                         ->where('balance_type', 'content_credit')
+                        ->where('period_start', '<', $periodStart)
                         ->orderByDesc('period_start')
                         ->orderByDesc('id')
                         ->value('granted');
@@ -63,8 +68,8 @@ return new class extends Migration
                         'available' => $granted,
                         'period_start' => $periodStart,
                         'period_end' => $periodEnd,
-                        'created_at' => $now,
-                        'updated_at' => $now,
+                        'created_at' => $timestamp,
+                        'updated_at' => $timestamp,
                     ]);
                 }
             });
@@ -72,6 +77,7 @@ return new class extends Migration
 
     public function down(): void
     {
-        // Data backfill is intentionally not reversed to preserve consumption history.
+        // Historical data backfill is intentionally not reversed to preserve
+        // consumption and subscription history.
     }
 };
