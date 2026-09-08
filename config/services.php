@@ -10,7 +10,7 @@ return [
     | This file is for storing the credentials for third party services such
     | as Mailgun, Postmark, AWS and more. This file provides the de facto
     | location for this type of information, allowing packages to have
-    | a conventional file to locate the various service credentials.
+    | a conventional file to locate various service credentials.
     |
     */
 
@@ -33,6 +33,14 @@ return [
             'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
+    ],
+
+    'centro_ia' => [
+        'url' => env('CENTRO_IA_URL', 'http://vitrine_core_web_hml/api/internal/centro-ia/execute'),
+        'token' => env('CENTRO_IA_INTERNAL_TOKEN'),
+        'project_id' => env('CENTRO_IA_PROJECT_ID', 'vitrine-ai-social-enterprise'),
+        'capability' => env('CENTRO_IA_CAPABILITY', 'social_content_generation'),
+        'timeout' => (int) env('CENTRO_IA_TIMEOUT', 30),
     ],
 
 ];
