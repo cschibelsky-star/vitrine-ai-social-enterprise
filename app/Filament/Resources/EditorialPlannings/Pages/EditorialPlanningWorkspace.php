@@ -3,10 +3,9 @@
 namespace App\Filament\Resources\EditorialPlannings\Pages;
 
 use App\Filament\Resources\EditorialPlannings\EditorialPlanningResource;
-use App\Models\AiCreditTransaction;
 use App\Models\ContentProject;
+use App\Services\ClientConsumptionService;
 use App\Services\ContentLibraryService;
-use App\Services\CreditService;
 use App\Services\OpenAiContentService;
 use App\Services\SocialContentPromptBuilder;
 use Filament\Notifications\Notification;
@@ -93,7 +92,7 @@ class EditorialPlanningWorkspace extends Page
     public function generateWithAI(
         SocialContentPromptBuilder $promptBuilder,
         ContentLibraryService $contentLibraryService,
-        CreditService $creditService,
+        ClientConsumptionService $consumptionService,
         OpenAiContentService $openAiContentService,
     ): void {
         if ($this->generatingWithAi) {
@@ -104,7 +103,6 @@ class EditorialPlanningWorkspace extends Page
         $this->generationStage = 'searching_library';
         $this->generationSource = null;
         $this->generationMessage = 'Consultando conteúdos semelhantes.';
-        $transaction = null;
 
         try {
             if (! $this->record->contentProject) {
@@ -142,61 +140,68 @@ class EditorialPlanningWorkspace extends Page
             $cacheKey = $promptBuilder->cacheKey($this->record);
             $result = Cache::get($cacheKey);
             $fromCache = is_array($result);
+            $project = $this->record->contentProject;
 
             if (! $fromCache) {
                 $this->generationStage = 'generating_ai';
                 $this->generationMessage = 'Gerando novo conteúdo com inteligência artificial.';
+                $result = [];
 
-                $transaction = $creditService->reserve(
-                    $this->record->client,
-                    'text',
-                    'social_content_generation',
-                    (string) Str::uuid(),
-                    metadata: ['editorial_planning_id' => $this->record->getKey()],
+                $consumptionService->consume(
+                    client: $this->record->client,
+                    balanceType: 'content_credit',
+                    amount: 1.00,
+                    unit: 'content',
+                    reference: $project,
+                    description: 'Geração de conteúdo com IA no planejamento editorial',
+                    actor: auth()->user(),
+                    metadata: [
+                        'operation' => 'editorial_content_generation',
+                        'editorial_planning_id' => $this->record->getKey(),
+                        'provider' => 'openai',
+                    ],
+                    operation: function () use ($openAiContentService, $promptBuilder, $project, &$result): void {
+                        $result = $openAiContentService->generate($promptBuilder->caption($this->record));
+
+                        $project->update([
+                            'caption' => $result['caption'],
+                            'cta' => $result['cta'],
+                            'hashtags' => $result['hashtags'],
+                            'generation_method' => 'ai',
+                            'status' => 'writing',
+                        ]);
+                    },
                 );
 
-                $result = $openAiContentService->generate($promptBuilder->caption($this->record));
                 Cache::put($cacheKey, $result, now()->addDays(30));
+            } else {
+                $project->update([
+                    'caption' => $result['caption'],
+                    'cta' => $result['cta'],
+                    'hashtags' => $result['hashtags'],
+                    'generation_method' => 'ai_cache',
+                    'status' => 'writing',
+                ]);
             }
 
             $this->caption = $result['caption'];
             $this->cta = $result['cta'];
             $this->hashtags = $result['hashtags'];
 
-            $this->record->contentProject->update([
-                'caption' => $this->caption,
-                'cta' => $this->cta,
-                'hashtags' => $this->hashtags,
-                'generation_method' => $fromCache ? 'ai_cache' : 'ai',
-                'status' => 'writing',
-            ]);
-
-            if ($transaction instanceof AiCreditTransaction) {
-                $creditService->confirm(
-                    $transaction,
-                    'openai',
-                    $result['model'] ?? null,
-                    $result['estimated_cost'] ?? null,
-                );
-            }
-
             $this->generationStage = 'completed';
             $this->generationSource = $fromCache ? 'cache' : 'ai';
             $this->generationMessage = $fromCache
                 ? 'Conteúdo recuperado do cache sem consumo de créditos.'
-                : 'Novo conteúdo gerado e salvo no projeto.';
+                : 'Novo conteúdo gerado, salvo e registrado no consumo do cliente.';
+            $this->reloadWorkspaceData();
             $this->refreshLibraryMatches();
 
             Notification::make()
                 ->title($fromCache ? 'Conteúdo recuperado do cache' : 'Conteúdo gerado com IA')
-                ->body($fromCache ? 'Nenhum crédito foi consumido.' : null)
+                ->body($fromCache ? 'Nenhum crédito foi consumido.' : '1 crédito de conteúdo foi consumido.')
                 ->success()
                 ->send();
         } catch (Throwable $exception) {
-            if ($transaction instanceof AiCreditTransaction) {
-                $creditService->rollback($transaction, ['error' => $exception->getMessage()]);
-            }
-
             $this->generationStage = 'failed';
             $this->generationSource = null;
             $this->generationMessage = 'A geração não foi concluída. Revise a mensagem de erro e tente novamente.';
@@ -241,7 +246,7 @@ class EditorialPlanningWorkspace extends Page
     {
         $this->record->load([
             'client.activeBrand',
-            'client.aiCreditWallet',
+            'client.balances',
             'contentProject',
         ]);
     }
