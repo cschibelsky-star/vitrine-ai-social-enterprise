@@ -6,6 +6,7 @@ use App\Models\ContentGeneration;
 use App\Models\ContentProject;
 use App\Models\ContentSlide;
 use App\Models\PromptTemplate;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
 use Throwable;
 
@@ -20,17 +21,28 @@ class AiContentService
         $startedAt = microtime(true);
         $brand = $project->brand;
         $template = $this->findTemplate($project);
-        $provider = 'gemini';
-        $model = $this->gemini->model();
         $fallbackReason = null;
+        $executionId = null;
 
-        try {
-            $output = $this->gemini->generate($project, $brand, $template);
-        } catch (Throwable $exception) {
-            $provider = 'local';
-            $model = 'local-content-engine-v1';
-            $fallbackReason = $exception->getMessage();
-            $output = $this->generateLocally($project, $brand);
+        $hubResult = $this->generateWithCentroIa($project, $brand, $template);
+
+        if ($hubResult !== null) {
+            $output = $hubResult['output'];
+            $provider = 'centro-ia';
+            $model = (string) ($hubResult['model'] ?: 'hub-routed');
+            $executionId = $hubResult['execution_id'] ?? null;
+        } else {
+            try {
+                $output = $this->gemini->generate($project, $brand, $template);
+                $provider = 'gemini';
+                $model = $this->gemini->model();
+                $fallbackReason = 'Centro IA indisponível ou sem resposta válida.';
+            } catch (Throwable $exception) {
+                $provider = 'local';
+                $model = 'local-content-engine-v1';
+                $fallbackReason = 'Centro IA indisponível; Gemini falhou: '.$exception->getMessage();
+                $output = $this->generateLocally($project, $brand);
+            }
         }
 
         $project->update([
@@ -71,12 +83,133 @@ class AiContentService
                 'template_id' => $template?->id,
                 'brand_tone' => $brand?->tone_of_voice,
                 'target_audience' => $brand?->target_audience,
+                'centro_ia_execution_id' => $executionId,
+                'centro_ia_enabled' => $provider === 'centro-ia',
                 'fallback_reason' => $fallbackReason,
             ], static fn ($value) => $value !== null && $value !== ''),
             'latency_ms' => (int) ((microtime(true) - $startedAt) * 1000),
         ]);
 
         return $output;
+    }
+
+    private function generateWithCentroIa(ContentProject $project, $brand, ?PromptTemplate $template): ?array
+    {
+        $url = trim((string) config('services.centro_ia.url', ''));
+        $token = trim((string) config('services.centro_ia.token', ''));
+        $projectId = trim((string) config('services.centro_ia.project_id', 'vitrine-ai-social-enterprise'));
+        $capability = trim((string) config('services.centro_ia.capability', 'social_content_generation'));
+        $timeout = max(5, (int) config('services.centro_ia.timeout', 30));
+
+        if ($url === '' || $token === '' || $projectId === '' || $capability === '') {
+            return null;
+        }
+
+        $system = 'Você é o agente de Marketing IA do Hub da Vitrine IA Pro. '
+            . 'Gere conteúdo de social mídia pronto para edição humana. '
+            . 'Responda SOMENTE JSON válido com: title, caption, cta, hashtags, score e slides. '
+            . 'hashtags deve ser string. score deve ser número de 0 a 10. '
+            . 'slides deve ser array com exatamente 3 itens contendo slide_number, title, body, visual_instruction e layout_type. '
+            . 'Não invente dados factuais que não estejam na solicitação.';
+
+        $user = json_encode([
+            'idea' => $project->idea,
+            'objective' => $project->objective,
+            'format' => $project->format,
+            'channel' => $project->channel,
+            'brand' => [
+                'name' => $brand?->name,
+                'tone_of_voice' => $brand?->tone_of_voice,
+                'target_audience' => $brand?->target_audience,
+            ],
+            'template' => $template ? [
+                'name' => $template->name ?? null,
+                'prompt' => $template->prompt ?? null,
+            ] : null,
+        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        try {
+            $response = Http::acceptJson()
+                ->asJson()
+                ->withToken($token)
+                ->withHeaders(['X-Vitrine-Project' => $projectId])
+                ->timeout($timeout)
+                ->post($url, [
+                    'project_id' => $projectId,
+                    'capability' => $capability,
+                    'input' => [
+                        'system' => $system,
+                        'user' => $user,
+                        'response_format' => 'json',
+                        'temperature' => 0.45,
+                    ],
+                ]);
+
+            if (! $response->successful() || ! $response->json('ok')) {
+                return null;
+            }
+
+            $decoded = $this->decodeHubOutput((string) $response->json('output_text', ''));
+
+            if ($decoded === null) {
+                return null;
+            }
+
+            return [
+                'output' => $decoded,
+                'model' => $response->json('model'),
+                'execution_id' => $response->json('execution_id'),
+            ];
+        } catch (Throwable) {
+            return null;
+        }
+    }
+
+    private function decodeHubOutput(string $raw): ?array
+    {
+        $raw = trim($raw);
+        $raw = preg_replace('/^```(?:json)?\s*/i', '', $raw) ?? $raw;
+        $raw = preg_replace('/\s*```$/', '', $raw) ?? $raw;
+        $data = json_decode($raw, true);
+
+        if (! is_array($data)) {
+            return null;
+        }
+
+        foreach (['title', 'caption', 'cta', 'hashtags', 'score', 'slides'] as $key) {
+            if (! array_key_exists($key, $data)) {
+                return null;
+            }
+        }
+
+        if (! is_array($data['slides']) || count($data['slides']) !== 3) {
+            return null;
+        }
+
+        $slides = [];
+
+        foreach (array_values($data['slides']) as $index => $slide) {
+            if (! is_array($slide)) {
+                return null;
+            }
+
+            $slides[] = [
+                'slide_number' => (int) ($slide['slide_number'] ?? ($index + 1)),
+                'title' => trim((string) ($slide['title'] ?? '')),
+                'body' => trim((string) ($slide['body'] ?? '')),
+                'visual_instruction' => trim((string) ($slide['visual_instruction'] ?? '')),
+                'layout_type' => trim((string) ($slide['layout_type'] ?? 'content')),
+            ];
+        }
+
+        return [
+            'title' => trim((string) $data['title']),
+            'caption' => trim((string) $data['caption']),
+            'cta' => trim((string) $data['cta']),
+            'hashtags' => is_array($data['hashtags']) ? implode(' ', $data['hashtags']) : trim((string) $data['hashtags']),
+            'score' => min(10, max(0, (float) $data['score'])),
+            'slides' => $slides,
+        ];
     }
 
     private function findTemplate(ContentProject $project): ?PromptTemplate
