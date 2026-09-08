@@ -2,28 +2,32 @@
     <div class="studio-hero">
         <div class="studio-hero-copy">
             <span class="studio-eyebrow">Vitrine IA Studio Pro</span>
-            <h2>O que vamos criar hoje?</h2>
-            <p>Comece por um formato e conclua o briefing em poucos passos. O Brand Kit orientará toda a criação.</p>
+            <h2>Olá! Que conteúdo vamos criar hoje?</h2>
+            <p>Escolha uma opção abaixo. A VIA cria o restante para você.</p>
         </div>
 
         <a href="{{ \App\Filament\Resources\ContentProjects\ContentProjectResource::getUrl('create') }}" class="studio-primary-action">
             <span>✨</span>
-            Criar conteúdo com IA
+            Criar outro conteúdo
         </a>
     </div>
 
     <div class="studio-format-grid">
         @php
             $items = [
-                ['label' => 'Novo Post', 'description' => 'Feed e publicações rápidas', 'icon' => '📝', 'format' => 'post_portrait'],
-                ['label' => 'Carrossel', 'description' => 'Conteúdo em sequência', 'icon' => '🎠', 'format' => 'carousel_portrait'],
-                ['label' => 'Reels', 'description' => 'Roteiro para vídeo curto', 'icon' => '🎬', 'format' => 'reels'],
-                ['label' => 'Story', 'description' => 'Conteúdo vertical e direto', 'icon' => '📱', 'format' => 'stories'],
+                ['label' => 'Fazer uma promoção', 'description' => 'Divulgue uma oferta ou condição especial', 'icon' => '🏷️', 'category' => 'promocao'],
+                ['label' => 'Apresentar produto ou serviço', 'description' => 'Mostre o que sua empresa oferece', 'icon' => '🛍️', 'category' => 'produto_servico'],
+                ['label' => 'Divulgar um evento', 'description' => 'Convide o público e informe os detalhes', 'icon' => '🎉', 'category' => 'evento'],
+                ['label' => 'Compartilhar uma dica', 'description' => 'Ajude seu público com uma orientação útil', 'icon' => '💡', 'category' => 'dica'],
+                ['label' => 'Publicar uma novidade', 'description' => 'Conte algo novo sobre sua empresa', 'icon' => '📰', 'category' => 'novidade'],
+                ['label' => 'Homenagear uma data especial', 'description' => 'Crie conteúdo para uma ocasião importante', 'icon' => '❤️', 'category' => 'data_especial'],
+                ['label' => 'Fazer um comunicado', 'description' => 'Transmita uma informação com clareza', 'icon' => '📢', 'category' => 'comunicado'],
+                ['label' => 'Criar outro conteúdo', 'description' => 'Comece com uma ideia diferente', 'icon' => '✨', 'category' => 'outro'],
             ];
         @endphp
 
         @foreach ($items as $item)
-            <a href="{{ \App\Filament\Resources\ContentProjects\ContentProjectResource::getUrl('create', ['format' => $item['format']]) }}" class="studio-format-card">
+            <a href="{{ \App\Filament\Resources\ContentProjects\ContentProjectResource::getUrl('create', ['category' => $item['category']]) }}" class="studio-format-card">
                 <span class="studio-format-icon">{{ $item['icon'] }}</span>
                 <strong>{{ $item['label'] }}</strong>
                 <small>{{ $item['description'] }}</small>
@@ -60,7 +64,7 @@
     .studio-hero h2 {
         margin: 0;
         font-size: clamp(1.8rem, 3vw, 3rem);
-        line-height: 1;
+        line-height: 1.05;
         letter-spacing: -.055em;
         font-weight: 900;
     }
@@ -101,7 +105,7 @@
 
     .studio-format-card {
         display: flex;
-        min-height: 150px;
+        min-height: 170px;
         flex-direction: column;
         justify-content: center;
         padding: 22px;
@@ -116,11 +120,13 @@
         margin-top: 14px;
         color: #0f172a;
         font-size: 1rem;
+        line-height: 1.35;
     }
 
     .studio-format-card small {
         margin-top: 5px;
         color: #64748b;
+        line-height: 1.45;
     }
 
     .studio-format-icon {
@@ -145,6 +151,10 @@
     @media (max-width: 520px) {
         .studio-format-grid {
             grid-template-columns: 1fr;
+        }
+
+        .studio-format-card {
+            min-height: 140px;
         }
     }
 </style>
