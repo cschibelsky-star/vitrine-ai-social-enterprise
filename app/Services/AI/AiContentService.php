@@ -7,36 +7,44 @@ use App\Models\ContentProject;
 use App\Models\ContentSlide;
 use App\Models\PromptTemplate;
 use Illuminate\Support\Str;
+use Throwable;
 
 class AiContentService
 {
+    public function __construct(
+        private readonly GeminiContentProvider $gemini,
+    ) {}
+
     public function generateProject(ContentProject $project): array
     {
         $startedAt = microtime(true);
         $brand = $project->brand;
         $template = $this->findTemplate($project);
+        $provider = 'gemini';
+        $model = $this->gemini->model();
+        $fallbackReason = null;
 
-        $title = $this->buildTitle($project);
-        $caption = $this->buildCaption($project, $brand);
-        $cta = $this->buildCta($project);
-        $hashtags = $this->buildHashtags($project, $brand);
-        $score = $this->score($project);
-        $slides = $this->buildSlides($project);
-
-        $output = compact('title', 'caption', 'cta', 'hashtags', 'score', 'slides');
+        try {
+            $output = $this->gemini->generate($project, $brand, $template);
+        } catch (Throwable $exception) {
+            $provider = 'local';
+            $model = 'local-content-engine-v1';
+            $fallbackReason = $exception->getMessage();
+            $output = $this->generateLocally($project, $brand);
+        }
 
         $project->update([
-            'title' => $title,
-            'caption' => $caption,
-            'cta' => $cta,
-            'hashtags' => $hashtags,
-            'score' => $score,
+            'title' => $output['title'],
+            'caption' => $output['caption'],
+            'cta' => $output['cta'],
+            'hashtags' => $output['hashtags'],
+            'score' => $output['score'],
             'status' => 'editing',
         ]);
 
         $project->slides()->delete();
 
-        foreach ($slides as $slide) {
+        foreach ($output['slides'] as $slide) {
             ContentSlide::create([
                 'content_project_id' => $project->id,
                 'slide_number' => $slide['slide_number'],
@@ -49,8 +57,8 @@ class AiContentService
 
         ContentGeneration::create([
             'content_project_id' => $project->id,
-            'provider' => 'local',
-            'model' => 'fake-content-engine-v1',
+            'provider' => $provider,
+            'model' => $model,
             'input_data' => [
                 'idea' => $project->idea,
                 'objective' => $project->objective,
@@ -59,11 +67,12 @@ class AiContentService
                 'brand_id' => $project->brand_id,
             ],
             'output_data' => $output,
-            'metadata' => [
+            'metadata' => array_filter([
                 'template_id' => $template?->id,
                 'brand_tone' => $brand?->tone_of_voice,
                 'target_audience' => $brand?->target_audience,
-            ],
+                'fallback_reason' => $fallbackReason,
+            ], static fn ($value) => $value !== null && $value !== ''),
             'latency_ms' => (int) ((microtime(true) - $startedAt) * 1000),
         ]);
 
@@ -80,6 +89,18 @@ class AiContentService
                     ->orWhereNull('objective');
             })
             ->first();
+    }
+
+    private function generateLocally(ContentProject $project, $brand = null): array
+    {
+        $title = $this->buildTitle($project);
+        $caption = $this->buildCaption($project, $brand);
+        $cta = $this->buildCta($project);
+        $hashtags = $this->buildHashtags($project, $brand);
+        $score = $this->score($project);
+        $slides = $this->buildSlides($project);
+
+        return compact('title', 'caption', 'cta', 'hashtags', 'score', 'slides');
     }
 
     private function buildTitle(ContentProject $project): string
