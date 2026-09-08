@@ -41,4 +41,9 @@ return [
         'timeout' => (int) env('GEMINI_TIMEOUT', 45),
     ],
 
+    'openai' => [
+        'api_key' => env('OPENAI_API_KEY'),
+        'model' => env('OPENAI_MODEL'),
+    ],
+
 ];
