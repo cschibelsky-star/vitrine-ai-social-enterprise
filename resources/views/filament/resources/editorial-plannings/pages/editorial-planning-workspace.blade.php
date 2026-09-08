@@ -1,7 +1,12 @@
 <x-filament-panels::page>
     @php
         $brand = $this->record->client?->activeBrand;
-        $wallet = $this->record->client?->aiCreditWallet;
+        $contentBalance = $this->record->client?->balances
+            ?->filter(fn ($balance) => $balance->balance_type === 'content_credit')
+            ->filter(fn ($balance) => is_null($balance->period_start) || $balance->period_start->lte(now()))
+            ->filter(fn ($balance) => is_null($balance->period_end) || $balance->period_end->gte(now()))
+            ->sortByDesc(fn ($balance) => $balance->period_start?->timestamp ?? 0)
+            ->first();
         $stageLabels = [
             'ready' => 'Pronto para gerar',
             'searching_library' => 'Consultando biblioteca',
@@ -33,9 +38,9 @@
             </div>
 
             <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
-                <p class="text-xs font-medium uppercase text-gray-500">Créditos de texto</p>
-                <p class="mt-1 text-2xl font-bold">{{ number_format((int) ($wallet?->text_balance ?? 0), 0, ',', '.') }}</p>
-                <p class="mt-1 text-xs text-gray-500">Imagens: {{ number_format((int) ($wallet?->image_balance ?? 0), 0, ',', '.') }}</p>
+                <p class="text-xs font-medium uppercase text-gray-500">Créditos de conteúdo</p>
+                <p class="mt-1 text-2xl font-bold">{{ number_format((float) ($contentBalance?->available ?? 0), 0, ',', '.') }}</p>
+                <p class="mt-1 text-xs text-gray-500">de {{ number_format((float) ($contentBalance?->granted ?? 0), 0, ',', '.') }} no período</p>
             </div>
 
             <div class="rounded-xl border border-gray-200 bg-white p-4 shadow-sm dark:border-white/10 dark:bg-gray-900">
