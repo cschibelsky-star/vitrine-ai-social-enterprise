@@ -3,6 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class ContentProject extends Model
 {
@@ -18,9 +21,33 @@ class ContentProject extends Model
         'published_at' => 'datetime',
     ];
 
-    public function client() { return $this->belongsTo(Client::class); }
-    public function brand() { return $this->belongsTo(Brand::class); }
-    public function creator() { return $this->belongsTo(User::class, 'created_by'); }
-    public function slides() { return $this->hasMany(ContentSlide::class)->orderBy('slide_number'); }
-    public function generations() { return $this->hasMany(ContentGeneration::class); }
+    public function client(): BelongsTo
+    {
+        return $this->belongsTo(Client::class);
+    }
+
+    public function brand(): BelongsTo
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function slides(): HasMany
+    {
+        return $this->hasMany(ContentSlide::class)->orderBy('slide_number');
+    }
+
+    public function generations(): HasMany
+    {
+        return $this->hasMany(ContentGeneration::class);
+    }
+
+    public function editorialPlanning(): HasOne
+    {
+        return $this->hasOne(EditorialPlanning::class);
+    }
 }
