@@ -45,8 +45,16 @@ class BrandForm
 
                         FileUpload::make('logo_path')
                             ->label('Logo')
+                            ->disk('public')
+                            ->directory('brands/logos')
                             ->image()
-                            ->directory('brands/logos'),
+                            ->acceptedFileTypes([
+                                'image/png',
+                                'image/jpeg',
+                                'image/webp',
+                            ])
+                            ->maxSize(5120)
+                            ->helperText('PNG, JPG ou WEBP · máximo 5 MB'),
                     ]),
 
                 Section::make('Diretrizes de comunicação')
