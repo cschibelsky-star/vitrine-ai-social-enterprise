@@ -89,7 +89,7 @@ class ContentProjectForm
                         ]),
 
                     Step::make('Objetivo')
-                        ->icon('heroicon-o-bullseye')
+                        ->icon('heroicon-o-flag')
                         ->description('Informe o resultado que o conteúdo deve gerar.')
                         ->schema([
                             Select::make('objective')
