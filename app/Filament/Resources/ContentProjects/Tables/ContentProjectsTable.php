@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\ContentProjects\Tables;
 
-use App\Services\AI\AiContentService;
+use App\Services\ContentGenerationService;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -12,6 +12,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
 
 class ContentProjectsTable
 {
@@ -55,7 +56,7 @@ class ContentProjectsTable
                     ->icon('heroicon-o-sparkles')
                     ->color('primary')
                     ->action(function ($record) {
-                        app(AiContentService::class)->generateProject($record);
+                        app(ContentGenerationService::class)->generate($record, Auth::user());
 
                         Notification::make()
                             ->title('Conteúdo gerado com IA')
