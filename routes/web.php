@@ -26,3 +26,7 @@ Route::get('/health', function () {
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get('/oferta', function () {
+    return view('oferta');
+})->name('oferta');
