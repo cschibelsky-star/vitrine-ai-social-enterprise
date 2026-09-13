@@ -45,6 +45,7 @@ COPY . .
 
 RUN composer dump-autoload --no-dev --optimize \
     && mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs bootstrap/cache \
+    && rm -f bootstrap/cache/*.php \
     && chown -R www-data:www-data storage bootstrap/cache
 
 COPY docker/php/opcache.ini /usr/local/etc/php/conf.d/99-studio-opcache.ini
