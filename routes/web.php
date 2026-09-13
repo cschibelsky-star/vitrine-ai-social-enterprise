@@ -1,5 +1,6 @@
 <?php
 
+use App\Services\Launch\LaunchOrchestrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
@@ -32,26 +33,20 @@ Route::get('/oferta', function () {
     return view('oferta');
 })->name('oferta');
 
-Route::post('/lista-vip', function (Request $request) {
+Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orchestrator) {
     $validated = $request->validate([
         'name' => ['required', 'string', 'max:120'],
         'email' => ['required', 'email', 'max:190'],
         'whatsapp' => ['required', 'string', 'max:30'],
         'company' => ['nullable', 'string', 'max:160'],
         'consent' => ['accepted'],
+        'utm_source' => ['nullable', 'string', 'max:120'],
+        'utm_medium' => ['nullable', 'string', 'max:120'],
+        'utm_campaign' => ['nullable', 'string', 'max:160'],
+        'utm_content' => ['nullable', 'string', 'max:160'],
     ]);
 
-    DB::table('waitlist_leads')->insert([
-        'name' => $validated['name'],
-        'email' => mb_strtolower($validated['email']),
-        'whatsapp' => $validated['whatsapp'],
-        'company' => $validated['company'] ?? null,
-        'source' => 'landing_lista_vip',
-        'consent' => true,
-        'joined_at' => now(),
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+    $orchestrator->captureLead($validated + ['source' => 'landing_lista_vip']);
 
     return redirect()->route('oferta')->with('waitlist_success', true);
 })->middleware('throttle:10,1')->name('waitlist.store');
