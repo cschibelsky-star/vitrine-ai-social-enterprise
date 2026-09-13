@@ -88,7 +88,6 @@ services:
       - recovery_storage:/var/www/html/storage:ro
     networks:
       - recovery_internal
-      - recovery_edge
 
   recovery_worker:
     build:
@@ -120,6 +119,3 @@ networks:
   recovery_internal:
     name: vitrine_social_recovery_hml_internal
     internal: true
-
-  recovery_edge:
-    name: vitrine_social_recovery_hml_edge
