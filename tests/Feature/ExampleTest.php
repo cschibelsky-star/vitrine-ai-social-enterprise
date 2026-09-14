@@ -39,4 +39,26 @@ class ExampleTest extends TestCase
             'consent' => 1,
         ]);
     }
+
+    public function test_checkout_redirects_to_configured_asaas_url(): void
+    {
+        config()->set('services.asaas.checkout_links.pro', 'https://checkout.example.test/pro');
+
+        $this->get('/checkout/pro')
+            ->assertRedirect('https://checkout.example.test/pro');
+    }
+
+    public function test_checkout_falls_back_to_offer_when_plan_url_is_not_configured(): void
+    {
+        config()->set('services.asaas.checkout_links.essencial', null);
+
+        $this->get('/checkout/essencial')
+            ->assertRedirect(route('oferta'))
+            ->assertSessionHas('checkout_unavailable', 'essencial');
+    }
+
+    public function test_checkout_rejects_unknown_plan(): void
+    {
+        $this->get('/checkout/inexistente')->assertNotFound();
+    }
 }
