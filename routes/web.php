@@ -33,6 +33,16 @@ Route::get('/oferta', function () {
     return view('oferta');
 })->name('oferta');
 
+Route::get('/checkout/{plan}', function (string $plan) {
+    $url = config('services.asaas.checkout_links.'.$plan);
+
+    if (! $url) {
+        return redirect()->route('oferta')->with('checkout_unavailable', $plan);
+    }
+
+    return redirect()->away($url);
+})->where('plan', 'essencial|pro|premium')->name('checkout.start');
+
 Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orchestrator) {
     $validated = $request->validate([
         'name' => ['required', 'string', 'max:120'],
