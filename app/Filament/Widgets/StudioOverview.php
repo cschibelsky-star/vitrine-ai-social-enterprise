@@ -9,6 +9,7 @@ use App\Models\ContentProject;
 use App\Models\PromptTemplate;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
+use Illuminate\Support\Facades\DB;
 
 class StudioOverview extends StatsOverviewWidget
 {
@@ -18,6 +19,10 @@ class StudioOverview extends StatsOverviewWidget
             Stat::make('Clientes', Client::query()->count())
                 ->description('Contas cadastradas')
                 ->icon('heroicon-o-briefcase'),
+
+            Stat::make('Leads VIP', DB::table('waitlist_leads')->count())
+                ->description('Interessados capturados no lançamento')
+                ->icon('heroicon-o-user-group'),
 
             Stat::make('Brand Kits', Brand::query()->count())
                 ->description('Marcas configuradas')

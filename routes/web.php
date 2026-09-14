@@ -44,9 +44,14 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
         'utm_medium' => ['nullable', 'string', 'max:120'],
         'utm_campaign' => ['nullable', 'string', 'max:160'],
         'utm_content' => ['nullable', 'string', 'max:160'],
+        'plan' => ['nullable', 'in:essencial,pro,premium'],
     ]);
 
-    $orchestrator->captureLead($validated + ['source' => 'landing_lista_vip']);
+    $source = isset($validated['plan'])
+        ? 'oferta_vip_'.$validated['plan']
+        : 'landing_lista_vip';
+
+    $orchestrator->captureLead($validated + ['source' => $source]);
 
     return redirect()->route('oferta')->with('waitlist_success', true);
 })->middleware('throttle:10,1')->name('waitlist.store');
