@@ -2,12 +2,20 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Client\Pages\Account;
+use App\Filament\Client\Pages\Affiliates;
+use App\Filament\Client\Pages\Balance;
+use App\Filament\Client\Pages\CalendarPage;
+use App\Filament\Client\Pages\Channels;
+use App\Filament\Client\Pages\ClientDashboard;
+use App\Filament\Client\Pages\Contents;
+use App\Filament\Client\Pages\Performance;
 use App\Filament\Client\Widgets\ClientBalanceOverview;
+use App\Filament\Client\Widgets\ClientCommandCenter;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -37,10 +45,18 @@ class ClientPanelProvider extends PanelProvider
                 fn (): string => view('filament.theme.vitrine-ia-style')->render(),
             )
             ->pages([
-                Dashboard::class,
+                ClientDashboard::class,
+                Contents::class,
+                CalendarPage::class,
+                Performance::class,
+                Channels::class,
+                Balance::class,
+                Affiliates::class,
+                Account::class,
             ])
             ->widgets([
                 AccountWidget::class,
+                ClientCommandCenter::class,
                 ClientBalanceOverview::class,
             ])
             ->middleware([
