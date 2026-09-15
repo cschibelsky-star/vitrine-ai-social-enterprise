@@ -52,10 +52,6 @@ return [
         ],
         'infinitepay' => [
             'handle' => env('INFINITEPAY_HANDLE'),
-            'links_url' => env('INFINITEPAY_LINKS_URL'),
-            'payment_check_url' => env('INFINITEPAY_PAYMENT_CHECK_URL'),
-            'redirect_url' => env('INFINITEPAY_REDIRECT_URL'),
-            'webhook_url' => env('INFINITEPAY_WEBHOOK_URL'),
             'timeout' => (int) env('INFINITEPAY_TIMEOUT', 15),
         ],
     ],
