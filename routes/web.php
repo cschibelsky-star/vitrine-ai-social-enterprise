@@ -34,7 +34,7 @@ Route::get('/oferta', function () {
 })->name('oferta');
 
 Route::get('/checkout/{plan}', function (string $plan) {
-    $url = config('services.asaas.checkout_links.'.$plan);
+    $url = config('services.checkout.checkout_links.'.$plan);
 
     if (! $url) {
         return redirect()->route('oferta')->with('checkout_unavailable', $plan);

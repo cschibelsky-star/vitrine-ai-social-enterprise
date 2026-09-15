@@ -43,11 +43,12 @@ return [
         'timeout' => (int) env('CENTRO_IA_TIMEOUT', 30),
     ],
 
-    'asaas' => [
+    'checkout' => [
+        'provider' => env('CHECKOUT_PROVIDER', 'external'),
         'checkout_links' => [
-            'essencial' => env('ASAAS_CHECKOUT_ESSENCIAL_URL'),
-            'pro' => env('ASAAS_CHECKOUT_PRO_URL'),
-            'premium' => env('ASAAS_CHECKOUT_PREMIUM_URL'),
+            'essencial' => env('CHECKOUT_ESSENCIAL_URL'),
+            'pro' => env('CHECKOUT_PRO_URL'),
+            'premium' => env('CHECKOUT_PREMIUM_URL'),
         ],
     ],
 
