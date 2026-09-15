@@ -44,12 +44,21 @@ return [
     ],
 
     'checkout' => [
-        'provider' => env('CHECKOUT_PROVIDER', 'external'),
+        'provider' => env('CHECKOUT_PROVIDER', 'infinitepay'),
         'checkout_links' => [
             'essencial' => env('CHECKOUT_ESSENCIAL_URL'),
             'pro' => env('CHECKOUT_PRO_URL'),
             'premium' => env('CHECKOUT_PREMIUM_URL'),
         ],
+    ],
+
+    'infinitepay' => [
+        'handle' => env('INFINITEPAY_HANDLE'),
+        'links_url' => env('INFINITEPAY_LINKS_URL'),
+        'payment_check_url' => env('INFINITEPAY_PAYMENT_CHECK_URL'),
+        'redirect_url' => env('INFINITEPAY_REDIRECT_URL'),
+        'webhook_url' => env('INFINITEPAY_WEBHOOK_URL'),
+        'timeout' => (int) env('INFINITEPAY_TIMEOUT', 15),
     ],
 
 ];
