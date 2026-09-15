@@ -88,6 +88,7 @@ services:
       - recovery_storage:/var/www/html/storage:ro
     networks:
       - recovery_internal
+      - traefik_public
 
   recovery_worker:
     build:
@@ -119,3 +120,6 @@ networks:
   recovery_internal:
     name: vitrine_social_recovery_hml_internal
     internal: true
+  traefik_public:
+    external: true
+    name: n8n-traefik_app_network
