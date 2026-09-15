@@ -65,3 +65,7 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
 
     return redirect()->route('oferta')->with('waitlist_success', true);
 })->middleware('throttle:10,1')->name('waitlist.store');
+
+if (file_exists(__DIR__.'/infinitepay_hml.php')) {
+    require __DIR__.'/infinitepay_hml.php';
+}
