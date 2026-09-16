@@ -2,6 +2,8 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\SocialLogin;
+use App\Filament\Widgets\AdminCommandCenter;
 use App\Filament\Widgets\RecentContent;
 use App\Filament\Widgets\StudioOverview;
 use App\Filament\Widgets\StudioQuickCreate;
@@ -30,9 +32,9 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->login()
+            ->login(SocialLogin::class)
             ->authGuard('admin')
-            ->brandName('Vitrine Social Mídia')
+            ->brandName('Vitrine Social Mídia · Administração')
             ->colors([
                 'primary' => Color::Cyan,
             ])
@@ -48,6 +50,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 AccountWidget::class,
+                AdminCommandCenter::class,
                 StudioQuickCreate::class,
                 StudioOverview::class,
                 RecentContent::class,
