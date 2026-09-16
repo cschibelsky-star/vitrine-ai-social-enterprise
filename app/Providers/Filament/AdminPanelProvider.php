@@ -33,6 +33,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login(SocialLogin::class)
+            ->passwordReset()
             ->authGuard('admin')
             ->brandName('Vitrine Social Mídia · Administração')
             ->colors([
