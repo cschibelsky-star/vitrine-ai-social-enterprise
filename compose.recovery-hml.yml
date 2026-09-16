@@ -47,6 +47,8 @@ services:
       APP_DEBUG: "true"
       APP_URL: https://social.hml.vitrineiapro.com.br
       APP_KEY: ${RECOVERY_APP_KEY:?RECOVERY_APP_KEY is required}
+      APP_LOCALE: pt_BR
+      APP_FALLBACK_LOCALE: pt_BR
       LOG_CHANNEL: stderr
       DB_CONNECTION: mysql
       DB_HOST: recovery_db
