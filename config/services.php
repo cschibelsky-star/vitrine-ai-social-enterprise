@@ -2,18 +2,6 @@
 
 return [
 
-    /*
-    |--------------------------------------------------------------------------
-    | Third Party Services
-    |--------------------------------------------------------------------------
-    |
-    | This file is for storing the credentials for third party services such
-    | as Mailgun, Postmark, AWS and more. This file provides the de facto
-    | location for this type of information, allowing packages to have
-    | a conventional file to locate various service credentials.
-    |
-    */
-
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],
@@ -41,6 +29,18 @@ return [
         'project_id' => env('CENTRO_IA_PROJECT_ID', 'vitrine-ai-social-enterprise'),
         'capability' => env('CENTRO_IA_CAPABILITY', 'social_content_generation'),
         'timeout' => (int) env('CENTRO_IA_TIMEOUT', 30),
+    ],
+
+    'social_login' => [
+        'google' => [
+            'client_id' => env('GOOGLE_OAUTH_CLIENT_ID'),
+            'client_secret' => env('GOOGLE_OAUTH_CLIENT_SECRET'),
+        ],
+        'facebook' => [
+            'client_id' => env('FACEBOOK_OAUTH_CLIENT_ID'),
+            'client_secret' => env('FACEBOOK_OAUTH_CLIENT_SECRET'),
+            'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v23.0'),
+        ],
     ],
 
     'checkout' => [
