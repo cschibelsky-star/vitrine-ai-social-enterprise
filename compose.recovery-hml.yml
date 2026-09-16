@@ -70,6 +70,11 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD:-}
       MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-vitrineiapro@gmail.com}
       MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Vitrine Social Midia}
+      GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID:-}
+      GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET:-}
+      FACEBOOK_OAUTH_CLIENT_ID: ${FACEBOOK_OAUTH_CLIENT_ID:-}
+      FACEBOOK_OAUTH_CLIENT_SECRET: ${FACEBOOK_OAUTH_CLIENT_SECRET:-}
+      FACEBOOK_GRAPH_VERSION: ${FACEBOOK_GRAPH_VERSION:-v23.0}
     volumes:
       - ./:/var/www/html
       - recovery_vendor:/var/www/html/vendor
