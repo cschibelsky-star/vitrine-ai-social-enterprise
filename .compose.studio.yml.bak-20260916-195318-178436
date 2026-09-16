@@ -1,0 +1,69 @@
+services:
+  studio_app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studio_app
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./:/var/www/html
+      - studio_vendor:/var/www/html/vendor
+    networks:
+      - vitrine_net
+
+  studio_web:
+    image: nginx:stable
+    container_name: studio_web
+    restart: unless-stopped
+    depends_on:
+      - studio_app
+    ports:
+      - "127.0.0.1:8090:80"
+    volumes:
+      - ./:/var/www/html:ro
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - vitrine_net
+
+  studio_worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studio_worker
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: php artisan queue:work --sleep=3 --tries=3 --timeout=120 --max-time=3600
+    volumes:
+      - ./:/var/www/html
+      - studio_vendor:/var/www/html/vendor
+    depends_on:
+      - studio_app
+    networks:
+      - vitrine_net
+
+  studio_scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: studio_scheduler
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: sh -lc 'while true; do php artisan schedule:run --verbose --no-interaction; sleep 60; done'
+    volumes:
+      - ./:/var/www/html
+      - studio_vendor:/var/www/html/vendor
+    depends_on:
+      - studio_app
+    networks:
+      - vitrine_net
+
+volumes:
+  studio_vendor:
+
+networks:
+  vitrine_net:
+    external: true
