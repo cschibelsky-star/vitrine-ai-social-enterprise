@@ -14,8 +14,6 @@ use App\Filament\Client\Pages\Contents;
 use App\Filament\Client\Pages\Files;
 use App\Filament\Client\Pages\Performance;
 use App\Filament\Client\Pages\Requests;
-use App\Filament\Client\Widgets\ClientBalanceOverview;
-use App\Filament\Client\Widgets\ClientCommandCenter;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -24,7 +22,6 @@ use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\View\PanelsRenderHook;
-use Filament\Widgets\AccountWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\PreventRequestForgery;
@@ -61,11 +58,6 @@ class ClientPanelProvider extends PanelProvider
                 Balance::class,
                 Affiliates::class,
                 Account::class,
-            ])
-            ->widgets([
-                AccountWidget::class,
-                ClientCommandCenter::class,
-                ClientBalanceOverview::class,
             ])
             ->middleware([
                 EncryptCookies::class,
