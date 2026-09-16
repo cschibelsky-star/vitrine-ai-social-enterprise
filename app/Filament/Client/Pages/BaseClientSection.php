@@ -6,7 +6,6 @@ use App\Models\ClientBalance;
 use App\Models\ClientSubscription;
 use App\Models\ContentProject;
 use Filament\Pages\Page;
-use Illuminate\Support\Carbon;
 
 abstract class BaseClientSection extends Page
 {
@@ -55,6 +54,16 @@ abstract class BaseClientSection extends Page
                 ];
                 break;
 
+            case 'approvals':
+                $items = (clone $base)->whereIn('status', ['review', 'pending_approval', 'approval_pending'])->latest('updated_at')->limit(24)->get();
+                $stats = [
+                    'Aguardando você' => $items->count(),
+                    'Em revisão' => (clone $base)->where('status', 'review')->count(),
+                    'Pendentes' => (clone $base)->whereIn('status', ['pending_approval', 'approval_pending'])->count(),
+                ];
+                $meta['notice'] = 'Aprovação e pedido de ajuste serão ligados ao mesmo fluxo de conteúdo; nesta etapa a tela foi materializada sem alterar o banco.';
+                break;
+
             case 'performance':
                 $monthStart = now()->startOfMonth();
                 $monthEnd = now()->endOfMonth();
@@ -64,6 +73,16 @@ abstract class BaseClientSection extends Page
                     'Score médio' => number_format((float) ((clone $base)->whereNotNull('score')->avg('score') ?? 0), 1, ',', '.'),
                     'Total publicado' => (clone $base)->whereNotNull('published_at')->count(),
                 ];
+                break;
+
+            case 'requests':
+                $items = (clone $base)->whereIn('status', ['adjustment_requested', 'changes_requested', 'revision_requested'])->latest('updated_at')->limit(20)->get();
+                $stats = [
+                    'Em andamento' => $items->count(),
+                    'Conteúdos ativos' => (clone $base)->whereNull('published_at')->count(),
+                    'Últimos 30 dias' => (clone $base)->where('updated_at', '>=', now()->subDays(30))->count(),
+                ];
+                $meta['notice'] = 'Solicitações estão sendo refletidas pelo fluxo de revisão existente, sem criar tabela ou migration nesta etapa.';
                 break;
 
             case 'channels':
@@ -77,6 +96,16 @@ abstract class BaseClientSection extends Page
                     'Canais com atividade' => $items->count(),
                     'Conteúdos vinculados' => (clone $base)->whereNotNull('channel')->count(),
                 ];
+                break;
+
+            case 'files':
+                $items = (clone $base)->latest('updated_at')->limit(30)->get();
+                $stats = [
+                    'Projetos disponíveis' => $items->count(),
+                    'Com slides' => (clone $base)->whereHas('slides')->count(),
+                    'Publicados' => (clone $base)->whereNotNull('published_at')->count(),
+                ];
+                $meta['notice'] = 'Arquivos acompanha os projetos e materiais já existentes. O armazenamento dedicado será ligado quando o fluxo de mídia for homologado.';
                 break;
 
             case 'balance':
