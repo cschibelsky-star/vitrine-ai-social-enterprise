@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\SocialAuthController;
 use App\Services\Launch\LaunchOrchestrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +28,18 @@ Route::get('/health', function () {
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+Route::middleware('web')->group(function () {
+    Route::get('/auth/{area}/{provider}/redirect', [SocialAuthController::class, 'redirect'])
+        ->whereIn('area', ['client', 'admin'])
+        ->whereIn('provider', ['google', 'facebook'])
+        ->name('social-auth.redirect');
+
+    Route::get('/auth/{area}/{provider}/callback', [SocialAuthController::class, 'callback'])
+        ->whereIn('area', ['client', 'admin'])
+        ->whereIn('provider', ['google', 'facebook'])
+        ->name('social-auth.callback');
 });
 
 Route::get('/oferta', function () {
