@@ -1,6 +1,6 @@
 <x-filament-panels::page>
     <style>
-        .vsm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}.vsm-card,.vsm-panel{border:1px solid rgba(148,163,184,.16);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(8,15,30,.94));border-radius:20px;padding:18px;box-shadow:0 16px 40px rgba(2,6,23,.16)}.vsm-card small{display:block;color:#94a3b8;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em}.vsm-card strong{display:block;margin-top:7px;font-size:1.35rem;color:#f8fafc}.vsm-panel h2{font-size:1.15rem;font-weight:800;margin:0 0 14px;color:#f8fafc}.vsm-list{display:grid;gap:10px}.vsm-row{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,.7fr));gap:14px;align-items:center;padding:14px;border-radius:14px;background:rgba(15,23,42,.58);border:1px solid rgba(148,163,184,.1)}.vsm-row b{color:#f8fafc}.vsm-row span{color:#94a3b8;font-size:.88rem}.vsm-badge{display:inline-flex;width:max-content;padding:5px 9px;border-radius:999px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.22);color:#a5f3fc!important}.vsm-empty{padding:28px;text-align:center;color:#94a3b8;border:1px dashed rgba(148,163,184,.2);border-radius:16px}.vsm-note{padding:14px 16px;border-radius:14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);color:#fde68a;margin-bottom:16px}@media(max-width:900px){.vsm-grid{grid-template-columns:repeat(2,1fr)}.vsm-row{grid-template-columns:1fr 1fr}}@media(max-width:560px){.vsm-grid,.vsm-row{grid-template-columns:1fr}}
+        .vsm-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:22px}.vsm-card,.vsm-panel{border:1px solid rgba(148,163,184,.16);background:linear-gradient(180deg,rgba(15,23,42,.88),rgba(8,15,30,.94));border-radius:20px;padding:18px;box-shadow:0 16px 40px rgba(2,6,23,.16)}.vsm-card small{display:block;color:#94a3b8;font-size:.76rem;text-transform:uppercase;letter-spacing:.08em}.vsm-card strong{display:block;margin-top:7px;font-size:1.35rem;color:#f8fafc}.vsm-panel h2{font-size:1.15rem;font-weight:800;margin:0 0 14px;color:#f8fafc}.vsm-list{display:grid;gap:10px}.vsm-row{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(3,minmax(0,.7fr));gap:14px;align-items:center;padding:14px;border-radius:14px;background:rgba(15,23,42,.58);border:1px solid rgba(148,163,184,.1)}.vsm-row b{color:#f8fafc}.vsm-row span{color:#94a3b8;font-size:.88rem}.vsm-badge{display:inline-flex;width:max-content;padding:5px 9px;border-radius:999px;background:rgba(34,211,238,.1);border:1px solid rgba(34,211,238,.22);color:#a5f3fc!important}.vsm-actions{display:flex;gap:8px;flex-wrap:wrap}.vsm-action{display:inline-flex;padding:8px 11px;border-radius:10px;border:1px solid rgba(148,163,184,.18);background:rgba(8,15,30,.78);color:#e5e7eb;font-size:.8rem;font-weight:800}.vsm-action.ok{border-color:rgba(16,185,129,.32);color:#6ee7b7}.vsm-action.adjust{border-color:rgba(168,85,247,.35);color:#d8b4fe}.vsm-empty{padding:28px;text-align:center;color:#94a3b8;border:1px dashed rgba(148,163,184,.2);border-radius:16px}.vsm-note{padding:14px 16px;border-radius:14px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.22);color:#fde68a;margin-bottom:16px}@media(max-width:900px){.vsm-grid{grid-template-columns:repeat(2,1fr)}.vsm-row{grid-template-columns:1fr 1fr}}@media(max-width:560px){.vsm-grid,.vsm-row{grid-template-columns:1fr}}
     </style>
 
     @if(! $clientId)
@@ -36,6 +36,15 @@
                     </div>
                     @break
 
+                @case('approvals')
+                    <h2>Aprovações</h2>
+                    <div class="vsm-list">
+                        @forelse($items as $item)
+                            <div class="vsm-row"><b>{{ $item->title }}</b><span>{{ $item->channel ?: 'Canal' }}</span><span class="vsm-badge">{{ $item->status ?: 'aguardando' }}</span><div class="vsm-actions"><span class="vsm-action ok">Aprovar</span><span class="vsm-action adjust">Pedir ajuste</span></div></div>
+                        @empty <div class="vsm-empty">Nenhum conteúdo aguardando aprovação.</div> @endforelse
+                    </div>
+                    @break
+
                 @case('performance')
                     <h2>Desempenho do Mês</h2>
                     <div class="vsm-list">
@@ -45,12 +54,30 @@
                     </div>
                     @break
 
+                @case('requests')
+                    <h2>Solicitações</h2>
+                    <div class="vsm-list">
+                        @forelse($items as $item)
+                            <div class="vsm-row"><b>{{ $item->title }}</b><span>{{ $item->channel ?: 'Canal' }}</span><span class="vsm-badge">{{ $item->status ?: 'em andamento' }}</span><span>{{ $item->updated_at?->format('d/m/Y H:i') }}</span></div>
+                        @empty <div class="vsm-empty">Nenhuma solicitação em andamento.</div> @endforelse
+                    </div>
+                    @break
+
                 @case('channels')
                     <h2>Canais Conectados / com atividade</h2>
                     <div class="vsm-list">
                         @forelse($items as $item)
                             <div class="vsm-row"><b>{{ ucfirst($item->channel) }}</b><span>{{ $item->total }} conteúdos</span><span>Última atividade</span><span>{{ \Illuminate\Support\Carbon::parse($item->last_activity)->format('d/m/Y') }}</span></div>
                         @empty <div class="vsm-empty">Nenhum canal com atividade registrada ainda.</div> @endforelse
+                    </div>
+                    @break
+
+                @case('files')
+                    <h2>Arquivos e Materiais</h2>
+                    <div class="vsm-list">
+                        @forelse($items as $item)
+                            <div class="vsm-row"><b>{{ $item->title }}</b><span>{{ $item->content_type ?: 'Conteúdo' }}</span><span>{{ $item->format ?: 'Formato não informado' }}</span><span>{{ $item->updated_at?->format('d/m/Y') }}</span></div>
+                        @empty <div class="vsm-empty">Nenhum material disponível.</div> @endforelse
                     </div>
                     @break
 
