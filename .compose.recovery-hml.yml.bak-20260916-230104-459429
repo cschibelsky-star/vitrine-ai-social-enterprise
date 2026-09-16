@@ -89,37 +89,6 @@ services:
     networks:
       - recovery_internal
 
-  recovery_admin_repair:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    restart: "no"
-    environment: *app_environment
-    command:
-      - php
-      - -r
-      - |
-        require 'vendor/autoload.php';
-        $app = require 'bootstrap/app.php';
-        $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-        $user = App\Models\User::query()->where('email', 'cschibelsky@gmail.com')->first();
-        if (! $user) { fwrite(STDERR, 'user_not_found'); exit(4); }
-        $user->status = 'active';
-        $user->role = 'admin';
-        $user->save();
-        echo 'admin_repaired';
-    volumes:
-      - ./:/var/www/html
-      - recovery_vendor:/var/www/html/vendor
-      - recovery_storage:/var/www/html/storage
-    depends_on:
-      recovery_db:
-        condition: service_healthy
-      recovery_redis:
-        condition: service_healthy
-    networks:
-      - recovery_internal
-
   recovery_web:
     image: nginx:stable
     container_name: social_recovery_hml_web
