@@ -1,0 +1,59 @@
+<?php
+
+return [
+
+    'postmark' => [
+        'key' => env('POSTMARK_API_KEY'),
+    ],
+
+    'resend' => [
+        'key' => env('RESEND_API_KEY'),
+    ],
+
+    'ses' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    'slack' => [
+        'notifications' => [
+            'bot_user_oauth_token' => env('SLACK_BOT_USER_OAUTH_TOKEN'),
+            'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
+        ],
+    ],
+
+    'centro_ia' => [
+        'url' => env('CENTRO_IA_URL', 'http://vitrine_core_web_hml/api/internal/centro-ia/execute'),
+        'token' => env('CENTRO_IA_INTERNAL_TOKEN'),
+        'project_id' => env('CENTRO_IA_PROJECT_ID', 'vitrine-ai-social-enterprise'),
+        'capability' => env('CENTRO_IA_CAPABILITY', 'social_content_generation'),
+        'timeout' => (int) env('CENTRO_IA_TIMEOUT', 30),
+    ],
+
+    'social_login' => [
+        'google' => [
+            'client_id' => env('GOOGLE_OAUTH_CLIENT_ID'),
+            'client_secret' => env('GOOGLE_OAUTH_CLIENT_SECRET'),
+        ],
+        'facebook' => [
+            'client_id' => env('FACEBOOK_OAUTH_CLIENT_ID'),
+            'client_secret' => env('FACEBOOK_OAUTH_CLIENT_SECRET'),
+            'graph_version' => env('FACEBOOK_GRAPH_VERSION', 'v23.0'),
+        ],
+    ],
+
+    'checkout' => [
+        'provider' => env('CHECKOUT_PROVIDER', 'infinitepay'),
+        'plans' => [
+            'essencial' => ['price' => 79900, 'description' => 'Vitrine Social Midia - Essencial Anual VIP'],
+            'pro' => ['price' => 169900, 'description' => 'Vitrine Social Midia - Pro Anual VIP'],
+            'premium' => ['price' => 349900, 'description' => 'Vitrine Social Midia - Premium Anual VIP'],
+        ],
+        'infinitepay' => [
+            'handle' => env('INFINITEPAY_HANDLE'),
+            'timeout' => (int) env('INFINITEPAY_TIMEOUT', 15),
+        ],
+    ],
+
+];
