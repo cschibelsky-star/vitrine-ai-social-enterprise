@@ -27,7 +27,7 @@
 
             <div class="vsm-login-help">
                 <strong>Precisa de ajuda?</strong>
-                <span>Use o suporte da Vitrine IA Pro para primeiro acesso ou dúvidas operacionais.</span>
+                <span>Use a recuperação de senha para redefinir seu acesso ou fale com o suporte da Vitrine IA Pro.</span>
             </div>
         </section>
 
@@ -37,7 +37,7 @@
                 <h2>Acessar plataforma</h2>
                 <p>{{ $areaSubtitle }}</p>
                 <div class="vsm-login-form">
-                    {{ $this->form }}
+                    {{ $this->content }}
                 </div>
             </div>
         </section>
