@@ -45,7 +45,7 @@ services:
       APP_NAME: Vitrine Social Midia Recovery HML
       APP_ENV: local
       APP_DEBUG: "true"
-      APP_URL: http://127.0.0.1:18090
+      APP_URL: https://social.hml.vitrineiapro.com.br
       APP_KEY: ${RECOVERY_APP_KEY:?RECOVERY_APP_KEY is required}
       LOG_CHANNEL: stderr
       DB_CONNECTION: mysql
@@ -62,6 +62,14 @@ services:
       REDIS_PORT: 6379
       REDIS_PASSWORD: ${RECOVERY_REDIS_PASSWORD:?RECOVERY_REDIS_PASSWORD is required}
       FILESYSTEM_DISK: public
+      MAIL_MAILER: ${MAIL_MAILER:-log}
+      MAIL_SCHEME: ${MAIL_SCHEME:-}
+      MAIL_HOST: ${MAIL_HOST:-127.0.0.1}
+      MAIL_PORT: ${MAIL_PORT:-2525}
+      MAIL_USERNAME: ${MAIL_USERNAME:-}
+      MAIL_PASSWORD: ${MAIL_PASSWORD:-}
+      MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-vitrineiapro@gmail.com}
+      MAIL_FROM_NAME: ${MAIL_FROM_NAME:-Vitrine Social Midia}
     volumes:
       - ./:/var/www/html
       - recovery_vendor:/var/www/html/vendor
