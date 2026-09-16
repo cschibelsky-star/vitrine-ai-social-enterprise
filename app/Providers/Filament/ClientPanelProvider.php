@@ -2,14 +2,18 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Auth\SocialLogin;
 use App\Filament\Client\Pages\Account;
 use App\Filament\Client\Pages\Affiliates;
+use App\Filament\Client\Pages\Approvals;
 use App\Filament\Client\Pages\Balance;
 use App\Filament\Client\Pages\CalendarPage;
 use App\Filament\Client\Pages\Channels;
 use App\Filament\Client\Pages\ClientDashboard;
 use App\Filament\Client\Pages\Contents;
+use App\Filament\Client\Pages\Files;
 use App\Filament\Client\Pages\Performance;
+use App\Filament\Client\Pages\Requests;
 use App\Filament\Client\Widgets\ClientBalanceOverview;
 use App\Filament\Client\Widgets\ClientCommandCenter;
 use Filament\Http\Middleware\Authenticate;
@@ -35,7 +39,7 @@ class ClientPanelProvider extends PanelProvider
         return $panel
             ->id('client')
             ->path('app')
-            ->login()
+            ->login(SocialLogin::class)
             ->brandName('Vitrine Social Mídia')
             ->colors([
                 'primary' => Color::Cyan,
@@ -48,8 +52,11 @@ class ClientPanelProvider extends PanelProvider
                 ClientDashboard::class,
                 Contents::class,
                 CalendarPage::class,
+                Approvals::class,
                 Performance::class,
+                Requests::class,
                 Channels::class,
+                Files::class,
                 Balance::class,
                 Affiliates::class,
                 Account::class,
