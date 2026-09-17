@@ -78,14 +78,3 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
 
     return redirect()->route('oferta')->with('waitlist_success', true);
 })->middleware('throttle:10,1')->name('waitlist.store');
-
-Route::get('/checkout/retorno', fn () => response()->json([
-    'status' => 'not_active',
-    'provider' => 'infinitepay',
-], 503))->name('checkout.return');
-
-Route::post('/api/integrations/infinitepay/events', fn () => response()->json([
-    'status' => 'not_active',
-    'provider' => 'infinitepay',
-], 503))->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class])
-    ->name('infinitepay.events');
