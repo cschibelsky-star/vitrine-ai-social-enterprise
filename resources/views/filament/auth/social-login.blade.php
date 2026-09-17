@@ -61,14 +61,13 @@
                 @endif
 
                 <div class="vsm-login-form">
-                    <x-filament-panels::form wire:submit="authenticate">
+                    <form wire:submit="authenticate">
                         {{ $this->form }}
 
-                        <x-filament-panels::form.actions
-                            :actions="$this->getFormActions()"
-                            :full-width="$this->hasFullWidthFormActions()"
-                        />
-                    </x-filament-panels::form>
+                        <button type="submit" class="w-full fi-btn fi-btn-size-md fi-color-primary">
+                            Entrar
+                        </button>
+                    </form>
                 </div>
             </div>
         </section>

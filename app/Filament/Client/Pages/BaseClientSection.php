@@ -5,6 +5,7 @@ namespace App\Filament\Client\Pages;
 use App\Models\ClientBalance;
 use App\Models\ClientSubscription;
 use App\Models\ContentProject;
+use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 
 abstract class BaseClientSection extends Page
@@ -12,6 +13,48 @@ abstract class BaseClientSection extends Page
     protected string $view = 'filament.client.pages.section';
 
     public static string $sectionKey = 'overview';
+
+    public function approveContent(int $projectId): void
+    {
+        $clientId = auth()->user()?->client_id;
+
+        if (! $clientId) {
+            return;
+        }
+
+        $project = ContentProject::query()
+            ->where('client_id', $clientId)
+            ->findOrFail($projectId);
+
+        $project->forceFill(['status' => 'ready'])->save();
+
+        Notification::make()
+            ->title('Conteúdo aprovado')
+            ->body('O conteúdo foi liberado para a próxima etapa.')
+            ->success()
+            ->send();
+    }
+
+    public function requestAdjustment(int $projectId): void
+    {
+        $clientId = auth()->user()?->client_id;
+
+        if (! $clientId) {
+            return;
+        }
+
+        $project = ContentProject::query()
+            ->where('client_id', $clientId)
+            ->findOrFail($projectId);
+
+        $project->forceFill(['status' => 'editing'])->save();
+
+        Notification::make()
+            ->title('Ajuste solicitado')
+            ->body('O conteúdo voltou para revisão.')
+            ->warning()
+            ->send();
+    }
 
     public function getViewData(): array
     {
@@ -76,7 +119,7 @@ abstract class BaseClientSection extends Page
                 break;
 
             case 'requests':
-                $items = (clone $base)->whereIn('status', ['adjustment_requested', 'changes_requested', 'revision_requested'])->latest('updated_at')->limit(20)->get();
+                $items = (clone $base)->whereIn('status', ['editing', 'adjustment_requested', 'changes_requested', 'revision_requested'])->latest('updated_at')->limit(20)->get();
                 $stats = [
                     'Em andamento' => $items->count(),
                     'Conteúdos ativos' => (clone $base)->whereNull('published_at')->count(),
