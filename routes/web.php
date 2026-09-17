@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\SocialAuthController;
+use App\Services\Checkout\InfinitePayCheckoutProvider;
 use App\Services\Launch\LaunchOrchestrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -46,15 +47,15 @@ Route::get('/oferta', function () {
     return view('oferta');
 })->name('oferta');
 
-Route::get('/checkout/{plan}', function (string $plan) {
-    $url = config('services.asaas.checkout_links.'.$plan);
+Route::get('/checkout/{plan}', function (string $plan, InfinitePayCheckoutProvider $checkout) {
+    try {
+        return redirect()->away($checkout->createCheckout(['plan' => $plan]));
+    } catch (Throwable $exception) {
+        report($exception);
 
-    if (! $url) {
         return redirect()->route('oferta')->with('checkout_unavailable', $plan);
     }
-
-    return redirect()->away($url);
-})->where('plan', 'essencial|pro|premium')->name('checkout.start');
+})->where('plan', 'essencial|pro|premium')->middleware('throttle:10,1')->name('checkout.start');
 
 Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orchestrator) {
     $validated = $request->validate([
@@ -78,3 +79,7 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
 
     return redirect()->route('oferta')->with('waitlist_success', true);
 })->middleware('throttle:10,1')->name('waitlist.store');
+
+if (file_exists(__DIR__.'/infinitepay_hml.php')) {
+    require __DIR__.'/infinitepay_hml.php';
+}
