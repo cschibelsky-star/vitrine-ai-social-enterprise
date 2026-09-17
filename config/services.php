@@ -50,10 +50,15 @@ return [
             'pro' => ['price' => 169900, 'description' => 'Vitrine Social Midia - Pro Anual VIP'],
             'premium' => ['price' => 349900, 'description' => 'Vitrine Social Midia - Premium Anual VIP'],
         ],
-        'infinitepay' => [
-            'handle' => env('INFINITEPAY_HANDLE'),
-            'timeout' => (int) env('INFINITEPAY_TIMEOUT', 15),
-        ],
+    ],
+
+    'infinitepay' => [
+        'handle' => env('INFINITEPAY_HANDLE'),
+        'links_url' => env('INFINITEPAY_LINKS_URL', 'https://api.checkout.infinitepay.io/links'),
+        'payment_check_url' => env('INFINITEPAY_PAYMENT_CHECK_URL', 'https://api.checkout.infinitepay.io/payment_check'),
+        'redirect_url' => env('INFINITEPAY_REDIRECT_URL'),
+        'webhook_url' => env('INFINITEPAY_WEBHOOK_URL'),
+        'timeout' => (int) env('INFINITEPAY_TIMEOUT', 15),
     ],
 
 ];
