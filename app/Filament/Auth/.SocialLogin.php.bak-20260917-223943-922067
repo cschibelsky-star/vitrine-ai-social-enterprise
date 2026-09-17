@@ -26,7 +26,6 @@ class SocialLogin extends Login
     {
         if (filled($this->panelId)) {
             Filament::setCurrentPanel($this->panelId);
-            Filament::bootCurrentPanel();
         }
 
         return parent::authenticate();

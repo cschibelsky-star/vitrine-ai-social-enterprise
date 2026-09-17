@@ -3,7 +3,6 @@
 namespace App\Filament\Auth;
 
 use Filament\Auth\Pages\Login;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
@@ -11,26 +10,6 @@ use Filament\Schemas\Components\Component;
 class SocialLogin extends Login
 {
     protected string $view = 'filament.auth.social-login';
-
-    #[\Livewire\Attributes\Locked]
-    public ?string $panelId = null;
-
-    public function mount(): void
-    {
-        $this->panelId = Filament::getCurrentOrDefaultPanel()?->getId();
-
-        parent::mount();
-    }
-
-    public function authenticate(): ?\Filament\Auth\Http\Responses\Contracts\LoginResponse
-    {
-        if (filled($this->panelId)) {
-            Filament::setCurrentPanel($this->panelId);
-            Filament::bootCurrentPanel();
-        }
-
-        return parent::authenticate();
-    }
 
     protected function getEmailFormComponent(): Component
     {

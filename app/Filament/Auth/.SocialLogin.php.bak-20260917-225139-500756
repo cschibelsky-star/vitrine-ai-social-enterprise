@@ -1,0 +1,111 @@
+<?php
+
+namespace App\Filament\Auth;
+
+use Filament\Auth\Pages\Login;
+use Filament\Facades\Filament;
+use Filament\Forms\Components\Checkbox;
+use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Component;
+
+class SocialLogin extends Login
+{
+    protected string $view = 'filament.auth.social-login';
+
+    #[\Livewire\Attributes\Locked]
+    public ?string $panelId = null;
+
+    public function mount(): void
+    {
+        $this->panelId = Filament::getCurrentOrDefaultPanel()?->getId();
+
+        parent::mount();
+    }
+
+    public function authenticate(): ?\Filament\Auth\Http\Responses\Contracts\LoginResponse
+    {
+        if (filled($this->panelId)) {
+            Filament::setCurrentPanel($this->panelId);
+            Filament::bootCurrentPanel();
+        }
+
+        $data = $this->form->getState();
+        $email = (string) ($data['email'] ?? '');
+        $password = (string) ($data['password'] ?? '');
+        $panel = Filament::getCurrentOrDefaultPanel();
+        $guard = Filament::auth();
+        $provider = $guard->getProvider();
+        $credentials = [
+            'email' => $email,
+            'password' => $password,
+        ];
+        $user = $provider->retrieveByCredentials($credentials);
+        $passwordValid = $user ? $provider->validateCredentials($user, $credentials) : false;
+        $panelAccess = $user instanceof \Filament\Models\Contracts\FilamentUser
+            ? $user->canAccessPanel($panel)
+            : ($user !== null);
+
+        $audit = [
+            'panel_id' => $panel?->getId(),
+            'guard' => $panel?->getAuthGuard(),
+            'email_match' => strtolower(trim($email)) === 'cliente.hml@vitrineaipro.com.br',
+            'user_found' => $user !== null,
+            'password_present' => $password !== '',
+            'password_valid' => $passwordValid,
+            'panel_access' => $panelAccess,
+        ];
+
+        \Illuminate\Support\Facades\Log::info('CLIENT_LOGIN_AUDIT', $audit);
+        error_log('CLIENT_LOGIN_AUDIT '.json_encode($audit));
+
+        try {
+            $response = parent::authenticate();
+
+            $resultAudit = [
+                'panel_id' => Filament::getCurrentOrDefaultPanel()?->getId(),
+                'result' => 'success',
+            ];
+            \Illuminate\Support\Facades\Log::info('CLIENT_LOGIN_AUDIT_RESULT', $resultAudit);
+            error_log('CLIENT_LOGIN_AUDIT_RESULT '.json_encode($resultAudit));
+
+            return $response;
+        } catch (\Illuminate\Validation\ValidationException $exception) {
+            $resultAudit = [
+                'panel_id' => Filament::getCurrentOrDefaultPanel()?->getId(),
+                'result' => 'validation_failure',
+            ];
+            \Illuminate\Support\Facades\Log::info('CLIENT_LOGIN_AUDIT_RESULT', $resultAudit);
+            error_log('CLIENT_LOGIN_AUDIT_RESULT '.json_encode($resultAudit));
+
+            throw $exception;
+        }
+    }
+
+    protected function getEmailFormComponent(): Component
+    {
+        return TextInput::make('email')
+            ->label('E-mail')
+            ->email()
+            ->required()
+            ->autocomplete('email')
+            ->autofocus()
+            ->extraInputAttributes(['tabindex' => 1]);
+    }
+
+    protected function getPasswordFormComponent(): Component
+    {
+        return TextInput::make('password')
+            ->label('Senha')
+            ->password()
+            ->revealable()
+            ->required()
+            ->autocomplete('current-password')
+            ->extraInputAttributes(['tabindex' => 2]);
+    }
+
+    protected function getRememberFormComponent(): Component
+    {
+        return Checkbox::make('remember')
+            ->label('Lembrar acesso');
+    }
+}
