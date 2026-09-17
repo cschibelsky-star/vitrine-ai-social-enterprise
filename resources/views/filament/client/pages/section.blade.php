@@ -40,7 +40,7 @@
                     <h2>Aprovações</h2>
                     <div class="vsm-list">
                         @forelse($items as $item)
-                            <div class="vsm-row"><b>{{ $item->title }}</b><span>{{ $item->channel ?: 'Canal' }}</span><span class="vsm-badge">{{ $item->status ?: 'aguardando' }}</span><div class="vsm-actions"><span class="vsm-action ok">Aprovar</span><span class="vsm-action adjust">Pedir ajuste</span></div></div>
+                            <div class="vsm-row"><b>{{ $item->title }}</b><span>{{ $item->channel ?: 'Canal' }}</span><span class="vsm-badge">{{ $item->status ?: 'aguardando' }}</span><div class="vsm-actions"><button type="button" wire:click="approveContent({{ $item->id }})" class="vsm-action ok">Aprovar</button><button type="button" wire:click="requestAdjustment({{ $item->id }})" class="vsm-action adjust">Pedir ajuste</button></div></div>
                         @empty <div class="vsm-empty">Nenhum conteúdo aguardando aprovação.</div> @endforelse
                     </div>
                     @break
