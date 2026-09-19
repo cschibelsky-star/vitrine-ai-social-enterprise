@@ -4,7 +4,6 @@ namespace App\Filament\Client\Pages;
 
 class Files extends BaseClientSection
 {
-    protected static bool $shouldRegisterNavigation = false;
     protected static ?string $navigationLabel = 'Arquivos';
     protected static ?string $title = 'Arquivos';
     protected static ?int $navigationSort = 70;
