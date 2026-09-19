@@ -17,9 +17,16 @@ class ContentStudioPreview extends Widget
     {
         $project = $this->record?->loadMissing(['client', 'brand', 'slides', 'generations']);
 
+        $versions = $project?->generations()->latest()->limit(8)->get() ?? collect();
+        $imageGeneration = $versions->first(function ($version) {
+            return (string) data_get($version->metadata, 'type') === 'image_generation'
+                && filled(data_get($version->output_data, 'asset_url'));
+        });
+
         return [
             'project' => $project,
-            'versions' => $project?->generations()->latest()->limit(8)->get() ?? collect(),
+            'versions' => $versions,
+            'generatedImageUrl' => $imageGeneration ? (string) data_get($imageGeneration->output_data, 'asset_url') : null,
         ];
     }
 }

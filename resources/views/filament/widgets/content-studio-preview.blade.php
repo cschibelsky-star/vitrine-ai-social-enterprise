@@ -78,7 +78,11 @@
                         <div class="social-avatar"></div>
                         <div><strong style="color:#0f172a">{{ $project->brand?->name ?? 'Sua marca' }}</strong><br><small style="color:#64748b">Conteúdo patrocinado</small></div>
                     </div>
-                    <div class="social-image">{{ $project->title ?: 'Sua criação aparecerá aqui' }}</div>
+                    @if($generatedImageUrl)
+                        <img src="{{ $generatedImageUrl }}" alt="Criativo gerado" style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover">
+                    @else
+                        <div class="social-image">{{ $project->title ?: 'Sua criação aparecerá aqui' }}</div>
+                    @endif
                     <div class="social-copy"><strong>{{ $project->brand?->name ?? 'marca' }}</strong> {{ $project->caption ?: 'Legenda do conteúdo' }}
 
                         <div style="margin-top:12px;color:#0e7490;font-weight:700">{{ $project->hashtags }}</div>

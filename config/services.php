@@ -31,6 +31,13 @@ return [
         'timeout' => (int) env('CENTRO_IA_TIMEOUT', 30),
     ],
 
+    'marketing_engine' => [
+        'url' => env('MARKETING_ENGINE_URL', 'http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/image'),
+        'token' => env('MARKETING_ENGINE_TOKEN'),
+        'project_id' => env('MARKETING_ENGINE_PROJECT_ID', 'vitrine-ai-social-enterprise'),
+        'timeout' => (int) env('MARKETING_ENGINE_TIMEOUT', 150),
+    ],
+
     'social_login' => [
         'google' => [
             'client_id' => env('GOOGLE_OAUTH_CLIENT_ID'),

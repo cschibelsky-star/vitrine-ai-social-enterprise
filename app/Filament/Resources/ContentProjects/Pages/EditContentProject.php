@@ -5,10 +5,15 @@ namespace App\Filament\Resources\ContentProjects\Pages;
 use App\Filament\Resources\ContentProjects\ContentProjectResource;
 use App\Filament\Widgets\ContentStudioPreview;
 use App\Services\AI\AiContentService;
+use App\Models\ContentGeneration;
 use App\Services\AI\ContentRefinementService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use RuntimeException;
 
 class EditContentProject extends EditRecord
 {
@@ -72,9 +77,80 @@ class EditContentProject extends EditRecord
             Action::make('image')
                 ->label('Gerar imagem')
                 ->icon('heroicon-o-photo')
-                ->color('gray')
-                ->disabled()
-                ->tooltip('Será ativado na BUILD 010'),
+                ->color('primary')
+                ->action(function () {
+                    $this->record->refresh()->loadMissing('brand');
+
+                    $url = trim((string) config('services.marketing_engine.url', ''));
+                    $token = trim((string) config('services.marketing_engine.token', ''));
+                    $projectId = trim((string) config('services.marketing_engine.project_id', 'vitrine-ai-social-enterprise'));
+
+                    if ($url === '' || $token === '') {
+                        throw new RuntimeException('Marketing IA Engine não está configurado para geração de imagem.');
+                    }
+
+                    $response = Http::acceptJson()
+                        ->asJson()
+                        ->withToken($token)
+                        ->timeout(max(30, (int) config('services.marketing_engine.timeout', 150)))
+                        ->post($url, [
+                            'project_id' => $projectId,
+                            'brand' => (string) ($this->record->brand?->name ?: 'Marca do cliente'),
+                            'idea' => (string) $this->record->idea,
+                            'objective' => (string) $this->record->objective,
+                            'channel' => (string) $this->record->channel,
+                            'format' => (string) $this->record->format,
+                            'title' => (string) $this->record->title,
+                            'caption' => (string) $this->record->caption,
+                            'cta' => (string) $this->record->cta,
+                        ]);
+
+                    if (! $response->successful() || ! $response->json('ok')) {
+                        throw new RuntimeException('O Marketing IA Engine não concluiu a geração da imagem.');
+                    }
+
+                    $binary = base64_decode((string) $response->json('image_base64'), true);
+                    if ($binary === false || $binary === '') {
+                        throw new RuntimeException('O Marketing IA Engine retornou uma imagem inválida.');
+                    }
+
+                    $mime = (string) $response->json('mime_type', 'image/png');
+                    $extension = str_contains($mime, 'jpeg') || str_contains($mime, 'jpg') ? 'jpg' : (str_contains($mime, 'webp') ? 'webp' : 'png');
+                    $path = 'generated/social/'.now()->format('Y/m/d').'/'.Str::uuid().'.'.$extension;
+
+                    if (! Storage::disk('public')->put($path, $binary)) {
+                        throw new RuntimeException('Não foi possível salvar a imagem gerada.');
+                    }
+
+                    ContentGeneration::create([
+                        'content_project_id' => $this->record->id,
+                        'provider' => 'marketing-ia-engine',
+                        'model' => (string) $response->json('model', 'gemini-image'),
+                        'input_data' => [
+                            'idea' => $this->record->idea,
+                            'objective' => $this->record->objective,
+                            'channel' => $this->record->channel,
+                            'format' => $this->record->format,
+                        ],
+                        'output_data' => [
+                            'asset_path' => $path,
+                            'asset_url' => Storage::disk('public')->url($path),
+                            'mime_type' => $mime,
+                        ],
+                        'metadata' => [
+                            'type' => 'image_generation',
+                            'action' => 'Imagem gerada pelo Marketing IA',
+                            'marketing_generation_id' => $response->json('generation_id'),
+                            'engine' => 'marketing-ia',
+                            'provider' => 'google',
+                        ],
+                        'latency_ms' => 0,
+                    ]);
+
+                    $this->record->update(['status' => 'editing']);
+                    $this->refreshStudio();
+                    $this->notify('Imagem gerada pelo Marketing IA');
+                }),
 
             Action::make('schedule')
                 ->label('Agendar')
