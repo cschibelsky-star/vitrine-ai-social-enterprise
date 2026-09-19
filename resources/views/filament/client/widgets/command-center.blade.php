@@ -80,7 +80,54 @@
     .vsm-grid-bottom{gap:8px}.vsm-performance{min-height:112px;padding:8px}.vsm-performance small{font-size:.51rem}.vsm-performance strong{font-size:1.25rem;margin-top:7px}.vsm-performance em{font-size:.49rem}.vsm-score{width:58px;height:58px}
     .vsm-request-list,.vsm-channel-list{gap:5px}.vsm-request-row,.vsm-channel-row{padding:6px 7px}.vsm-row-copy b{font-size:.55rem}.vsm-row-copy span{font-size:.48rem}.vsm-status,.vsm-connected{font-size:.45rem;padding:4px 6px}
     .vsm-footer{font-size:.49rem;padding-top:6px}
-    @media(max-width:1180px){.vsm-shell{grid-template-columns:205px minmax(0,1fr)}}
+
+    /* Intelligent desktop sidebar */
+    @media(min-width:821px){
+        .vsm-shell{grid-template-columns:72px minmax(0,1fr);transition:grid-template-columns .24s ease}
+        .vsm-shell:has(.vsm-side:hover),.vsm-shell:has(.vsm-side:focus-within){grid-template-columns:232px minmax(0,1fr)}
+        .vsm-side{padding:20px 10px 14px;overflow:hidden;transition:padding .24s ease,box-shadow .24s ease;box-shadow:8px 0 24px rgba(0,0,0,.08)}
+        .vsm-side:hover,.vsm-side:focus-within{padding:20px 14px 14px;box-shadow:12px 0 34px rgba(20,6,62,.34)}
+        .vsm-brand{justify-content:center;margin:2px 0 20px;gap:10px;white-space:nowrap}
+        .vsm-brand-mark{width:42px;min-width:42px;height:42px}
+        .vsm-brand-copy{width:0;opacity:0;overflow:hidden;transform:translateX(-7px);transition:opacity .18s ease,transform .24s ease,width .24s ease}
+        .vsm-side:hover .vsm-brand,.vsm-side:focus-within .vsm-brand{justify-content:flex-start}
+        .vsm-side:hover .vsm-brand-copy,.vsm-side:focus-within .vsm-brand-copy{width:136px;opacity:1;transform:none}
+        .vsm-own-nav a{justify-content:center;gap:0;padding:0 9px;white-space:nowrap;overflow:hidden;font-size:0;transition:all .2s ease}
+        .vsm-own-nav a svg{width:19px;height:19px;min-width:19px}
+        .vsm-side:hover .vsm-own-nav a,.vsm-side:focus-within .vsm-own-nav a{justify-content:flex-start;gap:10px;padding:0 10px;font-size:.72rem}
+        .vsm-own-nav .vsm-badge{display:none}
+        .vsm-side:hover .vsm-own-nav .vsm-badge,.vsm-side:focus-within .vsm-own-nav .vsm-badge{display:grid}
+        .vsm-side-support{min-height:48px;padding:10px 8px;display:grid;place-items:center;overflow:hidden}
+        .vsm-side-support>div{margin:0!important;min-width:28px}
+        .vsm-side-support strong,.vsm-side-support b,.vsm-side-support p,.vsm-side-support a{display:none}
+        .vsm-side:hover .vsm-side-support,.vsm-side:focus-within .vsm-side-support{display:block;padding:15px 13px 16px}
+        .vsm-side:hover .vsm-side-support>div,.vsm-side:focus-within .vsm-side-support>div{margin-bottom:9px!important}
+        .vsm-side:hover .vsm-side-support strong,.vsm-side:focus-within .vsm-side-support strong{display:block}
+        .vsm-side:hover .vsm-side-support b,.vsm-side:focus-within .vsm-side-support b{display:block}
+        .vsm-side:hover .vsm-side-support p,.vsm-side:focus-within .vsm-side-support p{display:block}
+        .vsm-side:hover .vsm-side-support a,.vsm-side:focus-within .vsm-side-support a{display:inline-flex}
+        .vsm-shell>.vsm-dashboard{padding-left:20px;padding-right:20px}
+        .vsm-hero-row{grid-template-columns:minmax(0,2.08fr) minmax(245px,.64fr)}
+        .vsm-shell .vsm-hero{min-height:180px}
+        .vsm-copy{width:53%}
+        .vsm-copy h1{font-size:clamp(2.45rem,3.85vw,4.05rem)}
+        .vsm-hero-art{right:0;width:48%}
+        .vsm-phone{width:194px;height:99px}
+        .vsm-orbit{width:292px;height:126px}
+        .vsm-shell .vsm-team{min-height:180px}
+        .vsm-hero{box-shadow:inset 0 0 36px rgba(47,40,128,.08),0 12px 34px rgba(0,0,0,.18)}
+        .vsm-team{box-shadow:inset 0 0 26px rgba(174,45,255,.08),0 0 26px rgba(91,28,220,.12)}
+        .vsm-kpi{box-shadow:inset 0 0 20px rgba(55,51,135,.08),0 8px 20px rgba(0,0,0,.12)}
+        .vsm-panel{box-shadow:inset 0 0 24px rgba(45,43,105,.05),0 10px 24px rgba(0,0,0,.14)}
+        .vsm-thumb{height:108px}
+        .vsm-performance{min-height:108px}
+        .vsm-spark{height:36px}
+        .vsm-score{width:55px;height:55px}
+    }
+    @media(min-width:821px) and (max-width:1180px){
+        .vsm-shell{grid-template-columns:68px minmax(0,1fr)}
+        .vsm-shell:has(.vsm-side:hover),.vsm-shell:has(.vsm-side:focus-within){grid-template-columns:205px minmax(0,1fr)}
+    }
 </style>
 
 @if(! $clientId)
