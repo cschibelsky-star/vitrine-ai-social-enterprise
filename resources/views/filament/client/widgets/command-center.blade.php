@@ -133,6 +133,45 @@
         .vsm-shell{grid-template-columns:68px minmax(0,1fr)}
         .vsm-shell:has(.vsm-side:hover),.vsm-shell:has(.vsm-side:focus-within){grid-template-columns:205px minmax(0,1fr)}
     }
+
+    /* Approved screenshot fidelity */
+    @media(min-width:1181px){
+        .vsm-shell>.vsm-dashboard{padding-top:10px;padding-bottom:8px;gap:7px}
+        .vsm-topline{min-height:40px;border-bottom:1px solid rgba(122,116,190,.10);margin-bottom:1px}
+        .vsm-actions{gap:10px}.vsm-adjust{min-height:34px;padding:0 14px;border-radius:7px;font-size:.68rem}.vsm-avatar{width:34px;height:34px}.vsm-bell{width:34px;height:34px}
+        .vsm-hero-row{grid-template-columns:minmax(0,2.25fr) minmax(255px,.62fr);gap:10px}
+        .vsm-shell .vsm-hero{min-height:188px;border-radius:11px;border-color:rgba(101,85,214,.18);background:
+            radial-gradient(circle at 70% 48%,rgba(114,18,255,.28),transparent 24%),
+            radial-gradient(circle at 86% 58%,rgba(236,46,255,.17),transparent 28%),
+            linear-gradient(135deg,#050817 0%,#06091b 62%,#050715 100%)}
+        .vsm-copy{width:43%;padding:6px 0 0 4px}
+        .vsm-greeting{font-size:.72rem;margin-bottom:5px;color:#f3f5ff}
+        .vsm-copy h1{font-size:clamp(2.65rem,3.45vw,3.85rem);line-height:.86;letter-spacing:-.065em;text-shadow:0 3px 10px rgba(0,0,0,.5)}
+        .vsm-copy h1 span{margin-top:2px;text-shadow:0 0 12px rgba(255,190,0,.14)}
+        .vsm-copy p{max-width:360px;font-size:.72rem;line-height:1.35;margin-top:8px;color:#d8ddec}
+        .vsm-hero-art{right:-2%;top:-3%;width:58%;height:106%}
+        .vsm-hero-art:before,.vsm-hero-art:after{content:"";position:absolute;inset:17% 6% 10%;pointer-events:none}
+        .vsm-hero-art:before{background:
+            linear-gradient(20deg,transparent 47%,rgba(170,51,255,.35) 48%,transparent 49%) 12% 60%/34% 20% no-repeat,
+            linear-gradient(-25deg,transparent 47%,rgba(51,128,255,.38) 48%,transparent 49%) 68% 48%/28% 18% no-repeat,
+            linear-gradient(8deg,transparent 47%,rgba(217,55,255,.26) 48%,transparent 49%) 48% 78%/36% 16% no-repeat;
+            filter:drop-shadow(0 0 8px rgba(135,54,255,.55))}
+        .vsm-hero-art:after{background:radial-gradient(ellipse at center,rgba(84,39,255,.26),transparent 56%);filter:blur(12px)}
+        .vsm-phone{z-index:2;width:228px;height:114px;border-radius:25px;transform:perspective(520px) rotateX(57deg) rotateZ(-8deg);background:linear-gradient(145deg,#193cff 0%,#17135f 50%,#7424ff 100%);border:2px solid #22e4ff;box-shadow:0 0 13px #10d7ff,0 0 34px #5338ff,0 0 68px rgba(228,43,255,.48),inset 0 0 23px rgba(255,255,255,.22)}
+        .vsm-phone:before{inset:-10px;border-radius:31px;border-color:rgba(57,236,255,.28)}
+        .vsm-phone:after{inset:10px;border-radius:15px;background:radial-gradient(circle at 52% 44%,rgba(230,53,255,.72),transparent 31%),radial-gradient(circle at 42% 63%,rgba(40,94,255,.62),transparent 39%),linear-gradient(145deg,#08122b,#08091f 65%,#1b0a31)}
+        .vsm-orbit{z-index:3;width:328px;height:142px;border-width:2px;transform:rotate(-7deg);box-shadow:0 0 16px rgba(62,105,255,.55),0 0 38px rgba(187,48,255,.27)}
+        .vsm-social{z-index:5;width:46px;height:46px;border-radius:10px;border-color:rgba(255,255,255,.24);box-shadow:0 0 14px currentColor,0 0 25px rgba(135,55,255,.2);transform:rotate(-4deg)}
+        .vsm-social.ig{left:11%;top:23%}.vsm-social.yt{right:23%;top:27%}.vsm-social.stat{right:6%;top:17%}.vsm-social.like{left:48%;top:0}.vsm-social.chat{left:47%;bottom:7%}
+        .vsm-shell .vsm-team{min-height:188px;padding:16px;border-radius:11px;background:radial-gradient(circle at 88% 43%,rgba(202,45,255,.2),transparent 28%),linear-gradient(155deg,#0b1028,#12092d);border-color:rgba(182,60,255,.44)}
+        .vsm-team h3{font-size:.72rem;margin-bottom:9px}.vsm-team p{font-size:.64rem;line-height:1.45;max-width:180px}.vsm-star{right:18px;top:57px;font-size:2.1rem}.vsm-team-avatars{margin-top:14px}.vsm-team-avatar{width:30px;height:30px}
+        .vsm-kpis{gap:9px}.vsm-kpi{min-height:76px;border-radius:9px;padding:9px 12px;grid-template-columns:40px 1fr}.vsm-kpi-icon{width:37px;height:37px;border-radius:8px}.vsm-kpi strong{font-size:1.38rem}.vsm-kpi small{font-size:.5rem}.vsm-kpi em{font-size:.5rem}
+        .vsm-grid-main{grid-template-columns:minmax(0,1fr) minmax(0,1.16fr);gap:9px}.vsm-panel{border-radius:9px;padding:10px}.vsm-panel-title{font-size:.7rem}.vsm-link{min-height:25px;padding:0 8px;font-size:.51rem}
+        .vsm-calendar{grid-template-columns:38px repeat(7,minmax(66px,1fr))}.vsm-cal-cell{min-height:34px;padding:3px}.vsm-calendar-event{padding:3px 4px;border-radius:5px}.vsm-calendar-event b{font-size:.47rem}.vsm-calendar-event span{font-size:.42rem}
+        .vsm-approval-grid{gap:8px}.vsm-thumb{height:128px}.vsm-thumb-text{font-size:.8rem;max-width:86%}.vsm-approval-body{padding:6px 7px}.vsm-approval-actions{gap:5px}.vsm-approve,.vsm-request{min-height:28px}
+        .vsm-grid-bottom{grid-template-columns:1.5fr .8fr .78fr;gap:9px}.vsm-performance{min-height:116px}.vsm-spark{height:37px}.vsm-score{width:58px;height:58px}
+        .vsm-request-row,.vsm-channel-row{min-height:36px;padding:5px 7px}.vsm-row-copy b{font-size:.54rem}.vsm-row-copy span{font-size:.46rem}.vsm-footer{padding-top:5px;font-size:.47rem}
+    }
 </style>
 
 @if(! $clientId)
@@ -173,7 +212,7 @@
     </aside>
     <div class="vsm-dashboard">
     <div class="vsm-topline">
-        <div class="vsm-greeting">Olá, {{ $userName }}! 👋</div>
+        <div></div>
         <div class="vsm-actions">
             <a class="vsm-adjust" href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">✎ Solicitar ajuste</a>
             <div class="vsm-bell" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
@@ -187,6 +226,7 @@
     <div class="vsm-hero-row">
         <section class="vsm-hero">
             <div class="vsm-copy">
+                <div class="vsm-greeting">Olá, {{ $userName }}! 👋</div>
                 <h1>Sua presença digital <span>em um só lugar</span></h1>
                 <p>Acompanhe entregas, aprove conteúdos e veja resultados.</p>
             </div>
