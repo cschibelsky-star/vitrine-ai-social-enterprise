@@ -43,12 +43,55 @@
     @media(max-width:1180px){.vsm-hero-row{grid-template-columns:1fr}.vsm-team{display:none}.vsm-grid-main{grid-template-columns:1fr}.vsm-grid-bottom{grid-template-columns:1fr 1fr}.vsm-grid-bottom .vsm-panel:first-child{grid-column:1/-1}.vsm-copy{width:62%}.vsm-performance-grid{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:760px){.fi-main{padding:8px 0 96px!important}.vsm-dashboard{padding:0 12px 16px;gap:13px}.vsm-topline{min-height:42px}.vsm-greeting{font-size:.8rem}.vsm-bell,.vsm-profile-meta{display:none}.vsm-adjust{padding:9px 11px;font-size:.68rem}.vsm-hero{min-height:245px;padding:17px 16px}.vsm-copy{width:86%;padding-top:0}.vsm-copy h1{font-size:2.65rem;line-height:.9}.vsm-copy p{font-size:.8rem;max-width:75%}.vsm-hero-art{right:-18%;top:44%;width:70%;height:58%;opacity:.85}.vsm-phone{width:150px;height:75px}.vsm-orbit{width:205px;height:90px}.vsm-social{width:36px;height:36px;font-size:.9rem}.vsm-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.vsm-kpi{grid-template-columns:38px 1fr;min-height:78px;padding:10px}.vsm-kpi-icon{width:35px;height:35px;font-size:1rem}.vsm-kpi strong{font-size:1.25rem}.vsm-panel{padding:13px}.vsm-calendar{grid-template-columns:38px repeat(7,120px);overflow-x:auto;scroll-snap-type:x proximity}.vsm-approval-grid{grid-template-columns:1fr}.vsm-thumb{height:160px}.vsm-grid-bottom{grid-template-columns:1fr}.vsm-grid-bottom .vsm-panel:first-child{grid-column:auto}.vsm-performance-grid{grid-template-columns:repeat(2,1fr)}.vsm-footer{padding-bottom:8px}.vsm-mobile-nav{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:10px;right:10px;bottom:10px;z-index:60;padding:7px;border-radius:18px;border:1px solid rgba(115,44,255,.48);background:rgba(4,8,20,.96);box-shadow:0 0 24px rgba(80,25,180,.2);backdrop-filter:blur(18px)}.vsm-mobile-nav a{display:grid;place-items:center;min-height:48px;color:#b8c2db;text-decoration:none;font-size:.62rem;font-weight:850;border-radius:12px}.vsm-mobile-nav a.active{color:#fff;background:linear-gradient(145deg,rgba(54,61,145,.55),rgba(68,23,115,.62));border:1px solid rgba(136,48,255,.55)}}
     @media(max-width:430px){.vsm-copy h1{font-size:2.25rem}.vsm-copy p{max-width:90%}.vsm-kpis{grid-template-columns:1fr 1fr}.vsm-kpi{grid-template-columns:1fr;gap:4px}.vsm-kpi-icon{display:none}.vsm-performance-grid{grid-template-columns:1fr 1fr}}
+
+    /* Canonical client shell */
+    .fi-sidebar,.fi-topbar{display:none!important}
+    .fi-main,.fi-main-ctn{padding:0!important;margin:0!important;max-width:none!important;width:100%!important}
+    .vsm-shell{min-height:100vh;display:grid;grid-template-columns:245px minmax(0,1fr);background:linear-gradient(180deg,#040712,#030610 66%,#02040b)}
+    .vsm-side{position:sticky;top:0;height:100vh;padding:24px 16px 18px;border-right:1px solid rgba(100,76,255,.22);background:linear-gradient(180deg,#050917,#030712 72%,#05081a);display:flex;flex-direction:column}
+    .vsm-brand{display:flex;align-items:center;gap:10px;margin:2px 6px 26px}.vsm-brand-mark{width:44px;height:44px;display:grid;place-items:center;filter:drop-shadow(0 0 12px rgba(120,57,255,.55))}.vsm-brand-mark svg{width:38px;height:38px}.vsm-brand-copy{line-height:.88}.vsm-brand-copy b{display:block;color:#fff;font-size:1.22rem;font-weight:1000;font-style:italic;letter-spacing:-.06em}.vsm-brand-copy span{display:block;margin-top:7px;color:#ffc400;font-size:.64rem;font-weight:1000;letter-spacing:.08em}
+    .vsm-own-nav{display:grid;gap:5px}.vsm-own-nav a{min-height:42px;padding:0 12px;display:flex;align-items:center;gap:10px;border-radius:9px;color:#b7c0d7;text-decoration:none;font-size:.76rem;font-weight:760;border:1px solid transparent}.vsm-own-nav a.active{color:#fff;background:linear-gradient(90deg,rgba(90,27,199,.82),rgba(81,28,177,.28));border-color:rgba(166,54,255,.65);box-shadow:inset 3px 0 0 #2bdfff,0 0 18px rgba(115,40,255,.16)}.vsm-own-nav .vsm-badge{margin-left:auto}
+    .vsm-side-support{margin-top:auto;position:relative;overflow:hidden;border-radius:16px;padding:18px 15px;border:1px solid rgba(145,54,255,.65);background:radial-gradient(circle at 80% 7%,rgba(119,40,255,.42),transparent 34%),linear-gradient(155deg,#130d3a,#071228)}.vsm-side-support:after{content:"";position:absolute;right:-14px;top:6px;width:68px;height:68px;border-radius:50%;background:radial-gradient(circle,#d94bff 0 5%,#6d2bff 28%,transparent 64%)}.vsm-side-support strong{display:block;color:#fff;font-size:.72rem}.vsm-side-support b{display:block;color:#fff;font-size:.95rem;margin-top:4px}.vsm-side-support p{margin:8px 0 13px;color:#aeb8d1;font-size:.64rem;line-height:1.35}.vsm-side-support a{display:inline-flex;align-items:center;min-height:31px;padding:0 12px;border-radius:7px;background:#ffc400;color:#171100;text-decoration:none;font-size:.61rem;font-weight:950}
+    .vsm-shell>.vsm-dashboard{padding:18px 20px 15px;gap:10px}
+    .vsm-shell .vsm-hero{min-height:185px;border-radius:14px}.vsm-shell .vsm-team{min-height:185px;border-radius:14px}.vsm-shell .vsm-kpis{gap:9px}.vsm-shell .vsm-panel{border-radius:10px;padding:11px}.vsm-shell .vsm-grid-main,.vsm-shell .vsm-grid-bottom{gap:9px}
+    @media(max-width:1180px){.vsm-shell{grid-template-columns:210px minmax(0,1fr)}}
+    @media(max-width:820px){.vsm-shell{display:block}.vsm-side{display:none}.vsm-shell>.vsm-dashboard{padding:10px 11px 88px}.vsm-mobile-nav{display:grid!important}}
 </style>
 
 @if(! $clientId)
     <div class="vsm-panel" style="padding:32px;text-align:center">Seu usuário precisa estar vinculado a um cliente para carregar o painel.</div>
 @else
-<div class="vsm-dashboard">
+<div class="vsm-shell">
+    <aside class="vsm-side">
+        <div class="vsm-brand">
+            <div class="vsm-brand-mark">
+                <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
+                    <path d="M29 3 12 25h10l-3 20 17-24H26l3-18Z" fill="url(#vsmBolt)"/>
+                    <defs><linearGradient id="vsmBolt" x1="11" y1="5" x2="39" y2="42"><stop stop-color="#19E7FF"/><stop offset=".55" stop-color="#8C2CFF"/><stop offset="1" stop-color="#FF41D0"/></linearGradient></defs>
+                </svg>
+            </div>
+            <div class="vsm-brand-copy"><b>VITRINE</b><span>SOCIAL MÍDIA</span></div>
+        </div>
+        <nav class="vsm-own-nav">
+            <a class="active" href="{{ \App\Filament\Client\Pages\ClientDashboard::getUrl() }}">⌂ Painel</a>
+            <a href="{{ \App\Filament\Client\Pages\Contents::getUrl() }}">▤ Conteúdos</a>
+            <a href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}">▣ Calendário</a>
+            <a href="{{ \App\Filament\Client\Pages\Approvals::getUrl() }}">✓ Aprovações @if($approvals > 0)<span class="vsm-badge">{{ $approvals }}</span>@endif</a>
+            <a href="{{ \App\Filament\Client\Pages\Performance::getUrl() }}">▥ Desempenho</a>
+            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">☷ Solicitações</a>
+            <a href="{{ \App\Filament\Client\Pages\Channels::getUrl() }}">⌯ Canais</a>
+            <a href="{{ \App\Filament\Client\Pages\Files::getUrl() }}">▱ Arquivos</a>
+            <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}">◉ Consumo e Saldo</a>
+            <a href="{{ \App\Filament\Client\Pages\Affiliates::getUrl() }}">◇ Programa de Afiliados</a>
+            <a href="{{ \App\Filament\Client\Pages\Account::getUrl() }}">● Conta</a>
+        </nav>
+        <div class="vsm-side-support">
+            <strong>DÚVIDAS?</strong><b>Fale com a gente!</b>
+            <p>Resposta em até<br>1h útil</p>
+            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Abrir chat →</a>
+        </div>
+    </aside>
+    <div class="vsm-dashboard">
     <div class="vsm-topline">
         <div class="vsm-greeting">Olá, {{ $userName }}! 👋</div>
         <div class="vsm-actions">
@@ -181,6 +224,7 @@
     </div>
 
     <footer class="vsm-footer"><span>Vitrine Social Mídia © {{ now()->year }}</span><span>•</span><span>Todos os direitos reservados</span><i>ϟ</i><span>Transparência</span><span>•</span><span>Estratégia</span><span>•</span><span>Resultados</span></footer>
+    </div>
 </div>
 
 <nav class="vsm-mobile-nav" aria-label="Navegação rápida">
