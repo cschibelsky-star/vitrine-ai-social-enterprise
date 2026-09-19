@@ -152,6 +152,122 @@ class EditContentProject extends EditRecord
                     $this->notify('Imagem gerada pelo Marketing IA');
                 }),
 
+            Action::make('video')
+                ->label('Gerar vídeo')
+                ->icon('heroicon-o-video-camera')
+                ->color('primary')
+                ->visible(fn () => in_array((string) $this->record->format, ['reels', 'stories'], true))
+                ->action(function () {
+                    $this->record->refresh()->loadMissing('brand');
+
+                    $url = trim((string) config('services.marketing_engine.video_url', ''));
+                    $token = trim((string) config('services.marketing_engine.token', ''));
+                    $projectId = trim((string) config('services.marketing_engine.project_id', 'vitrine-ai-social-enterprise'));
+
+                    if ($url === '' || $token === '') {
+                        throw new RuntimeException('Marketing IA Engine não está configurado para geração de vídeo.');
+                    }
+
+                    $response = Http::acceptJson()
+                        ->asJson()
+                        ->withToken($token)
+                        ->timeout(max(30, (int) config('services.marketing_engine.timeout', 150)))
+                        ->post($url, [
+                            'project_id' => $projectId,
+                            'brand' => (string) ($this->record->brand?->name ?: 'Marca do cliente'),
+                            'idea' => (string) $this->record->idea,
+                            'objective' => (string) $this->record->objective,
+                            'channel' => (string) $this->record->channel,
+                            'format' => (string) $this->record->format,
+                            'title' => (string) $this->record->title,
+                            'caption' => (string) $this->record->caption,
+                            'cta' => (string) $this->record->cta,
+                            'aspect_ratio' => '9:16',
+                            'duration_seconds' => 8,
+                        ]);
+
+                    if (! $response->successful() || ! $response->json('ok')) {
+                        throw new RuntimeException('O Marketing IA Engine não iniciou a geração do vídeo.');
+                    }
+
+                    ContentGeneration::create([
+                        'content_project_id' => $this->record->id,
+                        'provider' => 'marketing-ia-engine',
+                        'model' => (string) $response->json('model', 'veo'),
+                        'input_data' => [
+                            'idea' => $this->record->idea,
+                            'objective' => $this->record->objective,
+                            'channel' => $this->record->channel,
+                            'format' => $this->record->format,
+                        ],
+                        'output_data' => [
+                            'job_ref' => (string) $response->json('job_ref', ''),
+                            'status' => (string) $response->json('status', 'processing'),
+                            'asset_url' => null,
+                        ],
+                        'metadata' => [
+                            'type' => 'video_generation',
+                            'action' => 'Vídeo enviado ao Veo pelo Marketing IA',
+                            'engine' => 'marketing-ia',
+                            'provider' => 'google-veo',
+                        ],
+                        'latency_ms' => 0,
+                    ]);
+
+                    $this->record->update(['status' => 'editing']);
+                    $this->refreshStudio();
+                    $this->notify('Vídeo enviado ao Google Veo');
+                }),
+
+            Action::make('refresh_video')
+                ->label('Atualizar vídeo')
+                ->icon('heroicon-o-arrow-path')
+                ->color('gray')
+                ->visible(fn () => $this->record->generations()
+                    ->where('metadata->type', 'video_generation')
+                    ->exists())
+                ->action(function () {
+                    $generation = $this->record->generations()
+                        ->where('metadata->type', 'video_generation')
+                        ->latest()
+                        ->first();
+
+                    if (! $generation) {
+                        throw new RuntimeException('Nenhuma geração de vídeo encontrada.');
+                    }
+
+                    $jobRef = trim((string) data_get($generation->output_data, 'job_ref', ''));
+                    $url = trim((string) config('services.marketing_engine.video_refresh_url', ''));
+                    $token = trim((string) config('services.marketing_engine.token', ''));
+
+                    if ($jobRef === '' || $url === '' || $token === '') {
+                        throw new RuntimeException('Dados da geração de vídeo estão incompletos.');
+                    }
+
+                    $response = Http::acceptJson()
+                        ->asJson()
+                        ->withToken($token)
+                        ->timeout(max(30, (int) config('services.marketing_engine.timeout', 150)))
+                        ->post($url, ['job_ref' => $jobRef]);
+
+                    if (! $response->successful() || ! $response->json('ok')) {
+                        throw new RuntimeException('Não foi possível atualizar a geração do vídeo.');
+                    }
+
+                    $output = (array) $generation->output_data;
+                    $output['status'] = (string) $response->json('status', 'processing');
+                    $output['asset_url'] = $response->json('asset_url');
+
+                    $generation->update(['output_data' => $output]);
+                    $this->refreshStudio();
+
+                    $this->notify(
+                        $output['status'] === 'completed'
+                            ? 'Vídeo concluído pelo Google Veo'
+                            : 'Vídeo ainda está em geração'
+                    );
+                }),
+
             Action::make('schedule')
                 ->label('Agendar')
                 ->icon('heroicon-o-calendar-days')

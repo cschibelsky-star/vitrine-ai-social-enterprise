@@ -22,11 +22,16 @@ class ContentStudioPreview extends Widget
             return (string) data_get($version->metadata, 'type') === 'image_generation'
                 && filled(data_get($version->output_data, 'asset_url'));
         });
+        $videoGeneration = $versions->first(function ($version) {
+            return (string) data_get($version->metadata, 'type') === 'video_generation'
+                && filled(data_get($version->output_data, 'asset_url'));
+        });
 
         return [
             'project' => $project,
             'versions' => $versions,
             'generatedImageUrl' => $imageGeneration ? (string) data_get($imageGeneration->output_data, 'asset_url') : null,
+            'generatedVideoUrl' => $videoGeneration ? (string) data_get($videoGeneration->output_data, 'asset_url') : null,
         ];
     }
 }

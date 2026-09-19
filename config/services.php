@@ -33,6 +33,8 @@ return [
 
     'marketing_engine' => [
         'url' => env('MARKETING_ENGINE_URL', 'http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/image'),
+        'video_url' => env('MARKETING_ENGINE_VIDEO_URL', 'http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/video'),
+        'video_refresh_url' => env('MARKETING_ENGINE_VIDEO_REFRESH_URL', 'http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/video/refresh'),
         'token' => env('MARKETING_ENGINE_TOKEN'),
         'project_id' => env('MARKETING_ENGINE_PROJECT_ID', 'vitrine-ai-social-enterprise'),
         'timeout' => (int) env('MARKETING_ENGINE_TIMEOUT', 150),

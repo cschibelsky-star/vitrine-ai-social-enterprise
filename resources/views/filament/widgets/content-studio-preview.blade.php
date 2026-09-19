@@ -78,7 +78,11 @@
                         <div class="social-avatar"></div>
                         <div><strong style="color:#0f172a">{{ $project->brand?->name ?? 'Sua marca' }}</strong><br><small style="color:#64748b">Conteúdo patrocinado</small></div>
                     </div>
-                    @if($generatedImageUrl)
+                    @if($generatedVideoUrl)
+                        <video controls playsinline style="display:block;width:100%;aspect-ratio:9/16;object-fit:cover;background:#020617">
+                            <source src="{{ $generatedVideoUrl }}" type="video/mp4">
+                        </video>
+                    @elseif($generatedImageUrl)
                         <img src="{{ $generatedImageUrl }}" alt="Criativo gerado" style="display:block;width:100%;aspect-ratio:4/5;object-fit:cover">
                     @else
                         <div class="social-image">{{ $project->title ?: 'Sua criação aparecerá aqui' }}</div>
