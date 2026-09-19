@@ -72,6 +72,7 @@ class ClientCommandCenter extends Widget
         $base = ContentProject::query()->where('client_id', $clientId);
 
         $approvalItems = (clone $base)
+            ->with(['slides' => fn ($query) => $query->orderBy('slide_number')])
             ->whereIn('status', ['review', 'pending_approval', 'approval_pending'])
             ->latest('updated_at')
             ->limit(3)
