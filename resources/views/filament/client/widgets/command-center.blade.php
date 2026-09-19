@@ -56,6 +56,31 @@
     .vsm-shell .vsm-hero{min-height:185px;border-radius:14px}.vsm-shell .vsm-team{min-height:185px;border-radius:14px}.vsm-shell .vsm-kpis{gap:9px}.vsm-shell .vsm-panel{border-radius:10px;padding:11px}.vsm-shell .vsm-grid-main,.vsm-shell .vsm-grid-bottom{gap:9px}
     @media(max-width:1180px){.vsm-shell{grid-template-columns:210px minmax(0,1fr)}}
     @media(max-width:820px){.vsm-shell{display:block}.vsm-side{display:none}.vsm-shell>.vsm-dashboard{padding:10px 11px 88px}.vsm-mobile-nav{display:grid!important}}
+
+    /* Final fidelity pass */
+    .vsm-shell{grid-template-columns:232px minmax(0,1fr)}
+    .vsm-side{padding:22px 14px 16px}
+    .vsm-brand{margin-bottom:22px}.vsm-brand-mark{width:42px;height:42px}.vsm-brand-copy b{font-size:1.16rem}.vsm-brand-copy span{font-size:.61rem}
+    .vsm-own-nav{gap:3px}.vsm-own-nav a{min-height:38px;padding:0 10px;font-size:.72rem}.vsm-own-nav a svg{width:17px;height:17px;min-width:17px;opacity:.88}.vsm-own-nav a.active svg{color:#25ddff;filter:drop-shadow(0 0 5px rgba(37,221,255,.55))}.vsm-channel-platform svg{width:14px;height:14px}
+    .vsm-side-support{padding:15px 13px 16px;border-radius:14px}.vsm-side-support b{font-size:.88rem}.vsm-side-support p{margin:6px 0 11px}
+    .vsm-shell>.vsm-dashboard{padding:14px 18px 12px;gap:8px}
+    .vsm-topline{min-height:42px}.vsm-greeting{font-size:.82rem}.vsm-adjust{padding:8px 14px;font-size:.7rem}.vsm-profile-meta b{font-size:.7rem}.vsm-profile-meta span{font-size:.58rem}
+    .vsm-hero-row{grid-template-columns:minmax(0,1.95fr) minmax(255px,.7fr);gap:9px}
+    .vsm-shell .vsm-hero{min-height:176px;padding:8px 16px 13px}.vsm-copy{width:56%;padding-top:3px}.vsm-copy h1{font-size:clamp(2.2rem,3.65vw,3.8rem);line-height:.89}.vsm-copy p{font-size:.76rem;margin-top:7px}
+    .vsm-hero-art{right:1%;top:0;width:45%;height:100%}.vsm-phone{width:184px;height:94px}.vsm-orbit{width:276px;height:122px}.vsm-social{width:43px;height:43px}.vsm-social svg{width:22px;height:22px}
+    .vsm-shell .vsm-team{min-height:176px;padding:16px 16px}.vsm-team h3{font-size:.75rem;margin-bottom:8px}.vsm-team p{font-size:.68rem}.vsm-star{font-size:2.15rem;top:48px}.vsm-team-avatars{margin-top:13px}
+    .vsm-team-avatar{width:31px;height:31px;font-size:0;position:relative;overflow:hidden;background:linear-gradient(145deg,#51275e,#183867)}
+    .vsm-team-avatar:not(:last-child):before{content:"";position:absolute;left:50%;top:5px;transform:translateX(-50%);width:10px;height:10px;border-radius:50%;background:#efc7ae}
+    .vsm-team-avatar:not(:last-child):after{content:"";position:absolute;left:50%;bottom:-2px;transform:translateX(-50%);width:22px;height:17px;border-radius:12px 12px 3px 3px;background:#425071}
+    .vsm-team-avatar:last-child{font-size:.55rem}
+    .vsm-kpis{gap:8px}.vsm-kpi{min-height:72px;grid-template-columns:40px 1fr;padding:9px 11px}.vsm-kpi-icon{width:36px;height:36px;font-size:1.05rem}.vsm-kpi strong{font-size:1.35rem}.vsm-kpi small{font-size:.51rem}.vsm-kpi em{font-size:.54rem}
+    .vsm-shell .vsm-panel{padding:10px;border-radius:9px}.vsm-panel-head{margin-bottom:8px}.vsm-panel-title{font-size:.72rem}.vsm-link{padding:6px 9px;font-size:.54rem}
+    .vsm-weekline{font-size:.62rem;margin-bottom:7px}.vsm-cal-cell{min-height:36px;padding:4px;font-size:.53rem}.vsm-cal-day{padding:6px 2px}.vsm-calendar-event{padding:4px 5px;font-size:.49rem}.vsm-calendar-event b{font-size:.5rem}.vsm-calendar-event span{font-size:.45rem}.vsm-legend{margin-top:7px;font-size:.51rem}
+    .vsm-approval-grid{gap:7px}.vsm-thumb{height:104px;padding:10px}.vsm-thumb-text{font-size:.74rem}.vsm-approval-body{padding:6px}.vsm-approval-meta{font-size:.5rem;margin-bottom:5px}.vsm-approve,.vsm-request{min-height:28px;font-size:.53rem}
+    .vsm-grid-bottom{gap:8px}.vsm-performance{min-height:112px;padding:8px}.vsm-performance small{font-size:.51rem}.vsm-performance strong{font-size:1.25rem;margin-top:7px}.vsm-performance em{font-size:.49rem}.vsm-score{width:58px;height:58px}
+    .vsm-request-list,.vsm-channel-list{gap:5px}.vsm-request-row,.vsm-channel-row{padding:6px 7px}.vsm-row-copy b{font-size:.55rem}.vsm-row-copy span{font-size:.48rem}.vsm-status,.vsm-connected{font-size:.45rem;padding:4px 6px}
+    .vsm-footer{font-size:.49rem;padding-top:6px}
+    @media(max-width:1180px){.vsm-shell{grid-template-columns:205px minmax(0,1fr)}}
 </style>
 
 @if(! $clientId)
@@ -73,19 +98,22 @@
             <div class="vsm-brand-copy"><b>VITRINE</b><span>SOCIAL MÍDIA</span></div>
         </div>
         <nav class="vsm-own-nav">
-            <a class="active" href="{{ \App\Filament\Client\Pages\ClientDashboard::getUrl() }}">⌂ Painel</a>
-            <a href="{{ \App\Filament\Client\Pages\Contents::getUrl() }}">▤ Conteúdos</a>
-            <a href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}">▣ Calendário</a>
-            <a href="{{ \App\Filament\Client\Pages\Approvals::getUrl() }}">✓ Aprovações @if($approvals > 0)<span class="vsm-badge">{{ $approvals }}</span>@endif</a>
-            <a href="{{ \App\Filament\Client\Pages\Performance::getUrl() }}">▥ Desempenho</a>
-            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">☷ Solicitações</a>
-            <a href="{{ \App\Filament\Client\Pages\Channels::getUrl() }}">⌯ Canais</a>
-            <a href="{{ \App\Filament\Client\Pages\Files::getUrl() }}">▱ Arquivos</a>
-            <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}">◉ Consumo e Saldo</a>
-            <a href="{{ \App\Filament\Client\Pages\Affiliates::getUrl() }}">◇ Programa de Afiliados</a>
-            <a href="{{ \App\Filament\Client\Pages\Account::getUrl() }}">● Conta</a>
+            <a class="active" href="{{ \App\Filament\Client\Pages\ClientDashboard::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9H4v-9Z"/><path d="M9 20v-6h6v6"/></svg>Painel</a>
+            <a href="{{ \App\Filament\Client\Pages\Contents::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M8 9h8M8 13h8M8 17h5"/></svg>Conteúdos</a>
+            <a href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>Calendário</a>
+            <a href="{{ \App\Filament\Client\Pages\Approvals::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="m8.5 12 2.2 2.2 4.8-5"/></svg>Aprovações @if($approvals > 0)<span class="vsm-badge">{{ $approvals }}</span>@endif</a>
+            <a href="{{ \App\Filament\Client\Pages\Performance::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 19V9M10 19V5M16 19v-7M22 19V3"/></svg>Desempenho</a>
+            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H8l-4 4V5Z"/></svg>Solicitações</a>
+            <a href="{{ \App\Filament\Client\Pages\Channels::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12a7 7 0 0 1 7-7M5 17a12 12 0 0 1 12-12"/><circle cx="6" cy="18" r="2"/></svg>Canais</a>
+            <a href="{{ \App\Filament\Client\Pages\Files::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h7l2 2h9v10H3V7Z"/></svg>Arquivos</a>
+            <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Consumo e Saldo</a>
+            <a href="{{ \App\Filament\Client\Pages\Affiliates::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="7" r="2.5"/><path d="M3 20c.5-4 2.5-6 5-6s4.5 2 5 6M14 14c3 0 5 2 5.5 5"/></svg>Programa de Afiliados</a>
+            <a href="{{ \App\Filament\Client\Pages\Account::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.5 3.3-7 8-7s7.3 2.5 8 7"/></svg>Conta</a>
         </nav>
         <div class="vsm-side-support">
+            <div style="width:28px;height:28px;border-radius:8px;display:grid;place-items:center;margin-bottom:9px;background:linear-gradient(145deg,#9c2aff,#5417c8);box-shadow:0 0 14px rgba(160,45,255,.4)">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="white" stroke-width="1.8"><path d="M4 5h16v12H9l-5 3V5Z"/></svg>
+            </div>
             <strong>DÚVIDAS?</strong><b>Fale com a gente!</b>
             <p>Resposta em até<br>1h útil</p>
             <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Abrir chat →</a>
@@ -215,7 +243,26 @@
             <div class="vsm-panel-head"><h3 class="vsm-panel-title"><i>♧</i> Canais conectados</h3></div>
             <div class="vsm-channel-list">
                 @forelse($channels as $channel)
-                    <div class="vsm-channel-row"><div class="vsm-channel-platform">{{ strtoupper(mb_substr($channel->channel,0,1)) }}</div><div class="vsm-row-copy"><b>{{ ucfirst($channel->channel) }}</b><span>{{ $channel->total }} conteúdo(s) vinculados</span></div><span class="vsm-connected">Ativo</span></div>
+                    @php $ch = strtolower((string) $channel->channel); @endphp
+                    <div class="vsm-channel-row">
+                        <div class="vsm-channel-platform" style="background:{{ str_contains($ch,'youtube') ? '#e31a3d' : (str_contains($ch,'facebook') ? '#1877f2' : (str_contains($ch,'linkedin') ? '#0a66c2' : (str_contains($ch,'tiktok') ? '#111827' : 'linear-gradient(145deg,#7d2aff,#f42686)'))) }}">
+                            @if(str_contains($ch,'instagram'))
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+                            @elseif(str_contains($ch,'youtube'))
+                                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 7.3a2.8 2.8 0 0 0-2-2C17.2 4.8 12 4.8 12 4.8s-5.2 0-7 .5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2.5 12 29 29 0 0 0 3 16.7a2.8 2.8 0 0 0 2 2c1.8.5 7 .5 7 .5s5.2 0 7-.5a2.8 2.8 0 0 0 2-2 29 29 0 0 0 .5-4.7 29 29 0 0 0-.5-4.7ZM10 15.5v-7l6 3.5-6 3.5Z"/></svg>
+                            @elseif(str_contains($ch,'facebook'))
+                                <span style="font-weight:1000;font-size:.78rem">f</span>
+                            @elseif(str_contains($ch,'linkedin'))
+                                <span style="font-weight:1000;font-size:.58rem">in</span>
+                            @elseif(str_contains($ch,'tiktok'))
+                                <span style="font-weight:1000;font-size:.72rem">♪</span>
+                            @else
+                                <span>{{ strtoupper(mb_substr($channel->channel,0,1)) }}</span>
+                            @endif
+                        </div>
+                        <div class="vsm-row-copy"><b>{{ ucfirst($channel->channel) }}</b><span>{{ $channel->total }} conteúdo(s) vinculados</span></div>
+                        <span class="vsm-connected">Conectado</span>
+                    </div>
                 @empty
                     <div class="vsm-channel-row"><div class="vsm-channel-platform">•</div><div class="vsm-row-copy"><b>Nenhum canal com atividade</b><span>Conecte seus canais para começar.</span></div><span class="vsm-status">Pendente</span></div>
                 @endforelse
