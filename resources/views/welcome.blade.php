@@ -19,8 +19,8 @@
             font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
         a{color:inherit;text-decoration:none}.wrap{width:min(1160px,calc(100% - 40px));margin:auto}
         .nav{position:sticky;top:0;z-index:20;background:rgba(7,11,23,.72);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
-        .nav-inner{height:76px;display:flex;align-items:center;justify-content:space-between;gap:24px}.brand{font-weight:900;letter-spacing:-.04em;font-size:1.18rem}.brand span{background:linear-gradient(90deg,var(--cyan),var(--violet),var(--magenta));-webkit-background-clip:text;color:transparent}
-        .nav-links{display:flex;gap:24px;color:var(--muted);font-size:.92rem}.nav-actions{display:flex;gap:10px}
+        .nav-inner{height:86px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:34px}.brand{display:flex;align-items:center;gap:12px;min-width:max-content}.brand-lockup{display:grid;line-height:.84}.brand-vitrine{font-size:1.48rem;font-style:italic;font-weight:950;letter-spacing:-.075em;color:#fff;text-shadow:0 0 18px rgba(96,118,255,.3)}.brand-social{margin-top:5px;font-size:.72rem;font-weight:950;letter-spacing:.055em;color:var(--gold)}.brand-bolt{position:relative;width:28px;height:48px;filter:drop-shadow(0 0 12px rgba(124,60,255,.75))}.brand-bolt:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,#ffffff 0%,#60a5fa 35%,#7c3cff 67%,#ff4fd8 100%);clip-path:polygon(57% 0,20% 48%,46% 48%,31% 100%,82% 40%,55% 40%)}.brand-bolt:after{content:"";position:absolute;inset:5px 6px 6px;background:#07101f;clip-path:polygon(57% 0,20% 48%,46% 48%,31% 100%,82% 40%,55% 40%)}
+        .nav-links{display:flex;justify-content:center;gap:30px;color:#aab5d1;font-size:.9rem;font-weight:650}.nav-links a{transition:.2s ease}.nav-links a:hover{color:#fff;text-shadow:0 0 18px rgba(37,217,255,.25)}.nav-actions{display:flex;align-items:center;gap:12px}
         .btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:14px;border:1px solid var(--line);font-weight:800;transition:.2s ease}.btn:hover{transform:translateY(-1px);border-color:rgba(37,217,255,.42)}
         .btn-primary{border:0;background:linear-gradient(135deg,var(--cyan),var(--blue) 45%,var(--violet));box-shadow:0 14px 36px rgba(75,124,255,.26);color:white}.btn-gold{border:0;background:linear-gradient(135deg,#ffdf5a,var(--gold));color:#171102;box-shadow:0 14px 38px rgba(255,201,40,.2)}
         .hero{padding:94px 0 70px;overflow:hidden}.hero-grid{display:grid;grid-template-columns:1.03fr .97fr;align-items:center;gap:56px}
@@ -44,7 +44,13 @@
 <body>
 <header class="nav">
     <div class="wrap nav-inner">
-        <a class="brand" href="/">Vitrine <span>Social Mídia</span></a>
+        <a class="brand" href="/" aria-label="Vitrine Social Mídia">
+            <span class="brand-lockup">
+                <span class="brand-vitrine">VITRINE</span>
+                <span class="brand-social">SOCIAL MÍDIA</span>
+            </span>
+            <span class="brand-bolt" aria-hidden="true"></span>
+        </a>
         <nav class="nav-links" aria-label="Navegação principal">
             <a href="#solucao">Solução</a><a href="#como-funciona">Como funciona</a><a href="#painel">Painel</a><a href="#vip">Lista VIP</a>
         </nav>
