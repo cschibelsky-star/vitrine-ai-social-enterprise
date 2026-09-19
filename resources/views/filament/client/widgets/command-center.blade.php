@@ -107,14 +107,19 @@
         .vsm-side:hover .vsm-side-support p,.vsm-side:focus-within .vsm-side-support p{display:block}
         .vsm-side:hover .vsm-side-support a,.vsm-side:focus-within .vsm-side-support a{display:inline-flex}
         .vsm-shell>.vsm-dashboard{padding-left:20px;padding-right:20px}
-        .vsm-hero-row{grid-template-columns:minmax(0,2.08fr) minmax(245px,.64fr)}
-        .vsm-shell .vsm-hero{min-height:180px}
-        .vsm-copy{width:53%}
-        .vsm-copy h1{font-size:clamp(2.45rem,3.85vw,4.05rem)}
-        .vsm-hero-art{right:0;width:48%}
-        .vsm-phone{width:194px;height:99px}
-        .vsm-orbit{width:292px;height:126px}
-        .vsm-shell .vsm-team{min-height:180px}
+        .vsm-hero-row{grid-template-columns:minmax(0,2.18fr) minmax(235px,.6fr)}
+        .vsm-shell .vsm-hero{min-height:174px}
+        .vsm-copy{width:41%;padding-top:8px}
+        .vsm-copy h1{font-size:clamp(1.95rem,3.1vw,3.35rem);line-height:.9;letter-spacing:-.06em}
+        .vsm-copy p{max-width:330px;font-size:.7rem;line-height:1.4;margin-top:8px}
+        .vsm-hero-art{right:-1%;top:-2%;width:59%;height:104%}
+        .vsm-phone{width:220px;height:112px;border-width:2px;transform:perspective(500px) rotateX(57deg) rotateZ(-9deg);box-shadow:0 0 12px #00b7ff,0 0 32px #482eff,0 0 62px rgba(208,34,255,.56),inset 0 0 20px rgba(255,255,255,.28)}
+        .vsm-phone:before{content:"";position:absolute;inset:-12px;border-radius:30px;border:1px solid rgba(44,228,255,.24);box-shadow:0 0 26px rgba(24,201,255,.22),0 0 52px rgba(155,49,255,.18)}
+        .vsm-phone:after{inset:10px;border-radius:15px;background:radial-gradient(circle at 54% 44%,rgba(235,63,255,.72),transparent 34%),radial-gradient(circle at 43% 61%,rgba(28,102,255,.55),transparent 38%),linear-gradient(145deg,#08122a,#090822 65%,#17092b)}
+        .vsm-orbit{width:330px;height:138px;border-color:rgba(111,76,255,.7);box-shadow:0 0 18px rgba(76,67,255,.5),0 0 34px rgba(191,45,255,.18)}
+        .vsm-social{width:46px;height:46px;border-radius:13px;box-shadow:0 0 16px currentColor,0 0 28px rgba(132,56,255,.18);backdrop-filter:blur(2px)}
+        .vsm-social.ig{left:4%;top:26%}.vsm-social.yt{right:19%;top:25%}.vsm-social.stat{right:2%;top:13%}.vsm-social.like{left:48%;top:0}.vsm-social.chat{left:51%;bottom:4%}
+        .vsm-shell .vsm-team{min-height:174px}
         .vsm-hero{box-shadow:inset 0 0 36px rgba(47,40,128,.08),0 12px 34px rgba(0,0,0,.18)}
         .vsm-team{box-shadow:inset 0 0 26px rgba(174,45,255,.08),0 0 26px rgba(91,28,220,.12)}
         .vsm-kpi{box-shadow:inset 0 0 20px rgba(55,51,135,.08),0 8px 20px rgba(0,0,0,.12)}
