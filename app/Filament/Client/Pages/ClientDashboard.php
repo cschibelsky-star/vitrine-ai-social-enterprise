@@ -2,7 +2,6 @@
 
 namespace App\Filament\Client\Pages;
 
-use App\Filament\Client\Widgets\ClientBalanceOverview;
 use App\Filament\Client\Widgets\ClientCommandCenter;
 use Filament\Pages\Dashboard;
 
@@ -18,7 +17,6 @@ class ClientDashboard extends Dashboard
     {
         return [
             ClientCommandCenter::class,
-            ClientBalanceOverview::class,
         ];
     }
 
