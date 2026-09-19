@@ -6,6 +6,7 @@ use App\Models\ClientBalance;
 use App\Models\ClientSubscription;
 use App\Models\ContentProject;
 use Carbon\Carbon;
+use Filament\Notifications\Notification;
 use Filament\Widgets\Widget;
 
 class ClientCommandCenter extends Widget
@@ -13,6 +14,48 @@ class ClientCommandCenter extends Widget
     protected string $view = 'filament.client.widgets.command-center';
 
     protected int|string|array $columnSpan = 'full';
+
+    public function approveContent(int $projectId): void
+    {
+        $clientId = auth()->user()?->client_id;
+
+        if (! $clientId) {
+            return;
+        }
+
+        $project = ContentProject::query()
+            ->where('client_id', $clientId)
+            ->findOrFail($projectId);
+
+        $project->forceFill(['status' => 'ready'])->save();
+
+        Notification::make()
+            ->title('Conteúdo aprovado')
+            ->body('O conteúdo foi liberado para a próxima etapa.')
+            ->success()
+            ->send();
+    }
+
+    public function requestAdjustment(int $projectId): void
+    {
+        $clientId = auth()->user()?->client_id;
+
+        if (! $clientId) {
+            return;
+        }
+
+        $project = ContentProject::query()
+            ->where('client_id', $clientId)
+            ->findOrFail($projectId);
+
+        $project->forceFill(['status' => 'editing'])->save();
+
+        Notification::make()
+            ->title('Ajuste solicitado')
+            ->body('O conteúdo voltou para revisão.')
+            ->warning()
+            ->send();
+    }
 
     protected function getViewData(): array
     {
@@ -27,20 +70,22 @@ class ClientCommandCenter extends Widget
         }
 
         $base = ContentProject::query()->where('client_id', $clientId);
-        $recent = (clone $base)->latest('updated_at')->limit(5)->get();
+
         $approvalItems = (clone $base)
             ->whereIn('status', ['review', 'pending_approval', 'approval_pending'])
             ->latest('updated_at')
             ->limit(3)
             ->get();
+
         $requests = (clone $base)
-            ->whereIn('status', ['adjustment_requested', 'changes_requested', 'revision_requested'])
+            ->whereIn('status', ['editing', 'adjustment_requested', 'changes_requested', 'revision_requested'])
             ->latest('updated_at')
             ->limit(3)
             ->get();
+
         $channels = (clone $base)
             ->whereNotNull('channel')
-            ->selectRaw('channel, count(*) as total')
+            ->selectRaw('channel, count(*) as total, max(updated_at) as last_activity')
             ->groupBy('channel')
             ->orderByDesc('total')
             ->limit(5)
@@ -57,14 +102,8 @@ class ClientCommandCenter extends Widget
             ->keyBy('balance_type');
 
         $contentBalance = $balances->get('content_credit');
-        $videoBalance = collect(['video_seconds', 'video_credit', 'video'])
-            ->map(fn (string $key) => $balances->get($key))
-            ->first(fn ($balance) => $balance !== null);
-        $avatarBalance = collect(['avatar_seconds', 'avatar_credit', 'avatar'])
-            ->map(fn (string $key) => $balances->get($key))
-            ->first(fn ($balance) => $balance !== null);
 
-        $weekStart = now()->startOfWeek(Carbon::SUNDAY)->startOfDay();
+        $weekStart = now()->startOfWeek(Carbon::MONDAY)->startOfDay();
         $weekEnd = (clone $weekStart)->addDays(6)->endOfDay();
 
         $weekProjects = (clone $base)
@@ -89,15 +128,35 @@ class ClientCommandCenter extends Widget
             ];
         });
 
+        $pending = (clone $base)
+            ->whereIn('status', ['draft', 'review', 'pending_approval', 'approval_pending'])
+            ->count();
+
+        $approvals = (clone $base)
+            ->whereIn('status', ['review', 'pending_approval', 'approval_pending'])
+            ->count();
+
+        $scheduledNext7 = (clone $base)
+            ->whereNotNull('scheduled_at')
+            ->whereNull('published_at')
+            ->whereBetween('scheduled_at', [now(), now()->addDays(7)])
+            ->count();
+
+        $publishedMonth = (clone $base)
+            ->whereBetween('published_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->count();
+
+        $scoreRaw = (float) ((clone $base)->whereNotNull('score')->avg('score') ?? 0);
+
         return [
             'clientId' => $clientId,
             'userName' => $user?->name ?: 'Cliente',
-            'pending' => (clone $base)->whereIn('status', ['draft', 'review', 'pending_approval', 'approval_pending'])->count(),
-            'approvals' => (clone $base)->whereIn('status', ['review', 'pending_approval', 'approval_pending'])->count(),
-            'scheduled' => (clone $base)->whereNotNull('scheduled_at')->whereNull('published_at')->count(),
-            'publishedMonth' => (clone $base)->whereBetween('published_at', [now()->startOfMonth(), now()->endOfMonth()])->count(),
-            'scoreAverage' => number_format((float) ((clone $base)->whereNotNull('score')->avg('score') ?? 0), 1, ',', '.'),
-            'recent' => $recent,
+            'pending' => $pending,
+            'approvals' => $approvals,
+            'scheduledNext7' => $scheduledNext7,
+            'publishedMonth' => $publishedMonth,
+            'scoreAverage' => number_format($scoreRaw, 1, ',', '.'),
+            'scorePercent' => max(0, min(100, (int) round($scoreRaw))),
             'approvalItems' => $approvalItems,
             'calendarDays' => $calendarDays,
             'weekStart' => $weekStart,
@@ -106,8 +165,10 @@ class ClientCommandCenter extends Widget
             'requests' => $requests,
             'subscription' => $subscription,
             'contentBalance' => $contentBalance,
-            'videoBalance' => $videoBalance,
-            'avatarBalance' => $avatarBalance,
+            'reachValue' => null,
+            'engagementValue' => null,
+            'growthValue' => null,
         ];
     }
 }
+

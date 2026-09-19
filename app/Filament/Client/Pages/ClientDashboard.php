@@ -2,7 +2,6 @@
 
 namespace App\Filament\Client\Pages;
 
-use App\Filament\Client\Widgets\ClientBalanceOverview;
 use App\Filament\Client\Widgets\ClientCommandCenter;
 use Filament\Pages\Dashboard;
 
@@ -10,7 +9,7 @@ class ClientDashboard extends Dashboard
 {
     protected static ?string $navigationLabel = 'Painel';
 
-    protected static ?string $title = 'Painel';
+    protected static ?string $title = '';
 
     protected static ?int $navigationSort = -10;
 
@@ -18,7 +17,6 @@ class ClientDashboard extends Dashboard
     {
         return [
             ClientCommandCenter::class,
-            ClientBalanceOverview::class,
         ];
     }
 
