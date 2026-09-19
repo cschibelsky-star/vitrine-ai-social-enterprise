@@ -15,6 +15,8 @@ class ClientCommandCenter extends Widget
 
     protected int|string|array $columnSpan = 'full';
 
+    protected static bool $isLazy = false;
+
     public function approveContent(int $projectId): void
     {
         $clientId = auth()->user()?->client_id;
