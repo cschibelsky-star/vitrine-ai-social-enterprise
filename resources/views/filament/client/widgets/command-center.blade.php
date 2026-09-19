@@ -1,11 +1,6 @@
 <x-filament-widgets::widget>
     <style>
-        .fi-main-ctn{max-width:none!important}.fi-page-header{display:none!important}.fi-page{gap:0!important}.fi-wi{width:100%!important}.fi-sidebar-nav:after{content:"DÚVIDAS?\A Fale com a gente!\A\A Resposta em até 1h útil\A\A ABRIR CHAT"!important;white-space:pre-line!important}.vsm-client{display:grid;gap:16px;width:100%;padding-bottom:24px}
-        .vsm-client-headbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 2px 2px}
-        .vsm-client-greeting{color:#fff;font-size:1rem;font-weight:850}
-        .vsm-client-profile{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:16px;border:1px solid rgba(148,163,184,.14);background:rgba(7,13,28,.72)}
-        .vsm-client-profile-avatar{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:950;background:linear-gradient(145deg,#0f4fff,#4f46e5);box-shadow:0 0 20px rgba(59,130,246,.24)}
-        .vsm-client-profile-meta{display:grid;gap:2px}.vsm-client-profile-meta b{color:#fff;font-size:.78rem}.vsm-client-profile-meta span{color:#8f9bb8;font-size:.69rem}
+        .vsm-client{display:grid;gap:16px}
         .vsm-client-top{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.65fr);gap:16px}
         .vsm-client-hero{position:relative;overflow:hidden;min-height:236px;padding:30px 32px;border-radius:24px;border:1px solid rgba(93,115,255,.24);background:radial-gradient(circle at 78% 35%,rgba(255,57,210,.27),transparent 22%),radial-gradient(circle at 90% 10%,rgba(37,217,255,.2),transparent 18%),linear-gradient(135deg,#170b3b 0%,#0d1533 55%,#07101f 100%);box-shadow:0 22px 60px rgba(0,0,0,.24)}
         .vsm-client-hero:before{content:"";position:absolute;right:7%;bottom:-26%;width:250px;height:190px;border-radius:42px;transform:skewY(-8deg) rotate(-8deg);background:linear-gradient(145deg,rgba(23,49,101,.9),rgba(56,21,91,.88));border:1px solid rgba(103,232,249,.22);box-shadow:0 0 54px rgba(96,72,255,.2)}
@@ -50,18 +45,9 @@
         .vsm-via-orb{position:absolute;right:20px;bottom:18px;width:58px;height:58px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#fff 0 3%,#6ee7ff 7%,#5b39d7 34%,#18092e 70%);box-shadow:0 0 30px rgba(87,72,255,.5),0 0 18px rgba(255,57,210,.22);border:1px solid rgba(147,197,253,.35);color:white;font-size:.66rem;font-weight:950}
         .vsm-bottom{display:grid;grid-template-columns:1.05fr .95fr .8fr;gap:16px}
         .vsm-list{display:grid}.vsm-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.08)}.vsm-row:last-child{border-bottom:0}.vsm-row b{color:#f8fafc;font-size:.82rem}.vsm-row span{color:#8e9ab3;font-size:.76rem}.vsm-channel{display:flex;justify-content:space-between;gap:8px;padding:10px 0;border-bottom:1px solid rgba(148,163,184,.08)}.vsm-channel:last-child{border-bottom:0}.vsm-channel b{color:#fff;font-size:.82rem}.vsm-channel span{color:#6ee7b7;font-size:.72rem}
-        @media(max-width:1180px){.vsm-client-top,.vsm-main{grid-template-columns:1fr}.vsm-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.vsm-bottom{grid-template-columns:1fr 1fr}.vsm-bottom .vsm-panel:last-child{grid-column:1/-1}}
-        @media(max-width:720px){
-            .fi-main{padding-bottom:118px!important}.fi-main-ctn{padding-inline:0!important}.fi-page{gap:12px!important}.fi-page-header{display:none!important}.fi-wi{margin:0!important}.fi-wi-widget{padding:0!important}
-            .vsm-client{gap:14px;padding:0 14px 26px;overflow:hidden}.vsm-client-headbar{padding:6px 2px 0}.vsm-client-greeting{display:none}.vsm-client-profile{margin-left:auto;padding:7px 10px}.vsm-client-profile-meta span{display:none}
-            .vsm-client-top{display:flex;flex-direction:column;gap:12px}.vsm-client-hero{order:1;padding:24px 22px 26px;min-height:248px;border-radius:22px}.vsm-client-hero:before{right:-12%;bottom:-18%;width:220px;height:175px}.vsm-client-hero:after{right:11%;top:14%;font-size:4rem}.vsm-client-hero h2{max-width:82%;font-size:clamp(2.35rem,11vw,3.5rem);line-height:.9}.vsm-client-hero p{max-width:82%;font-size:.92rem;line-height:1.45}.vsm-client-team{order:2;padding:18px 20px;border-radius:20px}.vsm-team-avatars{margin-top:14px}
-            .vsm-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.vsm-card{padding:15px 14px;border-radius:16px;min-height:112px}.vsm-card small{font-size:.62rem;letter-spacing:.055em}.vsm-card strong{font-size:1.65rem}.vsm-card em{font-size:.7rem}
-            .vsm-main{display:flex;flex-direction:column;gap:14px}.vsm-panel{padding:18px 16px;border-radius:20px}.vsm-panel-head{align-items:flex-start;gap:10px}.vsm-panel-head h3{font-size:.98rem}.vsm-panel-head a{font-size:.72rem;text-align:right}.vsm-period{font-size:.7rem}
-            .vsm-week{display:flex;grid-template-columns:none;gap:10px;overflow-x:auto;scroll-snap-type:x mandatory;padding:2px 2px 10px;margin:0 -2px;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#6d28d9 transparent}.vsm-day{flex:0 0 148px;min-height:180px;scroll-snap-align:start;padding:12px}.vsm-event{padding:9px 8px}.vsm-event b{font-size:.72rem}.vsm-event span{font-size:.64rem}.vsm-legend{gap:10px;font-size:.65rem}
-            .vsm-approvals{min-height:auto}.vsm-approval-list{gap:12px}.vsm-approval-item{min-height:104px;padding:16px 14px;border-radius:16px;display:grid;align-content:center}.vsm-approval-item b{font-size:.95rem}.vsm-approval-item span{font-size:.76rem}.vsm-via-orb{position:static;margin:14px 0 0 auto;width:48px;height:48px}
-            .vsm-bottom{grid-template-columns:1fr;gap:14px}.vsm-bottom .vsm-panel:last-child{grid-column:auto}.vsm-row{padding:13px 0}.vsm-row b{font-size:.86rem}.vsm-channel{padding:13px 0}.vsm-channel b{font-size:.86rem}
-        }
-        @media(max-width:480px){.vsm-client{padding-inline:12px}.vsm-client-hero{min-height:230px;padding:22px 18px}.vsm-client-hero h2{max-width:88%;font-size:2.35rem}.vsm-client-hero p{max-width:90%}.vsm-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.vsm-card{min-height:106px;padding:14px 12px}.vsm-day{flex-basis:138px}.vsm-panel{padding:17px 14px}}
+        @media(max-width:1180px){.vsm-client-top,.vsm-main{grid-template-columns:1fr}.vsm-kpis{grid-template-columns:repeat(2,1fr)}.vsm-week{grid-template-columns:repeat(4,1fr)}.vsm-bottom{grid-template-columns:1fr 1fr}.vsm-bottom .vsm-panel:last-child{grid-column:1/-1}}
+        @media(max-width:720px){.vsm-client-hero{padding:24px;min-height:210px}.vsm-kpis,.vsm-bottom{grid-template-columns:1fr}.vsm-bottom .vsm-panel:last-child{grid-column:auto}.vsm-week{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:480px){.vsm-week{grid-template-columns:1fr}}
     </style>
 
     @if(! $clientId)
@@ -72,16 +58,6 @@
         </section>
     @else
         <div class="vsm-client">
-            <div class="vsm-client-headbar">
-                <div class="vsm-client-greeting">Olá, {{ $userName }}! 👋</div>
-                <div class="vsm-client-profile">
-                    <div class="vsm-client-profile-avatar">{{ strtoupper(mb_substr($userName, 0, 1)) }}</div>
-                    <div class="vsm-client-profile-meta">
-                        <b>{{ $userName }}</b>
-                        <span>Cliente · {{ $subscription?->plan_code ? ucfirst($subscription->plan_code) : 'Plano não informado' }}</span>
-                    </div>
-                </div>
-            </div>
             <div class="vsm-client-top">
                 <section class="vsm-client-hero">
                     <div class="vsm-client-kicker">Olá, {{ $userName }}! 👋</div>
@@ -129,7 +105,7 @@
                 <section class="vsm-panel">
                     <div class="vsm-panel-head">
                         <h3>Calendário Editorial</h3>
-                        <a href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}">Ver calendário completo</a>
+                        <a href="{{ AppFilamentClientPagesCalendarPage::getUrl() }}">Ver calendário completo</a>
                     </div>
                     <div class="vsm-period">{{ $weekStart->format('d/m') }} – {{ $weekEnd->format('d/m/Y') }}</div>
                     <div class="vsm-week">
@@ -183,7 +159,7 @@
                 <section class="vsm-panel">
                     <div class="vsm-panel-head">
                         <h3>Desempenho do Mês</h3>
-                        <a href="{{ \App\Filament\Client\Pages\Performance::getUrl() }}">Detalhes</a>
+                        <a href="{{ AppFilamentClientPagesPerformance::getUrl() }}">Detalhes</a>
                     </div>
                     <div class="vsm-list">
                         <div class="vsm-row"><b>Publicados no mês</b><span>{{ $publishedMonth }}</span></div>
@@ -195,7 +171,7 @@
                 <section class="vsm-panel">
                     <div class="vsm-panel-head">
                         <h3>Solicitações</h3>
-                        <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Ver todas</a>
+                        <a href="{{ AppFilamentClientPagesRequests::getUrl() }}">Ver todas</a>
                     </div>
                     <div class="vsm-list">
                         @forelse($requests as $item)
@@ -224,3 +200,4 @@
         </div>
     @endif
 </x-filament-widgets::widget>
+
