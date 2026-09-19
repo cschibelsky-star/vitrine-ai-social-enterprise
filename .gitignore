@@ -19,3 +19,13 @@ yarn-error.log
 /.vscode
 *.zip
 error_log
+
+# Backups operacionais gerados pelos conectores
+**/.*.bak-*
+.*.bak-*
+
+# Assets publicados automaticamente pelo Filament/Livewire
+/public/css/filament
+/public/fonts/filament
+/public/js/filament
+/public/vendor/livewire
