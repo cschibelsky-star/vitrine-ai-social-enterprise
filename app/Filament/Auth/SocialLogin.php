@@ -6,10 +6,18 @@ use Filament\Auth\Pages\Login;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Component;
+use Illuminate\Support\Facades\Auth;
 
 class SocialLogin extends Login
 {
     protected string $view = 'filament.auth.social-login';
+
+    public function mount(): void
+    {
+        Auth::shouldUse(request()->is('admin', 'admin/*') ? 'admin' : 'web');
+
+        parent::mount();
+    }
 
     protected function getEmailFormComponent(): Component
     {

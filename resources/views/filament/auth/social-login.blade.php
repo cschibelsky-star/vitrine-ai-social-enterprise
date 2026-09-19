@@ -1,6 +1,5 @@
 @php
-    $panelId = filament()->getCurrentPanel()?->getId();
-    $isAdmin = $panelId === 'admin';
+    $isAdmin = request()->is('admin', 'admin/*');
     $areaTitle = $isAdmin ? 'Administração' : 'Área do Cliente';
     $areaSubtitle = $isAdmin
         ? 'Acesso técnico de contingência da Vitrine Social Mídia'

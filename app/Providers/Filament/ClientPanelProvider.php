@@ -38,6 +38,7 @@ class ClientPanelProvider extends PanelProvider
             ->path('app')
             ->login(SocialLogin::class)
             ->passwordReset()
+            ->authGuard('web')
             ->brandName('Vitrine Social Mídia')
             ->colors([
                 'primary' => Color::Cyan,

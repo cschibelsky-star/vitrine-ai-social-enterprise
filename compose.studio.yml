@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     container_name: studio_app
     restart: unless-stopped
+    labels:
+      - "vitrine.runtime.revision=20260919-panel-diag-v2"
     env_file:
       - .env
     volumes:
@@ -17,6 +19,16 @@ services:
     image: nginx:stable
     container_name: studio_web
     restart: unless-stopped
+    labels:
+      - "vitrine.runtime.revision=20260919-traefik-social-route"
+      - "traefik.enable=true"
+      - "traefik.docker.network=n8n-traefik_app_network"
+      - "traefik.http.routers.vitrine-social.entrypoints=websecure"
+      - "traefik.http.routers.vitrine-social.rule=Host(`social.vitrineiapro.com.br`)"
+      - "traefik.http.routers.vitrine-social.tls=true"
+      - "traefik.http.routers.vitrine-social.tls.certresolver=le"
+      - "traefik.http.routers.vitrine-social.priority=200"
+      - "traefik.http.services.vitrine-social.loadbalancer.server.port=80"
     depends_on:
       - studio_app
     ports:
@@ -26,6 +38,7 @@ services:
       - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - vitrine_net
+      - traefik_net
 
   studio_worker:
     build:
@@ -67,3 +80,6 @@ volumes:
 networks:
   vitrine_net:
     external: true
+  traefik_net:
+    external: true
+    name: n8n-traefik_app_network
