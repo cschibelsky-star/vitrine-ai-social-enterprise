@@ -105,7 +105,7 @@
                 <section class="vsm-panel">
                     <div class="vsm-panel-head">
                         <h3>Calendário Editorial</h3>
-                        <a href="{{ AppFilamentClientPagesCalendarPage::getUrl() }}">Ver calendário completo</a>
+                        <a href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}">Ver calendário completo</a>
                     </div>
                     <div class="vsm-period">{{ $weekStart->format('d/m') }} – {{ $weekEnd->format('d/m/Y') }}</div>
                     <div class="vsm-week">
@@ -159,7 +159,7 @@
                 <section class="vsm-panel">
                     <div class="vsm-panel-head">
                         <h3>Desempenho do Mês</h3>
-                        <a href="{{ AppFilamentClientPagesPerformance::getUrl() }}">Detalhes</a>
+                        <a href="{{ \App\Filament\Client\Pages\Performance::getUrl() }}">Detalhes</a>
                     </div>
                     <div class="vsm-list">
                         <div class="vsm-row"><b>Publicados no mês</b><span>{{ $publishedMonth }}</span></div>
@@ -171,7 +171,7 @@
                 <section class="vsm-panel">
                     <div class="vsm-panel-head">
                         <h3>Solicitações</h3>
-                        <a href="{{ AppFilamentClientPagesRequests::getUrl() }}">Ver todas</a>
+                        <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Ver todas</a>
                     </div>
                     <div class="vsm-list">
                         @forelse($requests as $item)
