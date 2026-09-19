@@ -1,6 +1,11 @@
 <x-filament-widgets::widget>
     <style>
         .vsm-client{display:grid;gap:16px}
+        .vsm-client-headbar{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:0 2px 2px}
+        .vsm-client-greeting{color:#fff;font-size:1rem;font-weight:850}
+        .vsm-client-profile{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:16px;border:1px solid rgba(148,163,184,.14);background:rgba(7,13,28,.72)}
+        .vsm-client-profile-avatar{width:38px;height:38px;border-radius:999px;display:grid;place-items:center;color:#fff;font-weight:950;background:linear-gradient(145deg,#0f4fff,#4f46e5);box-shadow:0 0 20px rgba(59,130,246,.24)}
+        .vsm-client-profile-meta{display:grid;gap:2px}.vsm-client-profile-meta b{color:#fff;font-size:.78rem}.vsm-client-profile-meta span{color:#8f9bb8;font-size:.69rem}
         .vsm-client-top{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(280px,.65fr);gap:16px}
         .vsm-client-hero{position:relative;overflow:hidden;min-height:236px;padding:30px 32px;border-radius:24px;border:1px solid rgba(93,115,255,.24);background:radial-gradient(circle at 78% 35%,rgba(255,57,210,.27),transparent 22%),radial-gradient(circle at 90% 10%,rgba(37,217,255,.2),transparent 18%),linear-gradient(135deg,#170b3b 0%,#0d1533 55%,#07101f 100%);box-shadow:0 22px 60px rgba(0,0,0,.24)}
         .vsm-client-hero:before{content:"";position:absolute;right:7%;bottom:-26%;width:250px;height:190px;border-radius:42px;transform:skewY(-8deg) rotate(-8deg);background:linear-gradient(145deg,rgba(23,49,101,.9),rgba(56,21,91,.88));border:1px solid rgba(103,232,249,.22);box-shadow:0 0 54px rgba(96,72,255,.2)}
@@ -58,6 +63,16 @@
         </section>
     @else
         <div class="vsm-client">
+            <div class="vsm-client-headbar">
+                <div class="vsm-client-greeting">Olá, {{ $userName }}! 👋</div>
+                <div class="vsm-client-profile">
+                    <div class="vsm-client-profile-avatar">{{ strtoupper(mb_substr($userName, 0, 1)) }}</div>
+                    <div class="vsm-client-profile-meta">
+                        <b>{{ $userName }}</b>
+                        <span>Cliente · {{ $subscription?->plan_code ? ucfirst($subscription->plan_code) : 'Plano não informado' }}</span>
+                    </div>
+                </div>
+            </div>
             <div class="vsm-client-top">
                 <section class="vsm-client-hero">
                     <div class="vsm-client-kicker">Olá, {{ $userName }}! 👋</div>
