@@ -135,6 +135,37 @@ services:
       - recovery_internal
       - vitrine_net
 
+  recovery_centro_ia_probe:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["diagnostic"]
+    environment: *app_environment
+    command:
+      - php
+      - -r
+      - |
+        require 'vendor/autoload.php';
+        $$app = require 'bootstrap/app.php';
+        $$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        $$project = new App\Models\ContentProject();
+        $$project->idea = 'Teste tecnico de integracao do Vitrine Social Midia com o Centro IA.';
+        $$project->objective = 'engagement';
+        $$project->format = 'feed_post';
+        $$project->channel = 'instagram';
+        $$service = app(App\Services\AI\AiContentService::class);
+        $$method = new ReflectionMethod($$service, 'generateWithCentroIa');
+        $$method->setAccessible(true);
+        $$result = $$method->invoke($$service, $$project, null, null);
+        echo json_encode([
+          'ok' => is_array($$result),
+          'provider' => is_array($$result) ? 'centro-ia' : 'fallback',
+          'model' => is_array($$result) ? ($$result['model'] ?? null) : null,
+          'execution_id' => is_array($$result) ? ($$result['execution_id'] ?? null) : null,
+        ], JSON_UNESCAPED_SLASHES) . PHP_EOL;
+    networks:
+      - vitrine_net
+
 volumes:
   recovery_db_data:
   recovery_redis_data:
