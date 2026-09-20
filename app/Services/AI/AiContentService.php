@@ -2,6 +2,7 @@
 
 namespace App\Services\AI;
 
+use Carbon\Carbon;
 use App\Models\ClientBalance;
 use App\Models\ClientSubscription;
 use App\Models\ConsumptionLedger;
@@ -20,6 +21,7 @@ class AiContentService
     public function generateProject(ContentProject $project): array
     {
         $startedAt = microtime(true);
+        $this->syncEntitlementsFromCore($project);
         $this->assertContentEntitlement($project);
 
         $brand = $project->brand;
@@ -96,6 +98,139 @@ class AiContentService
             $this->consumeContentCredit($project, $generation);
 
             return $output;
+        });
+    }
+
+    private function syncEntitlementsFromCore(ContentProject $project): void
+    {
+        if (! $project->client_id) {
+            return;
+        }
+
+        $subscription = ClientSubscription::query()
+            ->where('client_id', $project->client_id)
+            ->whereNotNull('core_subscription_id')
+            ->latest('id')
+            ->first();
+
+        if (! $subscription || trim((string) $subscription->core_subscription_id) === '') {
+            return;
+        }
+
+        $executeUrl = trim((string) config('services.centro_ia.url', ''));
+        $projectId = trim((string) config('services.centro_ia.project_id', 'vitrine-ai-social-enterprise'));
+        $token = trim((string) config('services.centro_ia.token', ''));
+        $timeout = max(5, (int) config('services.centro_ia.timeout', 30));
+
+        if ($executeUrl === '' || $projectId === '') {
+            throw new RuntimeException('Centro IA não está configurado para sincronizar o plano.');
+        }
+
+        $entitlementsUrl = preg_replace(
+            '#/execute/?$#',
+            '/entitlements',
+            $executeUrl
+        );
+
+        if (! is_string($entitlementsUrl) || $entitlementsUrl === $executeUrl) {
+            throw new RuntimeException('URL do Centro IA não permite derivar o endpoint de entitlements.');
+        }
+
+        $payload = [
+            'project_id' => $projectId,
+            'core_subscription_id' => (int) $subscription->core_subscription_id,
+        ];
+
+        $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+        if (! is_string($body) || $body === '') {
+            throw new RuntimeException('Falha ao preparar sincronização de entitlements.');
+        }
+
+        $request = Http::acceptJson()->timeout($timeout);
+        $signatureHeaders = $this->centroIaSignatureHeaders($projectId, $entitlementsUrl, $body);
+
+        if ($signatureHeaders !== null) {
+            $request = $request->withHeaders($signatureHeaders);
+        } elseif ($token !== '') {
+            $request = $request
+                ->withToken($token)
+                ->withHeaders(['X-Vitrine-Project' => $projectId]);
+        } else {
+            throw new RuntimeException('Identidade de serviço indisponível para sincronização de entitlements.');
+        }
+
+        try {
+            $response = $request
+                ->withBody($body, 'application/json')
+                ->post($entitlementsUrl);
+        } catch (Throwable $e) {
+            throw new RuntimeException('Não foi possível sincronizar o plano com o Core.', 0, $e);
+        }
+
+        if (! $response->successful() || ! $response->json('ok')) {
+            throw new RuntimeException(
+                'O Core recusou a sincronização de entitlements: '
+                . (string) $response->json('error', 'unknown_error')
+            );
+        }
+
+        $snapshot = (array) $response->json('subscription', []);
+        $balances = (array) $response->json('balances', []);
+
+        DB::transaction(function () use ($subscription, $snapshot, $balances, $project): void {
+            $subscription->forceFill([
+                'plan_code' => (string) ($snapshot['plan_code'] ?? $subscription->plan_code),
+                'status' => (string) ($snapshot['status'] ?? 'inactive'),
+                'starts_at' => $snapshot['starts_at'] ?? null,
+                'ends_at' => $snapshot['ends_at'] ?? null,
+                'source' => 'core',
+            ])->save();
+
+            if (($snapshot['status'] ?? 'inactive') !== 'active') {
+                return;
+            }
+
+            foreach (['content_credit', 'video_second', 'avatar_second'] as $balanceType) {
+                if (! array_key_exists($balanceType, $balances) || ! is_numeric($balances[$balanceType])) {
+                    continue;
+                }
+
+                $granted = max(0, (float) $balances[$balanceType]);
+                $periodStart = ! empty($snapshot['starts_at'])
+                    ? Carbon::parse((string) $snapshot['starts_at'])->startOfSecond()
+                    : null;
+                $periodEnd = ! empty($snapshot['ends_at'])
+                    ? Carbon::parse((string) $snapshot['ends_at'])->startOfSecond()
+                    : null;
+
+                $balance = ClientBalance::query()
+                    ->where('client_id', $project->client_id)
+                    ->where('balance_type', $balanceType)
+                    ->where('period_start', $periodStart)
+                    ->lockForUpdate()
+                    ->first();
+
+                if (! $balance) {
+                    ClientBalance::create([
+                        'client_id' => $project->client_id,
+                        'balance_type' => $balanceType,
+                        'granted' => $granted,
+                        'consumed' => 0,
+                        'available' => $granted,
+                        'period_start' => $periodStart,
+                        'period_end' => $periodEnd,
+                    ]);
+
+                    continue;
+                }
+
+                $consumed = max(0, (float) $balance->consumed);
+                $balance->forceFill([
+                    'granted' => $granted,
+                    'available' => max(0, $granted - $consumed),
+                    'period_end' => $periodEnd,
+                ])->save();
+            }
         });
     }
 
