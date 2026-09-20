@@ -94,7 +94,7 @@ class AiContentService
         $capability = trim((string) config('services.centro_ia.capability', 'social_content_generation'));
         $timeout = max(5, (int) config('services.centro_ia.timeout', 30));
 
-        if ($url === '' || $token === '' || $projectId === '' || $capability === '') {
+        if ($url === '' || $projectId === '' || $capability === '') {
             return null;
         }
 
@@ -121,22 +121,42 @@ class AiContentService
             ] : null,
         ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
+        $payload = [
+            'project_id' => $projectId,
+            'capability' => $capability,
+            'input' => [
+                'system' => $system,
+                'user' => $user,
+                'response_format' => 'json',
+                'temperature' => 0.45,
+            ],
+        ];
+
+        $body = json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+
+        if (! is_string($body) || $body === '') {
+            return null;
+        }
+
         try {
-            $response = Http::acceptJson()
-                ->asJson()
-                ->withToken($token)
-                ->withHeaders(['X-Vitrine-Project' => $projectId])
-                ->timeout($timeout)
-                ->post($url, [
-                    'project_id' => $projectId,
-                    'capability' => $capability,
-                    'input' => [
-                        'system' => $system,
-                        'user' => $user,
-                        'response_format' => 'json',
-                        'temperature' => 0.45,
-                    ],
-                ]);
+            $request = Http::acceptJson()
+                ->timeout($timeout);
+
+            $signatureHeaders = $this->centroIaSignatureHeaders($projectId, $url, $body);
+
+            if ($signatureHeaders !== null) {
+                $request = $request->withHeaders($signatureHeaders);
+            } elseif ($token !== '') {
+                $request = $request
+                    ->withToken($token)
+                    ->withHeaders(['X-Vitrine-Project' => $projectId]);
+            } else {
+                return null;
+            }
+
+            $response = $request
+                ->withBody($body, 'application/json')
+                ->post($url);
 
             if (! $response->successful() || ! $response->json('ok')) {
                 return null;
@@ -155,6 +175,45 @@ class AiContentService
         } catch (Throwable) {
             return null;
         }
+    }
+
+    private function centroIaSignatureHeaders(string $projectId, string $url, string $body): ?array
+    {
+        if (! function_exists('sodium_crypto_sign_seed_keypair')) {
+            return null;
+        }
+
+        $appKey = (string) config('app.key', '');
+        $path = (string) parse_url($url, PHP_URL_PATH);
+
+        if ($appKey === '' || $projectId === '' || $path === '') {
+            return null;
+        }
+
+        $seed = hash('sha256', 'vitrine-service-identity|' . $projectId . '|' . $appKey, true);
+        $keyPair = sodium_crypto_sign_seed_keypair($seed);
+        $secretKey = sodium_crypto_sign_secretkey($keyPair);
+        $timestamp = (string) now()->timestamp;
+        $nonce = bin2hex(random_bytes(16));
+        $bodyHash = hash('sha256', $body);
+        $canonical = implode("\n", [
+            'POST',
+            $path,
+            $projectId,
+            $timestamp,
+            $nonce,
+            $bodyHash,
+        ]);
+
+        return [
+            'X-Vitrine-Project' => $projectId,
+            'X-Vitrine-Timestamp' => $timestamp,
+            'X-Vitrine-Nonce' => $nonce,
+            'X-Vitrine-Signature' => base64_encode(
+                sodium_crypto_sign_detached($canonical, $secretKey)
+            ),
+            'X-Vitrine-Signature-Alg' => 'Ed25519',
+        ];
     }
 
     private function decodeHubOutput(string $raw): ?array

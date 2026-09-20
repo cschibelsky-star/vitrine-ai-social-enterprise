@@ -27,6 +27,37 @@ Route::get('/health', function () {
     }
 });
 
+Route::get('/.well-known/vitrine-service-key', function () {
+    if (! function_exists('sodium_crypto_sign_seed_keypair')) {
+        return response()->json([
+            'ok' => false,
+            'error' => 'ed25519_unavailable',
+        ], 503);
+    }
+
+    $projectId = trim((string) config('services.centro_ia.project_id', 'vitrine-ai-social-enterprise'));
+    $appKey = (string) config('app.key', '');
+
+    if ($projectId === '' || $appKey === '') {
+        return response()->json([
+            'ok' => false,
+            'error' => 'service_identity_unavailable',
+        ], 503);
+    }
+
+    $seed = hash('sha256', 'vitrine-service-identity|' . $projectId . '|' . $appKey, true);
+    $keyPair = sodium_crypto_sign_seed_keypair($seed);
+    $publicKey = sodium_crypto_sign_publickey($keyPair);
+
+    return response()->json([
+        'ok' => true,
+        'project_id' => $projectId,
+        'algorithm' => 'Ed25519',
+        'key_id' => hash('sha256', $publicKey),
+        'public_key' => base64_encode($publicKey),
+    ])->header('Cache-Control', 'public, max-age=3600');
+})->name('service-identity.public-key');
+
 Route::get('/', function () {
     return view('welcome');
 });
