@@ -259,6 +259,7 @@
             <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H8l-4 4V5Z"/></svg>Solicitações</a>
             <a href="{{ \App\Filament\Client\Pages\Channels::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12a7 7 0 0 1 7-7M5 17a12 12 0 0 1 12-12"/><circle cx="6" cy="18" r="2"/></svg>Canais</a>
             <a href="{{ \App\Filament\Client\Pages\Files::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h7l2 2h9v10H3V7Z"/></svg>Arquivos</a>
+            <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Consumo</a>
             <a href="{{ \App\Filament\Client\Pages\Account::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.5 3.3-7 8-7s7.3 2.5 8 7"/></svg>Conta</a>
         </nav>
         <div class="vsm-side-support">
