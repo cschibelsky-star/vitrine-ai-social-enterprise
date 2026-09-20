@@ -27,7 +27,7 @@ Route::get('/health', function () {
     }
 });
 
-Route::get('/.well-known/vitrine-service-key', function () {
+Route::get('/service-identity/public-key', function () {
     if (! function_exists('sodium_crypto_sign_seed_keypair')) {
         return response()->json([
             'ok' => false,
