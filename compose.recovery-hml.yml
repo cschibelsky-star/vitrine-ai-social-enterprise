@@ -157,14 +157,15 @@ services:
         $$method = new ReflectionMethod($$service, 'generateWithCentroIa');
         $$method->setAccessible(true);
         $$result = $$method->invoke($$service, $$project, null, null);
+        $$output = is_array($$result) ? ($$result['output'] ?? null) : null;
         echo json_encode([
-          'ok' => is_array($$result),
-          'provider' => is_array($$result) ? 'centro-ia' : 'fallback',
+          'ok' => is_array($$output),
+          'provider' => is_array($$output) ? 'centro-ia' : 'fallback',
           'model' => is_array($$result) ? ($$result['model'] ?? null) : null,
           'execution_id' => is_array($$result) ? ($$result['execution_id'] ?? null) : null,
-          'has_title' => is_array($$result) && !empty($$result['title']),
-          'has_caption' => is_array($$result) && !empty($$result['caption']),
-          'slides_count' => is_array($$result) ? count($$result['slides'] ?? []) : 0,
+          'has_title' => is_array($$output) && !empty($$output['title']),
+          'has_caption' => is_array($$output) && !empty($$output['caption']),
+          'slides_count' => is_array($$output) ? count($$output['slides'] ?? []) : 0,
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
     networks:
       - vitrine_net
