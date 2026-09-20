@@ -40,7 +40,7 @@
     .vsm-request-list,.vsm-channel-list{display:grid;gap:7px}.vsm-request-row,.vsm-channel-row{display:grid;align-items:center;gap:7px;border:1px solid rgba(103,116,164,.18);border-radius:8px;background:#0a1122;padding:7px 8px}.vsm-request-row{grid-template-columns:28px 1fr auto}.vsm-channel-row{grid-template-columns:25px 1fr auto}.vsm-mini-icon{width:26px;height:26px;border-radius:7px;display:grid;place-items:center;background:linear-gradient(145deg,#8f20ff,#d11dff);font-size:.62rem;font-weight:1000}.vsm-row-copy{min-width:0}.vsm-row-copy b{display:block;color:#fff;font-size:.62rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vsm-row-copy span{display:block;color:#929eb8;font-size:.54rem;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vsm-status{padding:5px 7px;border-radius:5px;border:1px solid rgba(137,47,255,.5);color:#d8adff;background:rgba(97,27,155,.28);font-size:.5rem}.vsm-status.open{color:#53d6ff;border-color:rgba(0,141,255,.5);background:rgba(0,78,148,.25)}.vsm-status.done,.vsm-connected{color:#79ffc1;border-color:rgba(0,210,118,.5);background:rgba(0,96,58,.34)}.vsm-channel-platform{width:23px;height:23px;border-radius:6px;display:grid;place-items:center;font-size:.56rem;font-weight:1000;background:linear-gradient(145deg,#7d2aff,#f42686)}.vsm-connected{padding:4px 6px;border-radius:5px;font-size:.49rem}
     .vsm-footer{display:flex;align-items:center;justify-content:center;gap:18px;padding:8px 0 0;color:#7f89a6;font-size:.55rem}.vsm-footer i{color:#be30ff;font-style:normal}
     .vsm-mobile-nav{display:none}
-    @media(max-width:1180px){.vsm-hero-row{grid-template-columns:1fr}.vsm-team{display:none}.vsm-grid-main{grid-template-columns:1fr}.vsm-grid-bottom{grid-template-columns:1fr 1fr}.vsm-grid-bottom .vsm-panel:first-child{grid-column:1/-1}.vsm-copy{width:62%}.vsm-performance-grid{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:820px){.vsm-hero-row{grid-template-columns:1fr}.vsm-team{display:none}.vsm-grid-main{grid-template-columns:1fr}.vsm-grid-bottom{grid-template-columns:1fr 1fr}.vsm-grid-bottom .vsm-panel:first-child{grid-column:1/-1}.vsm-copy{width:62%}.vsm-performance-grid{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:760px){.fi-main{padding:8px 0 96px!important}.vsm-dashboard{padding:0 12px 16px;gap:13px}.vsm-topline{min-height:42px}.vsm-greeting{font-size:.8rem}.vsm-bell,.vsm-profile-meta{display:none}.vsm-adjust{padding:9px 11px;font-size:.68rem}.vsm-hero{min-height:245px;padding:17px 16px}.vsm-copy{width:86%;padding-top:0}.vsm-copy h1{font-size:2.65rem;line-height:.9}.vsm-copy p{font-size:.8rem;max-width:75%}.vsm-hero-art{right:-18%;top:44%;width:70%;height:58%;opacity:.85}.vsm-phone{width:150px;height:75px}.vsm-orbit{width:205px;height:90px}.vsm-social{width:36px;height:36px;font-size:.9rem}.vsm-kpis{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.vsm-kpi{grid-template-columns:38px 1fr;min-height:78px;padding:10px}.vsm-kpi-icon{width:35px;height:35px;font-size:1rem}.vsm-kpi strong{font-size:1.25rem}.vsm-panel{padding:13px}.vsm-calendar{grid-template-columns:38px repeat(7,120px);overflow-x:auto;scroll-snap-type:x proximity}.vsm-approval-grid{grid-template-columns:1fr}.vsm-thumb{height:160px}.vsm-grid-bottom{grid-template-columns:1fr}.vsm-grid-bottom .vsm-panel:first-child{grid-column:auto}.vsm-performance-grid{grid-template-columns:repeat(2,1fr)}.vsm-footer{padding-bottom:8px}.vsm-mobile-nav{position:fixed;display:grid;grid-template-columns:repeat(5,1fr);left:10px;right:10px;bottom:10px;z-index:60;padding:7px;border-radius:18px;border:1px solid rgba(115,44,255,.48);background:rgba(4,8,20,.96);box-shadow:0 0 24px rgba(80,25,180,.2);backdrop-filter:blur(18px)}.vsm-mobile-nav a{display:grid;place-items:center;min-height:48px;color:#b8c2db;text-decoration:none;font-size:.62rem;font-weight:850;border-radius:12px}.vsm-mobile-nav a.active{color:#fff;background:linear-gradient(145deg,rgba(54,61,145,.55),rgba(68,23,115,.62));border:1px solid rgba(136,48,255,.55)}}
     @media(max-width:430px){.vsm-copy h1{font-size:2.25rem}.vsm-copy p{max-width:90%}.vsm-kpis{grid-template-columns:1fr 1fr}.vsm-kpi{grid-template-columns:1fr;gap:4px}.vsm-kpi-icon{display:none}.vsm-performance-grid{grid-template-columns:1fr 1fr}}
 
@@ -49,7 +49,7 @@
     .fi-main,.fi-main-ctn{padding:0!important;margin:0!important;max-width:none!important;width:100%!important}
     .vsm-shell{min-height:100vh;display:grid;grid-template-columns:245px minmax(0,1fr);background:linear-gradient(180deg,#040712,#030610 66%,#02040b)}
     .vsm-side{position:sticky;top:0;height:100vh;padding:24px 16px 18px;border-right:1px solid rgba(100,76,255,.22);background:linear-gradient(180deg,#050917,#030712 72%,#05081a);display:flex;flex-direction:column}
-    .vsm-brand{display:flex;align-items:center;gap:10px;margin:2px 6px 26px}.vsm-brand-mark{width:44px;height:44px;display:grid;place-items:center;filter:drop-shadow(0 0 12px rgba(120,57,255,.55))}.vsm-brand-mark svg{width:38px;height:38px}.vsm-brand-copy{line-height:.88}.vsm-brand-copy b{display:block;color:#fff;font-size:1.22rem;font-weight:1000;font-style:italic;letter-spacing:-.06em}.vsm-brand-copy span{display:block;margin-top:7px;color:#ffc400;font-size:.64rem;font-weight:1000;letter-spacing:.08em}
+    .vsm-brand{display:flex;align-items:center;gap:8px;margin:2px 6px 26px}.vsm-brand-mark{width:46px;height:52px;display:grid;place-items:center;filter:drop-shadow(0 0 14px rgba(120,57,255,.65))}.vsm-brand-mark svg{width:44px;height:50px}.vsm-brand-copy{line-height:.82;min-width:126px}.vsm-brand-copy b{display:block;color:#fff;font-size:1.7rem;font-weight:1000;font-style:italic;letter-spacing:-.07em;text-shadow:0 0 14px rgba(255,255,255,.08)}.vsm-brand-copy span{display:block;margin-top:8px;color:#ffc400;font-size:.72rem;font-weight:1000;letter-spacing:.06em}
     .vsm-own-nav{display:grid;gap:5px}.vsm-own-nav a{min-height:42px;padding:0 12px;display:flex;align-items:center;gap:10px;border-radius:9px;color:#b7c0d7;text-decoration:none;font-size:.76rem;font-weight:760;border:1px solid transparent}.vsm-own-nav a.active{color:#fff;background:linear-gradient(90deg,rgba(90,27,199,.82),rgba(81,28,177,.28));border-color:rgba(166,54,255,.65);box-shadow:inset 3px 0 0 #2bdfff,0 0 18px rgba(115,40,255,.16)}.vsm-own-nav .vsm-badge{margin-left:auto}
     .vsm-side-support{margin-top:auto;position:relative;overflow:hidden;border-radius:16px;padding:18px 15px;border:1px solid rgba(145,54,255,.65);background:radial-gradient(circle at 80% 7%,rgba(119,40,255,.42),transparent 34%),linear-gradient(155deg,#130d3a,#071228)}.vsm-side-support:after{content:"";position:absolute;right:-14px;top:6px;width:68px;height:68px;border-radius:50%;background:radial-gradient(circle,#d94bff 0 5%,#6d2bff 28%,transparent 64%)}.vsm-side-support strong{display:block;color:#fff;font-size:.72rem}.vsm-side-support b{display:block;color:#fff;font-size:.95rem;margin-top:4px}.vsm-side-support p{margin:8px 0 13px;color:#aeb8d1;font-size:.64rem;line-height:1.35}.vsm-side-support a{display:inline-flex;align-items:center;min-height:31px;padding:0 12px;border-radius:7px;background:#ffc400;color:#171100;text-decoration:none;font-size:.61rem;font-weight:950}
     .vsm-shell>.vsm-dashboard{padding:18px 20px 15px;gap:10px}
@@ -81,61 +81,25 @@
     .vsm-request-list,.vsm-channel-list{gap:5px}.vsm-request-row,.vsm-channel-row{padding:6px 7px}.vsm-row-copy b{font-size:.55rem}.vsm-row-copy span{font-size:.48rem}.vsm-status,.vsm-connected{font-size:.45rem;padding:4px 6px}
     .vsm-footer{font-size:.49rem;padding-top:6px}
 
-    /* Intelligent desktop sidebar */
+    /* Approved desktop shell: sidebar remains fully visible like the canonical reference */
     @media(min-width:821px){
-        .vsm-shell{grid-template-columns:72px minmax(0,1fr);transition:grid-template-columns .24s ease}
-        .vsm-shell:has(.vsm-side:hover),.vsm-shell:has(.vsm-side:focus-within){grid-template-columns:232px minmax(0,1fr)}
-        .vsm-side{padding:20px 10px 14px;overflow:hidden;transition:padding .24s ease,box-shadow .24s ease;box-shadow:8px 0 24px rgba(0,0,0,.08)}
-        .vsm-side:hover,.vsm-side:focus-within{padding:20px 14px 14px;box-shadow:12px 0 34px rgba(20,6,62,.34)}
-        .vsm-brand{justify-content:center;margin:2px 0 20px;gap:10px;white-space:nowrap}
+        .vsm-shell{grid-template-columns:232px minmax(0,1fr)}
+        .vsm-side{padding:20px 14px 14px;overflow:hidden;box-shadow:10px 0 30px rgba(0,0,0,.12)}
+        .vsm-brand{justify-content:flex-start;margin:2px 2px 20px;gap:10px;white-space:nowrap}
         .vsm-brand-mark{width:42px;min-width:42px;height:42px}
-        .vsm-brand-copy{width:0;opacity:0;overflow:hidden;transform:translateX(-7px);transition:opacity .18s ease,transform .24s ease,width .24s ease}
-        .vsm-side:hover .vsm-brand,.vsm-side:focus-within .vsm-brand{justify-content:flex-start}
-        .vsm-side:hover .vsm-brand-copy,.vsm-side:focus-within .vsm-brand-copy{width:136px;opacity:1;transform:none}
-        .vsm-own-nav a{justify-content:center;gap:0;padding:0 9px;white-space:nowrap;overflow:hidden;font-size:0;transition:all .2s ease}
+        .vsm-brand-copy{width:auto;opacity:1;overflow:visible;transform:none}
+        .vsm-own-nav a{justify-content:flex-start;gap:10px;padding:0 10px;white-space:nowrap;overflow:hidden;font-size:.72rem}
         .vsm-own-nav a svg{width:19px;height:19px;min-width:19px}
-        .vsm-side:hover .vsm-own-nav a,.vsm-side:focus-within .vsm-own-nav a{justify-content:flex-start;gap:10px;padding:0 10px;font-size:.72rem}
-        .vsm-own-nav .vsm-badge{display:none}
-        .vsm-side:hover .vsm-own-nav .vsm-badge,.vsm-side:focus-within .vsm-own-nav .vsm-badge{display:grid}
-        .vsm-side-support{min-height:48px;padding:10px 8px;display:grid;place-items:center;overflow:hidden}
-        .vsm-side-support>div{margin:0!important;min-width:28px}
-        .vsm-side-support strong,.vsm-side-support b,.vsm-side-support p,.vsm-side-support a{display:none}
-        .vsm-side:hover .vsm-side-support,.vsm-side:focus-within .vsm-side-support{display:block;padding:15px 13px 16px}
-        .vsm-side:hover .vsm-side-support>div,.vsm-side:focus-within .vsm-side-support>div{margin-bottom:9px!important}
-        .vsm-side:hover .vsm-side-support strong,.vsm-side:focus-within .vsm-side-support strong{display:block}
-        .vsm-side:hover .vsm-side-support b,.vsm-side:focus-within .vsm-side-support b{display:block}
-        .vsm-side:hover .vsm-side-support p,.vsm-side:focus-within .vsm-side-support p{display:block}
-        .vsm-side:hover .vsm-side-support a,.vsm-side:focus-within .vsm-side-support a{display:inline-flex}
+        .vsm-own-nav .vsm-badge{display:grid}
+        .vsm-side-support{display:block;min-height:0;padding:15px 13px 16px;overflow:visible}
+        .vsm-side-support>div{margin-bottom:9px!important;min-width:28px}
+        .vsm-side-support strong,.vsm-side-support b,.vsm-side-support p{display:block}
+        .vsm-side-support a{display:inline-flex}
         .vsm-shell>.vsm-dashboard{padding-left:20px;padding-right:20px}
-        .vsm-hero-row{grid-template-columns:minmax(0,2.18fr) minmax(235px,.6fr)}
-        .vsm-shell .vsm-hero{min-height:174px}
-        .vsm-copy{width:41%;padding-top:8px}
-        .vsm-copy h1{font-size:clamp(1.95rem,3.1vw,3.35rem);line-height:.9;letter-spacing:-.06em}
-        .vsm-copy p{max-width:330px;font-size:.7rem;line-height:1.4;margin-top:8px}
-        .vsm-hero-art{right:-1%;top:-2%;width:59%;height:104%}
-        .vsm-phone{width:220px;height:112px;border-width:2px;transform:perspective(500px) rotateX(57deg) rotateZ(-9deg);box-shadow:0 0 12px #00b7ff,0 0 32px #482eff,0 0 62px rgba(208,34,255,.56),inset 0 0 20px rgba(255,255,255,.28)}
-        .vsm-phone:before{content:"";position:absolute;inset:-12px;border-radius:30px;border:1px solid rgba(44,228,255,.24);box-shadow:0 0 26px rgba(24,201,255,.22),0 0 52px rgba(155,49,255,.18)}
-        .vsm-phone:after{inset:10px;border-radius:15px;background:radial-gradient(circle at 54% 44%,rgba(235,63,255,.72),transparent 34%),radial-gradient(circle at 43% 61%,rgba(28,102,255,.55),transparent 38%),linear-gradient(145deg,#08122a,#090822 65%,#17092b)}
-        .vsm-orbit{width:330px;height:138px;border-color:rgba(111,76,255,.7);box-shadow:0 0 18px rgba(76,67,255,.5),0 0 34px rgba(191,45,255,.18)}
-        .vsm-social{width:46px;height:46px;border-radius:13px;box-shadow:0 0 16px currentColor,0 0 28px rgba(132,56,255,.18);backdrop-filter:blur(2px)}
-        .vsm-social.ig{left:4%;top:26%}.vsm-social.yt{right:19%;top:25%}.vsm-social.stat{right:2%;top:13%}.vsm-social.like{left:48%;top:0}.vsm-social.chat{left:51%;bottom:4%}
-        .vsm-shell .vsm-team{min-height:174px}
-        .vsm-hero{box-shadow:inset 0 0 36px rgba(47,40,128,.08),0 12px 34px rgba(0,0,0,.18)}
-        .vsm-team{box-shadow:inset 0 0 26px rgba(174,45,255,.08),0 0 26px rgba(91,28,220,.12)}
-        .vsm-kpi{box-shadow:inset 0 0 20px rgba(55,51,135,.08),0 8px 20px rgba(0,0,0,.12)}
-        .vsm-panel{box-shadow:inset 0 0 24px rgba(45,43,105,.05),0 10px 24px rgba(0,0,0,.14)}
-        .vsm-thumb{height:108px}
-        .vsm-performance{min-height:108px}
-        .vsm-spark{height:36px}
-        .vsm-score{width:55px;height:55px}
-    }
-    @media(min-width:821px) and (max-width:1180px){
-        .vsm-shell{grid-template-columns:68px minmax(0,1fr)}
-        .vsm-shell:has(.vsm-side:hover),.vsm-shell:has(.vsm-side:focus-within){grid-template-columns:205px minmax(0,1fr)}
     }
 
-    /* Approved screenshot fidelity */
-    @media(min-width:1181px){
+    /* Canonical screenshot fidelity */
+    @media(min-width:821px){
         .vsm-shell>.vsm-dashboard{padding-top:10px;padding-bottom:8px;gap:7px}
         .vsm-topline{min-height:40px;border-bottom:1px solid rgba(122,116,190,.10);margin-bottom:1px}
         .vsm-actions{gap:10px}.vsm-adjust{min-height:34px;padding:0 14px;border-radius:7px;font-size:.68rem}.vsm-avatar{width:34px;height:34px}.vsm-bell{width:34px;height:34px}
@@ -180,13 +144,13 @@
 <div class="vsm-shell">
     <aside class="vsm-side">
         <div class="vsm-brand">
+            <div class="vsm-brand-copy"><b>VITRINE</b><span>SOCIAL MÍDIA</span></div>
             <div class="vsm-brand-mark">
                 <svg viewBox="0 0 48 48" fill="none" aria-hidden="true">
                     <path d="M29 3 12 25h10l-3 20 17-24H26l3-18Z" fill="url(#vsmBolt)"/>
                     <defs><linearGradient id="vsmBolt" x1="11" y1="5" x2="39" y2="42"><stop stop-color="#19E7FF"/><stop offset=".55" stop-color="#8C2CFF"/><stop offset="1" stop-color="#FF41D0"/></linearGradient></defs>
                 </svg>
             </div>
-            <div class="vsm-brand-copy"><b>VITRINE</b><span>SOCIAL MÍDIA</span></div>
         </div>
         <nav class="vsm-own-nav">
             <a class="active" href="{{ \App\Filament\Client\Pages\ClientDashboard::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 11 12 4l9 7v9H4v-9Z"/><path d="M9 20v-6h6v6"/></svg>Painel</a>
@@ -197,8 +161,6 @@
             <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H8l-4 4V5Z"/></svg>Solicitações</a>
             <a href="{{ \App\Filament\Client\Pages\Channels::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12a7 7 0 0 1 7-7M5 17a12 12 0 0 1 12-12"/><circle cx="6" cy="18" r="2"/></svg>Canais</a>
             <a href="{{ \App\Filament\Client\Pages\Files::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h7l2 2h9v10H3V7Z"/></svg>Arquivos</a>
-            <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Consumo e Saldo</a>
-            <a href="{{ \App\Filament\Client\Pages\Affiliates::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="8" cy="8" r="3"/><circle cx="17" cy="7" r="2.5"/><path d="M3 20c.5-4 2.5-6 5-6s4.5 2 5 6M14 14c3 0 5 2 5.5 5"/></svg>Programa de Afiliados</a>
             <a href="{{ \App\Filament\Client\Pages\Account::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.5 3.3-7 8-7s7.3 2.5 8 7"/></svg>Conta</a>
         </nav>
         <div class="vsm-side-support">
