@@ -148,35 +148,23 @@ services:
         require 'vendor/autoload.php';
         $$app = require 'bootstrap/app.php';
         $$app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+        $$project = new App\Models\ContentProject();
+        $$project->idea = 'Teste tecnico final da integracao do Vitrine Social Midia com o Centro IA.';
+        $$project->objective = 'engagement';
+        $$project->format = 'feed_post';
+        $$project->channel = 'instagram';
         $$service = app(App\Services\AI\AiContentService::class);
-        $$url = (string) config('services.centro_ia.url');
-        $$projectId = (string) config('services.centro_ia.project_id', 'vitrine-ai-social-enterprise');
-        $$payload = [
-          'project_id' => $$projectId,
-          'capability' => 'social_content_generation',
-          'input' => [
-            'system' => 'Responda somente JSON valido.',
-            'user' => 'Gere um teste tecnico curto de conteudo para Instagram.',
-            'response_format' => 'json',
-            'temperature' => 0.2,
-          ],
-        ];
-        $$body = json_encode($$payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-        $$method = new ReflectionMethod($$service, 'centroIaSignatureHeaders');
+        $$method = new ReflectionMethod($$service, 'generateWithCentroIa');
         $$method->setAccessible(true);
-        $$headers = $$method->invoke($$service, $$projectId, $$url, $$body);
-        $$response = Illuminate\Support\Facades\Http::acceptJson()
-          ->withHeaders($$headers)
-          ->withBody($$body, 'application/json')
-          ->timeout(90)
-          ->post($$url);
+        $$result = $$method->invoke($$service, $$project, null, null);
         echo json_encode([
-          'http_status' => $$response->status(),
-          'ok' => (bool) $$response->json('ok', false),
-          'error' => $$response->json('error'),
-          'message' => $$response->json('message'),
-          'model' => $$response->json('model'),
-          'execution_id' => $$response->json('execution_id'),
+          'ok' => is_array($$result),
+          'provider' => is_array($$result) ? 'centro-ia' : 'fallback',
+          'model' => is_array($$result) ? ($$result['model'] ?? null) : null,
+          'execution_id' => is_array($$result) ? ($$result['execution_id'] ?? null) : null,
+          'has_title' => is_array($$result) && !empty($$result['title']),
+          'has_caption' => is_array($$result) && !empty($$result['caption']),
+          'slides_count' => is_array($$result) ? count($$result['slides'] ?? []) : 0,
         ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) . PHP_EOL;
     networks:
       - vitrine_net
