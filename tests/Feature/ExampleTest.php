@@ -2,6 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Models\Brand;
+use App\Models\Client;
+use App\Models\ClientBalance;
+use App\Models\ClientSubscription;
+use App\Models\ContentProject;
+use App\Services\AI\AiContentService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -60,5 +66,69 @@ class ExampleTest extends TestCase
     public function test_checkout_rejects_unknown_plan(): void
     {
         $this->get('/checkout/inexistente')->assertNotFound();
+    }
+
+    public function test_content_generation_consumes_credit_and_writes_ledger(): void
+    {
+        config()->set('services.centro_ia.url', '');
+
+        $client = Client::create([
+            'name' => 'Cliente Entitlement Teste',
+            'status' => 'active',
+        ]);
+
+        $brand = Brand::create([
+            'client_id' => $client->id,
+            'name' => 'Marca Teste',
+            'status' => 'active',
+        ]);
+
+        ClientSubscription::create([
+            'client_id' => $client->id,
+            'plan_code' => 'test-plan',
+            'status' => 'active',
+            'starts_at' => now()->subDay(),
+            'ends_at' => now()->addMonth(),
+            'source' => 'test',
+        ]);
+
+        ClientBalance::create([
+            'client_id' => $client->id,
+            'balance_type' => 'content_credit',
+            'granted' => 3,
+            'consumed' => 0,
+            'available' => 3,
+            'period_start' => now()->startOfMonth(),
+            'period_end' => now()->addMonth()->startOfMonth(),
+        ]);
+
+        $project = ContentProject::create([
+            'client_id' => $client->id,
+            'brand_id' => $brand->id,
+            'idea' => 'Teste de consumo automático',
+            'objective' => 'education',
+            'format' => 'post_portrait',
+            'channel' => 'instagram',
+            'status' => 'draft',
+        ]);
+
+        app(AiContentService::class)->generateProject($project);
+
+        $this->assertDatabaseHas('client_balances', [
+            'client_id' => $client->id,
+            'balance_type' => 'content_credit',
+            'consumed' => 1,
+            'available' => 2,
+        ]);
+
+        $this->assertDatabaseHas('consumption_ledgers', [
+            'client_id' => $client->id,
+            'brand_id' => $brand->id,
+            'balance_type' => 'content_credit',
+            'movement_type' => 'debit',
+            'amount' => 1,
+        ]);
+
+        $this->assertDatabaseCount('content_generations', 1);
     }
 }

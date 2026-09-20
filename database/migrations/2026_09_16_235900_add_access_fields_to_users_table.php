@@ -8,20 +8,34 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('client_id')->nullable()->after('id')->constrained('clients')->nullOnDelete();
-            $table->foreignId('brand_id')->nullable()->after('client_id')->constrained('brands')->nullOnDelete();
-            $table->string('role')->default('client')->after('password')->index();
-            $table->string('status')->default('active')->after('role')->index();
-        });
+        if (! Schema::hasColumn('users', 'client_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->foreignId('client_id')->nullable()->after('id')->constrained('clients')->nullOnDelete();
+            });
+        }
+
+        if (! Schema::hasColumn('users', 'brand_id')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->foreignId('brand_id')->nullable()->after('client_id')->constrained('brands')->nullOnDelete();
+            });
+        }
+
+        if (! Schema::hasColumn('users', 'role')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('role')->default('client')->after('password')->index();
+            });
+        }
+
+        if (! Schema::hasColumn('users', 'status')) {
+            Schema::table('users', function (Blueprint $table) {
+                $table->string('status')->default('active')->after('role')->index();
+            });
+        }
     }
 
     public function down(): void
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropForeign(['brand_id']);
-            $table->dropForeign(['client_id']);
-            $table->dropColumn(['brand_id', 'client_id', 'role', 'status']);
-        });
+        // These columns are owned by the earlier entitlement migration.
+        // This compatibility migration must never remove shared access fields.
     }
 };

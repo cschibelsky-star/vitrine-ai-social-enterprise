@@ -2,12 +2,17 @@
 
 namespace App\Services\AI;
 
+use App\Models\ClientBalance;
+use App\Models\ClientSubscription;
+use App\Models\ConsumptionLedger;
 use App\Models\ContentGeneration;
 use App\Models\ContentProject;
 use App\Models\ContentSlide;
 use App\Models\PromptTemplate;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Str;
+use RuntimeException;
 use Throwable;
 
 class AiContentService
@@ -15,6 +20,8 @@ class AiContentService
     public function generateProject(ContentProject $project): array
     {
         $startedAt = microtime(true);
+        $this->assertContentEntitlement($project);
+
         $brand = $project->brand;
         $template = $this->findTemplate($project);
 
@@ -32,58 +39,147 @@ class AiContentService
             $executionId = null;
         }
 
-        $title = $output['title'];
-        $caption = $output['caption'];
-        $cta = $output['cta'];
-        $hashtags = $output['hashtags'];
-        $score = (float) $output['score'];
-        $slides = $output['slides'];
-
-        $project->update([
-            'title' => $title,
-            'caption' => $caption,
-            'cta' => $cta,
-            'hashtags' => $hashtags,
-            'score' => $score,
-            'status' => 'editing',
-        ]);
-
-        $project->slides()->delete();
-
-        foreach ($slides as $slide) {
-            ContentSlide::create([
-                'content_project_id' => $project->id,
-                'slide_number' => $slide['slide_number'],
-                'title' => $slide['title'],
-                'body' => $slide['body'],
-                'visual_instruction' => $slide['visual_instruction'],
-                'layout_type' => $slide['layout_type'],
+        return DB::transaction(function () use (
+            $project,
+            $output,
+            $provider,
+            $model,
+            $executionId,
+            $template,
+            $brand,
+            $startedAt,
+        ) {
+            $project->update([
+                'title' => $output['title'],
+                'caption' => $output['caption'],
+                'cta' => $output['cta'],
+                'hashtags' => $output['hashtags'],
+                'score' => (float) $output['score'],
+                'status' => 'editing',
             ]);
+
+            $project->slides()->delete();
+
+            foreach ($output['slides'] as $slide) {
+                ContentSlide::create([
+                    'content_project_id' => $project->id,
+                    'slide_number' => $slide['slide_number'],
+                    'title' => $slide['title'],
+                    'body' => $slide['body'],
+                    'visual_instruction' => $slide['visual_instruction'],
+                    'layout_type' => $slide['layout_type'],
+                ]);
+            }
+
+            $generation = ContentGeneration::create([
+                'content_project_id' => $project->id,
+                'provider' => $provider,
+                'model' => $model,
+                'input_data' => [
+                    'idea' => $project->idea,
+                    'objective' => $project->objective,
+                    'format' => $project->format,
+                    'channel' => $project->channel,
+                    'brand_id' => $project->brand_id,
+                ],
+                'output_data' => $output,
+                'metadata' => [
+                    'template_id' => $template?->id,
+                    'brand_tone' => $brand?->tone_of_voice,
+                    'target_audience' => $brand?->target_audience,
+                    'centro_ia_execution_id' => $executionId,
+                    'centro_ia_enabled' => $provider === 'centro-ia',
+                ],
+                'latency_ms' => (int) ((microtime(true) - $startedAt) * 1000),
+            ]);
+
+            $this->consumeContentCredit($project, $generation);
+
+            return $output;
+        });
+    }
+
+    private function assertContentEntitlement(ContentProject $project): void
+    {
+        if (! $project->client_id) {
+            throw new RuntimeException('Projeto sem cliente vinculado. Não é possível validar o plano.');
         }
 
-        ContentGeneration::create([
-            'content_project_id' => $project->id,
-            'provider' => $provider,
-            'model' => $model,
-            'input_data' => [
-                'idea' => $project->idea,
-                'objective' => $project->objective,
-                'format' => $project->format,
-                'channel' => $project->channel,
-                'brand_id' => $project->brand_id,
-            ],
-            'output_data' => $output,
-            'metadata' => [
-                'template_id' => $template?->id,
-                'brand_tone' => $brand?->tone_of_voice,
-                'target_audience' => $brand?->target_audience,
-                'centro_ia_execution_id' => $executionId,
-                'centro_ia_enabled' => $provider === 'centro-ia',
-            ],
-            'latency_ms' => (int) ((microtime(true) - $startedAt) * 1000),
-        ]);
+        $subscription = ClientSubscription::query()
+            ->where('client_id', $project->client_id)
+            ->where('status', 'active')
+            ->where(function ($query) {
+                $query->whereNull('starts_at')->orWhere('starts_at', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('ends_at')->orWhere('ends_at', '>', now());
+            })
+            ->latest('id')
+            ->first();
 
-        return $output;
+        if (! $subscription) {
+            throw new RuntimeException('Cliente sem plano ativo para geração de conteúdo.');
+        }
+
+        $balance = ClientBalance::query()
+            ->where('client_id', $project->client_id)
+            ->where('balance_type', 'content_credit')
+            ->where(function ($query) {
+                $query->whereNull('period_start')->orWhere('period_start', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('period_end')->orWhere('period_end', '>', now());
+            })
+            ->orderByDesc('period_start')
+            ->latest('id')
+            ->first();
+
+        if (! $balance || (float) $balance->available < 1) {
+            throw new RuntimeException('Franquia de conteúdo esgotada ou não provisionada para o plano ativo.');
+        }
+    }
+
+    private function consumeContentCredit(ContentProject $project, ContentGeneration $generation): void
+    {
+        $balance = ClientBalance::query()
+            ->where('client_id', $project->client_id)
+            ->where('balance_type', 'content_credit')
+            ->where(function ($query) {
+                $query->whereNull('period_start')->orWhere('period_start', '<=', now());
+            })
+            ->where(function ($query) {
+                $query->whereNull('period_end')->orWhere('period_end', '>', now());
+            })
+            ->orderByDesc('period_start')
+            ->latest('id')
+            ->lockForUpdate()
+            ->first();
+
+        if (! $balance || (float) $balance->available < 1) {
+            throw new RuntimeException('Saldo de conteúdo indisponível no momento do consumo.');
+        }
+
+        $before = (float) $balance->available;
+        $after = $before - 1;
+
+        $balance->forceFill([
+            'consumed' => (float) $balance->consumed + 1,
+            'available' => $after,
+        ])->save();
+
+        ConsumptionLedger::create([
+            'client_id' => $project->client_id,
+            'brand_id' => $project->brand_id,
+            'balance_type' => 'content_credit',
+            'movement_type' => 'debit',
+            'amount' => 1,
+            'reference_type' => ContentGeneration::class,
+            'reference_id' => $generation->id,
+            'description' => 'Geração de conteúdo por IA',
+            'balance_before' => $before,
+            'balance_after' => $after,
+            'created_by' => auth()->id(),
+        ]);
     }
 
     private function generateWithCentroIa(ContentProject $project, $brand, ?PromptTemplate $template): ?array
