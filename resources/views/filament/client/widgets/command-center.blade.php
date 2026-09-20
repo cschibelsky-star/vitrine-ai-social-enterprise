@@ -202,6 +202,38 @@
         .vsm-thumb{height:118px!important}
         .vsm-performance{min-height:112px!important}
     }
+
+    /* Intelligent desktop sidebar — collapsed by default, expands on hover/focus. */
+    @media(min-width:821px){
+        .vsm-shell{grid-template-columns:72px minmax(0,1fr)!important;transition:grid-template-columns .24s ease}
+        .vsm-shell:has(.vsm-side:hover),.vsm-shell:has(.vsm-side:focus-within){grid-template-columns:242px minmax(0,1fr)!important}
+        .vsm-side{padding:20px 10px 14px!important;overflow:hidden;transition:padding .24s ease,box-shadow .24s ease;box-shadow:8px 0 24px rgba(0,0,0,.08)}
+        .vsm-side:hover,.vsm-side:focus-within{padding:24px 16px 18px!important;box-shadow:12px 0 34px rgba(20,6,62,.34)}
+        .vsm-brand{justify-content:center!important;gap:0!important;white-space:nowrap}
+        .vsm-brand-copy{min-width:0!important;width:0!important;opacity:0;overflow:hidden;transform:translateX(-7px);transition:opacity .18s ease,transform .24s ease,width .24s ease}
+        .vsm-side:hover .vsm-brand,.vsm-side:focus-within .vsm-brand{justify-content:flex-start!important;gap:10px!important}
+        .vsm-side:hover .vsm-brand-copy,.vsm-side:focus-within .vsm-brand-copy{min-width:138px!important;width:138px!important;opacity:1;transform:none}
+        .vsm-own-nav a{justify-content:center!important;gap:0!important;padding:0 9px!important;white-space:nowrap;overflow:hidden;font-size:0!important;transition:all .2s ease}
+        .vsm-own-nav a svg{width:19px;height:19px;min-width:19px}
+        .vsm-side:hover .vsm-own-nav a,.vsm-side:focus-within .vsm-own-nav a{justify-content:flex-start!important;gap:10px!important;padding:0 12px!important;font-size:.78rem!important}
+        .vsm-own-nav .vsm-badge{display:none}
+        .vsm-side:hover .vsm-own-nav .vsm-badge,.vsm-side:focus-within .vsm-own-nav .vsm-badge{display:grid}
+        .vsm-side-support{min-height:48px;padding:10px 8px!important;display:grid!important;place-items:center;overflow:hidden}
+        .vsm-side-support>div{margin:0!important;min-width:28px}
+        .vsm-side-support strong,.vsm-side-support b,.vsm-side-support p,.vsm-side-support a{display:none!important}
+        .vsm-side:hover .vsm-side-support,.vsm-side:focus-within .vsm-side-support{display:block!important;padding:15px 13px 16px!important}
+        .vsm-side:hover .vsm-side-support>div,.vsm-side:focus-within .vsm-side-support>div{margin-bottom:9px!important}
+        .vsm-side:hover .vsm-side-support strong,.vsm-side:focus-within .vsm-side-support strong{display:block!important}
+        .vsm-side:hover .vsm-side-support b,.vsm-side:focus-within .vsm-side-support b{display:block!important}
+        .vsm-side:hover .vsm-side-support p,.vsm-side:focus-within .vsm-side-support p{display:block!important}
+        .vsm-side:hover .vsm-side-support a,.vsm-side:focus-within .vsm-side-support a{display:inline-flex!important}
+    }
+    @media(min-width:821px) and (max-width:1300px){
+        .vsm-shell{grid-template-columns:68px minmax(0,1fr)!important}
+        .vsm-shell:has(.vsm-side:hover),.vsm-shell:has(.vsm-side:focus-within){grid-template-columns:218px minmax(0,1fr)!important}
+        .vsm-side:hover .vsm-brand-copy,.vsm-side:focus-within .vsm-brand-copy{min-width:108px!important;width:108px!important}
+        .vsm-side:hover .vsm-own-nav a,.vsm-side:focus-within .vsm-own-nav a{font-size:.69rem!important}
+    }
 </style>
 
 @if(! $clientId)
