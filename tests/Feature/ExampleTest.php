@@ -6,9 +6,13 @@ use App\Models\Brand;
 use App\Models\Client;
 use App\Models\ClientBalance;
 use App\Models\ClientSubscription;
+use App\Filament\Client\Pages\Contents;
 use App\Models\ContentProject;
+use App\Models\User;
 use App\Services\AI\AiContentService;
+use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class ExampleTest extends TestCase
@@ -130,5 +134,77 @@ class ExampleTest extends TestCase
         ]);
 
         $this->assertDatabaseCount('content_generations', 1);
+    }
+
+    public function test_client_can_generate_content_from_client_contents_page(): void
+    {
+        config()->set('services.centro_ia.url', '');
+
+        $client = Client::create([
+            'name' => 'Cliente Interface Teste',
+            'status' => 'active',
+        ]);
+
+        $brand = Brand::create([
+            'client_id' => $client->id,
+            'name' => 'Marca Interface Teste',
+            'tone_of_voice' => 'Profissional e claro',
+            'target_audience' => 'Pequenos negócios',
+            'status' => 'active',
+        ]);
+
+        ClientSubscription::create([
+            'client_id' => $client->id,
+            'plan_code' => 'test-plan',
+            'status' => 'active',
+            'starts_at' => now()->subDay(),
+            'ends_at' => now()->addMonth(),
+            'source' => 'test',
+        ]);
+
+        ClientBalance::create([
+            'client_id' => $client->id,
+            'balance_type' => 'content_credit',
+            'granted' => 3,
+            'consumed' => 0,
+            'available' => 3,
+            'period_start' => now()->startOfMonth(),
+            'period_end' => now()->addMonth()->startOfMonth(),
+        ]);
+
+        $user = User::factory()->create([
+            'client_id' => $client->id,
+            'role' => 'client',
+            'status' => 'active',
+        ]);
+
+        Filament::setCurrentPanel(Filament::getPanel('client'));
+
+        Livewire::actingAs($user)
+            ->test(Contents::class)
+            ->assertSee('Criar conteúdo com IA')
+            ->set('brandId', $brand->id)
+            ->set('idea', 'Crie um post institucional sobre organização de conteúdo com inteligência artificial.')
+            ->set('objective', 'institutional')
+            ->set('format', 'post_portrait')
+            ->set('channel', 'instagram')
+            ->call('generateContent')
+            ->assertHasNoErrors();
+
+        $project = ContentProject::query()
+            ->where('client_id', $client->id)
+            ->latest('id')
+            ->first();
+
+        $this->assertNotNull($project);
+        $this->assertSame('editing', $project->status);
+        $this->assertNotEmpty($project->title);
+        $this->assertNotEmpty($project->caption);
+        $this->assertDatabaseHas('client_balances', [
+            'client_id' => $client->id,
+            'balance_type' => 'content_credit',
+            'consumed' => 1,
+            'available' => 2,
+        ]);
     }
 }
