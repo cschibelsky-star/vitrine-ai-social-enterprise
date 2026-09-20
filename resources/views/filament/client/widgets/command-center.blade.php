@@ -136,6 +136,72 @@
         .vsm-grid-bottom{grid-template-columns:1.5fr .8fr .78fr;gap:9px}.vsm-performance{min-height:116px}.vsm-spark{height:37px}.vsm-score{width:58px;height:58px}
         .vsm-request-row,.vsm-channel-row{min-height:36px;padding:5px 7px}.vsm-row-copy b{font-size:.54rem}.vsm-row-copy span{font-size:.46rem}.vsm-footer{padding-top:5px;font-size:.47rem}
     }
+    /* Historical visual fidelity — canonical client app */
+    .vsm-brand{gap:10px!important;margin:4px 4px 24px!important}
+    .vsm-brand-copy{min-width:138px!important;line-height:.82!important}
+    .vsm-brand-copy b{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif!important;font-size:2rem!important;font-weight:900!important;font-style:italic!important;letter-spacing:-.035em!important}
+    .vsm-brand-copy span{font-size:.76rem!important;margin-top:8px!important;letter-spacing:.055em!important}
+    .vsm-brand-mark{width:48px!important;height:58px!important;min-width:48px!important}
+    .vsm-brand-mark svg{width:47px!important;height:56px!important}
+    .vsm-own-nav a{min-height:43px!important;font-size:.78rem!important;border-radius:10px!important}
+    .vsm-own-nav a.active{background:linear-gradient(90deg,rgba(40,56,245,.62),rgba(109,24,230,.58))!important;border-color:#7536ff!important;box-shadow:0 0 18px rgba(81,55,255,.35),inset 3px 0 0 #1be0ff!important}
+    .vsm-side-support{border-color:#6339ff!important;box-shadow:0 0 25px rgba(73,39,255,.28),inset 0 0 28px rgba(94,39,255,.08)!important;background:
+        radial-gradient(circle at 82% 18%,rgba(192,42,255,.48),transparent 24%),
+        linear-gradient(155deg,#120936,#071127)!important}
+    .vsm-side-support:before{content:"";position:absolute;inset:0;pointer-events:none;background:
+        linear-gradient(132deg,transparent 34%,rgba(115,48,255,.42) 35%,transparent 36%),
+        linear-gradient(24deg,transparent 62%,rgba(74,108,255,.35) 63%,transparent 64%)}
+    .vsm-side-support a{background:#ffc400!important;border-radius:999px!important;padding:0 18px!important;min-height:36px!important;box-shadow:0 0 18px rgba(255,196,0,.35)!important}
+
+    @media(min-width:821px){
+        .vsm-shell{grid-template-columns:242px minmax(0,1fr)!important}
+        .vsm-side{padding:24px 16px 18px!important}
+        .vsm-shell>.vsm-dashboard{padding:14px 18px 11px!important;gap:9px!important}
+        .vsm-topline{min-height:44px!important}
+        .vsm-hero-row{grid-template-columns:minmax(0,2.18fr) minmax(248px,.68fr)!important;gap:10px!important}
+        .vsm-shell .vsm-hero{min-height:205px!important;padding:11px 18px 15px!important}
+        .vsm-copy{width:52%!important;padding:8px 0 0 3px!important}
+        .vsm-greeting{font-size:.78rem!important;margin-bottom:7px!important}
+        .vsm-copy h1{font-family:Impact,Haettenschweiler,"Arial Narrow Bold",sans-serif!important;font-size:clamp(2.5rem,3.8vw,4rem)!important;line-height:.88!important;letter-spacing:.005em!important;font-style:italic!important;font-weight:900!important;text-shadow:0 3px 14px rgba(0,0,0,.65)!important}
+        .vsm-copy h1 span{margin-top:4px!important;color:#ffc400!important}
+        .vsm-copy p{font-size:.82rem!important;max-width:430px!important;margin-top:9px!important}
+        .vsm-hero-art{right:-1%!important;top:-3%!important;width:53%!important;height:110%!important;display:block!important}
+        .vsm-hero-svg{width:100%!important;height:100%!important;display:block!important;overflow:visible!important}
+        .vsm-phone,.vsm-orbit,.vsm-social{display:none!important}
+        .vsm-shell .vsm-team{min-height:205px!important;padding:18px 18px!important}
+        .vsm-team h3{font-size:.82rem!important}
+        .vsm-team p{font-size:.72rem!important;max-width:195px!important}
+        .vsm-kpi{min-height:82px!important}
+        .vsm-grid-main{grid-template-columns:minmax(0,1.12fr) minmax(0,1fr)!important}
+        .vsm-calendar{overflow:hidden!important}
+        .vsm-thumb{height:142px!important}
+        .vsm-approval{box-shadow:0 0 18px rgba(61,67,255,.12)!important}
+        .vsm-approve{box-shadow:0 0 13px rgba(0,225,145,.28)!important}
+        .vsm-request{box-shadow:0 0 13px rgba(164,44,255,.25)!important}
+        .vsm-performance{min-height:128px!important}
+    }
+    @media(min-width:821px) and (max-width:1300px){
+        .vsm-shell{grid-template-columns:218px minmax(0,1fr)!important}
+        .vsm-side{padding:18px 12px 14px!important}
+        .vsm-brand-copy b{font-size:1.5rem!important}
+        .vsm-brand-copy span{font-size:.64rem!important}
+        .vsm-brand-copy{min-width:108px!important}
+        .vsm-brand-mark{width:40px!important;height:48px!important;min-width:40px!important}
+        .vsm-brand-mark svg{width:40px!important;height:47px!important}
+        .vsm-own-nav a{min-height:38px!important;font-size:.69rem!important}
+        .vsm-shell>.vsm-dashboard{padding:10px 12px 10px!important}
+        .vsm-hero-row{grid-template-columns:minmax(0,2.35fr) minmax(220px,.62fr)!important}
+        .vsm-shell .vsm-hero{min-height:184px!important}
+        .vsm-shell .vsm-team{min-height:184px!important}
+        .vsm-copy{width:54%!important}
+        .vsm-copy h1{font-size:clamp(2rem,3.35vw,3.15rem)!important}
+        .vsm-copy p{font-size:.7rem!important}
+        .vsm-hero-art{width:49%!important;right:-1%!important}
+        .vsm-team p{font-size:.63rem!important}
+        .vsm-kpi{min-height:72px!important}
+        .vsm-thumb{height:118px!important}
+        .vsm-performance{min-height:112px!important}
+    }
 </style>
 
 @if(! $clientId)
@@ -193,13 +259,99 @@
                 <p>Acompanhe entregas, aprove conteúdos e veja resultados.</p>
             </div>
             <div class="vsm-hero-art" aria-hidden="true">
-                <div class="vsm-orbit"></div>
-                <div class="vsm-phone"></div>
-                <div class="vsm-social ig"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></div>
-                <div class="vsm-social yt"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 7.3a2.8 2.8 0 0 0-2-2C17.2 4.8 12 4.8 12 4.8s-5.2 0-7 .5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2.5 12 29 29 0 0 0 3 16.7a2.8 2.8 0 0 0 2 2c1.8.5 7 .5 7 .5s5.2 0 7-.5a2.8 2.8 0 0 0 2-2 29 29 0 0 0 .5-4.7 29 29 0 0 0-.5-4.7ZM10 15.5v-7l6 3.5-6 3.5Z"/></svg></div>
-                <div class="vsm-social stat"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="4" y="12" width="3" height="8" rx="1"/><rect x="10.5" y="8" width="3" height="12" rx="1"/><rect x="17" y="4" width="3" height="16" rx="1"/></svg></div>
-                <div class="vsm-social like"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7-4.6-9.2-8.7C.8 8.5 3 5 6.5 5c2 0 3.4 1.1 4.3 2.3C11.7 6.1 13.1 5 15.1 5c3.5 0 5.7 3.5 3.7 7.3C19 16.4 12 21 12 21Z"/></svg></div>
-                <div class="vsm-social chat"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H9l-5 3v-3a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z"/></svg></div>
+                <svg class="vsm-hero-svg" viewBox="0 0 640 360" role="img" aria-label="Ecossistema social Vitrine">
+                    <defs>
+                        <linearGradient id="vsmDevice" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#139dff"/>
+                            <stop offset=".4" stop-color="#183cff"/>
+                            <stop offset=".72" stop-color="#6f28ff"/>
+                            <stop offset="1" stop-color="#ff38d0"/>
+                        </linearGradient>
+                        <linearGradient id="vsmGlass" x1="0" y1="0" x2="1" y2="1">
+                            <stop offset="0" stop-color="#0e49ff" stop-opacity=".55"/>
+                            <stop offset=".5" stop-color="#0a1237" stop-opacity=".92"/>
+                            <stop offset="1" stop-color="#cb2cff" stop-opacity=".45"/>
+                        </linearGradient>
+                        <linearGradient id="vsmIg" x1="0" y1="0" x2="1" y2="1">
+                            <stop stop-color="#792cff"/><stop offset=".55" stop-color="#ff36be"/><stop offset="1" stop-color="#ff7a28"/>
+                        </linearGradient>
+                        <linearGradient id="vsmYt" x1="0" y1="0" x2="1" y2="1">
+                            <stop stop-color="#ff244f"/><stop offset="1" stop-color="#ff6735"/>
+                        </linearGradient>
+                        <linearGradient id="vsmStat" x1="0" y1="0" x2="1" y2="1">
+                            <stop stop-color="#09aaff"/><stop offset="1" stop-color="#2250ff"/>
+                        </linearGradient>
+                        <linearGradient id="vsmHeart" x1="0" y1="0" x2="1" y2="1">
+                            <stop stop-color="#c72dff"/><stop offset="1" stop-color="#ff49b9"/>
+                        </linearGradient>
+                        <filter id="vsmGlow" x="-80%" y="-80%" width="260%" height="260%">
+                            <feGaussianBlur stdDeviation="9" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                        <filter id="vsmSoftGlow" x="-80%" y="-80%" width="260%" height="260%">
+                            <feGaussianBlur stdDeviation="4" result="b"/>
+                            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+                        </filter>
+                    </defs>
+
+                    <g opacity=".7" filter="url(#vsmSoftGlow)">
+                        <path d="M55 245C140 175 207 281 320 218S500 203 594 144" fill="none" stroke="#6d35ff" stroke-width="3"/>
+                        <path d="M64 263C175 198 240 302 352 231S512 217 604 165" fill="none" stroke="#18bfff" stroke-width="2"/>
+                        <path d="M156 83 171 101 159 105 174 122" fill="none" stroke="#973cff" stroke-width="3"/>
+                        <path d="M497 80 484 99 498 101 484 119" fill="none" stroke="#238aff" stroke-width="3"/>
+                    </g>
+
+                    <ellipse cx="332" cy="269" rx="228" ry="56" fill="none" stroke="#2d7cff" stroke-width="4" opacity=".8" filter="url(#vsmGlow)"/>
+                    <ellipse cx="332" cy="269" rx="258" ry="73" fill="none" stroke="#b138ff" stroke-width="2.5" opacity=".55"/>
+
+                    <g transform="translate(159 166) skewX(-10)" filter="url(#vsmGlow)">
+                        <rect x="0" y="0" width="360" height="122" rx="28" fill="url(#vsmDevice)" opacity=".98"/>
+                        <rect x="11" y="8" width="338" height="96" rx="21" fill="#061128"/>
+                        <rect x="20" y="15" width="320" height="80" rx="18" fill="url(#vsmGlass)" stroke="#23e5ff" stroke-width="2"/>
+                        <path d="M28 91h303" stroke="#6de9ff" stroke-width="3" opacity=".9"/>
+                        <path d="M321 103h13" stroke="#ff5ad9" stroke-width="4" stroke-linecap="round"/>
+                    </g>
+
+                    <g transform="translate(130 92)" filter="url(#vsmGlow)">
+                        <rect width="103" height="95" rx="22" fill="url(#vsmIg)" stroke="#43d8ff" stroke-width="3"/>
+                        <rect x="26" y="19" width="50" height="50" rx="14" fill="none" stroke="white" stroke-width="7"/>
+                        <circle cx="51" cy="44" r="13" fill="none" stroke="white" stroke-width="6"/>
+                        <circle cx="69" cy="27" r="4" fill="white"/>
+                        <path d="M47 95 56 109 66 95" fill="url(#vsmIg)"/>
+                    </g>
+
+                    <g transform="translate(342 83)" filter="url(#vsmGlow)">
+                        <rect width="110" height="96" rx="22" fill="url(#vsmYt)" stroke="#ff74dc" stroke-width="3"/>
+                        <path d="M45 29 78 48 45 67Z" fill="white"/>
+                        <path d="M50 96 61 111 70 96" fill="url(#vsmYt)"/>
+                    </g>
+
+                    <g transform="translate(476 101)" filter="url(#vsmGlow)">
+                        <rect width="98" height="88" rx="21" fill="url(#vsmStat)" stroke="#35dfff" stroke-width="3"/>
+                        <rect x="24" y="48" width="10" height="22" rx="3" fill="white"/>
+                        <rect x="43" y="35" width="10" height="35" rx="3" fill="white"/>
+                        <rect x="62" y="21" width="10" height="49" rx="3" fill="white"/>
+                        <path d="M43 88 54 102 64 88" fill="url(#vsmStat)"/>
+                    </g>
+
+                    <g transform="translate(276 28)" filter="url(#vsmGlow)">
+                        <circle cx="40" cy="40" r="38" fill="url(#vsmHeart)" stroke="#ff95e9" stroke-width="3"/>
+                        <path d="M40 60S15 45 15 30c0-11 15-16 25-4 10-12 25-7 25 4 0 15-25 30-25 30Z" fill="white"/>
+                        <path d="M36 78h8l-4 21Z" fill="#ff45b6"/>
+                    </g>
+
+                    <g transform="translate(282 150)" filter="url(#vsmGlow)">
+                        <rect width="75" height="70" rx="18" fill="#23b9e9" stroke="#73eaff" stroke-width="3"/>
+                        <path d="M20 24h35v24H34l-10 8v-8h-4Z" fill="white"/>
+                        <path d="M31 70 38 80 46 70" fill="#23b9e9"/>
+                    </g>
+
+                    <g fill="#fff" filter="url(#vsmSoftGlow)">
+                        <path d="m103 177 6 13 13 6-13 6-6 13-6-13-13-6 13-6Z"/>
+                        <path d="m471 55 5 11 11 5-11 5-5 11-5-11-11-5 11-5Z"/>
+                        <circle cx="89" cy="132" r="4"/><circle cx="533" cy="74" r="4"/><circle cx="238" cy="44" r="3"/>
+                    </g>
+                </svg>
             </div>
         </section>
         <aside class="vsm-team">
