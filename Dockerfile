@@ -53,4 +53,4 @@ COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/99-studio-uploads.ini
 
 USER www-data
 
-CMD ["php-fpm"]
+CMD ["sh", "-c", "php artisan filament:assets && php artisan livewire:publish --assets && exec php-fpm"]
