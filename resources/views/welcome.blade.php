@@ -29,6 +29,7 @@
         .lead{font-size:1.15rem;color:var(--muted);max-width:640px}.hero-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:30px}.trust{display:flex;gap:20px;flex-wrap:wrap;margin-top:26px;color:#c4cce0;font-size:.9rem}.trust b{color:white}
         .dashboard{position:relative;padding:18px;border-radius:32px;background:linear-gradient(155deg,rgba(18,28,53,.95),rgba(8,13,27,.96));border:1px solid rgba(255,255,255,.11);box-shadow:var(--shadow)}
         .dashboard:before{content:"";position:absolute;inset:-2px;border-radius:34px;background:linear-gradient(135deg,rgba(37,217,255,.28),transparent 38%,rgba(255,79,216,.18));z-index:-1;filter:blur(18px)}
+        .hero-media{position:relative}.hero-video-shell{position:relative;aspect-ratio:16/9;padding:10px;border-radius:32px;background:linear-gradient(155deg,rgba(18,28,53,.96),rgba(8,13,27,.98));border:1px solid rgba(255,255,255,.11);box-shadow:var(--shadow);overflow:hidden}.hero-video-shell:before{content:"";position:absolute;inset:-2px;border-radius:34px;background:linear-gradient(135deg,rgba(37,217,255,.26),transparent 38%,rgba(255,79,216,.16));z-index:-1;filter:blur(18px)}.hero-video{width:100%;height:100%;display:block;object-fit:cover;border-radius:22px;background:#050914}.sound-toggle{position:absolute;right:24px;bottom:24px;z-index:3;display:inline-flex;align-items:center;gap:8px;min-height:42px;padding:0 14px;border-radius:999px;border:1px solid rgba(255,255,255,.18);background:rgba(7,11,23,.78);backdrop-filter:blur(12px);color:#fff;font:inherit;font-size:.82rem;font-weight:850;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.28)}.sound-toggle:hover{border-color:rgba(37,217,255,.48)}.hero-video-note{position:absolute;left:24px;bottom:27px;z-index:2;color:rgba(255,255,255,.78);font-size:.76rem;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,.8)}#hero-dashboard-fallback{display:none}
         .dash-top{display:flex;justify-content:space-between;align-items:center;padding:8px 4px 18px}.dots{display:flex;gap:6px}.dots i{width:8px;height:8px;border-radius:50%;background:#35415d}.online{font-size:.78rem;color:#8fffc5}
         .dash-hero{padding:20px;border-radius:20px;background:linear-gradient(135deg,rgba(37,217,255,.1),rgba(139,92,246,.13));border:1px solid rgba(37,217,255,.16)}.dash-hero strong{display:block;font-size:1.3rem;line-height:1.15}.dash-hero span{display:block;color:var(--muted);margin-top:8px;font-size:.88rem}
         .mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px}.mini{padding:16px;border-radius:17px;background:#0b1224;border:1px solid var(--line)}.mini small{color:var(--muted)}.mini b{display:block;font-size:1.55rem;margin-top:6px}.mini.cyan{box-shadow:inset 0 0 30px rgba(37,217,255,.05)}.mini.gold{box-shadow:inset 0 0 30px rgba(255,201,40,.05)}
@@ -68,14 +69,23 @@
             <div class="hero-actions"><a class="btn btn-gold" href="#vip">Quero entrar na Lista VIP</a><a class="btn" href="/app/login">Já sou cliente</a></div>
             <div class="trust"><span><b>Conteúdo</b> com consistência</span><span><b>Aprovação</b> sem confusão</span><span><b>Resultados</b> visíveis</span></div>
         </div>
-        <div class="dashboard" aria-label="Prévia do painel Vitrine Social Mídia">
-            <div class="dash-top"><div class="dots"><i></i><i></i><i></i></div><span class="online">● operação ativa</span></div>
-            <div class="dash-hero"><strong>SUA PRESENÇA DIGITAL<br>EM UM SÓ LUGAR</strong><span>Acompanhe entregas, aprove conteúdos e veja resultados.</span></div>
-            <div class="mini-grid">
-                <div class="mini cyan"><small>Conteúdos pendentes</small><b>08</b></div>
-                <div class="mini"><small>Aprovações</small><b>03</b></div>
-                <div class="mini gold"><small>Posts agendados</small><b>12</b></div>
-                <div class="mini"><small>Plano / saldo</small><b>Ativo</b></div>
+        <div class="hero-media" aria-label="Vídeo de apresentação Vitrine Social Mídia">
+            <div class="hero-video-shell" id="hero-video-shell">
+                <video id="hero-video" class="hero-video" autoplay muted loop playsinline preload="metadata">
+                    <source src="{{ asset('media/vitrine-social-lista-vip.mp4') }}" type="video/mp4">
+                </video>
+                <span class="hero-video-note">Vídeo de apresentação · 37s</span>
+                <button class="sound-toggle" id="sound-toggle" type="button" aria-pressed="false">🔊 Ativar som</button>
+            </div>
+            <div class="dashboard" id="hero-dashboard-fallback" aria-label="Prévia do painel Vitrine Social Mídia">
+                <div class="dash-top"><div class="dots"><i></i><i></i><i></i></div><span class="online">● operação ativa</span></div>
+                <div class="dash-hero"><strong>SUA PRESENÇA DIGITAL<br>EM UM SÓ LUGAR</strong><span>Acompanhe entregas, aprove conteúdos e veja resultados.</span></div>
+                <div class="mini-grid">
+                    <div class="mini cyan"><small>Conteúdos pendentes</small><b>08</b></div>
+                    <div class="mini"><small>Aprovações</small><b>03</b></div>
+                    <div class="mini gold"><small>Posts agendados</small><b>12</b></div>
+                    <div class="mini"><small>Plano / saldo</small><b>Ativo</b></div>
+                </div>
             </div>
         </div>
     </div>
@@ -116,5 +126,34 @@
 </main>
 
 <footer class="footer"><div class="wrap footer-inner"><span><strong>Vitrine Social Mídia</strong> · Vitrine IA Pro</span><span>social.vitrineaipro.com.br</span></div></footer>
+<script>
+(() => {
+    const video = document.getElementById('hero-video');
+    const shell = document.getElementById('hero-video-shell');
+    const fallback = document.getElementById('hero-dashboard-fallback');
+    const toggle = document.getElementById('sound-toggle');
+
+    if (!video || !shell || !fallback || !toggle) return;
+
+    const showFallback = () => {
+        shell.style.display = 'none';
+        fallback.style.display = 'block';
+    };
+
+    video.addEventListener('error', showFallback);
+    video.querySelector('source')?.addEventListener('error', showFallback);
+
+    toggle.addEventListener('click', async () => {
+        video.muted = !video.muted;
+        toggle.setAttribute('aria-pressed', String(!video.muted));
+        toggle.textContent = video.muted ? '🔊 Ativar som' : '🔇 Silenciar';
+
+        if (!video.muted) {
+            video.currentTime = 0;
+            try { await video.play(); } catch (error) {}
+        }
+    });
+})();
+</script>
 </body>
 </html>
