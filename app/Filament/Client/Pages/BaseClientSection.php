@@ -115,6 +115,14 @@ abstract class BaseClientSection extends Page
             ->where('client_id', $clientId)
             ->findOrFail($projectId);
 
+        if (! in_array($project->status, ['ready', 'scheduled'], true)) {
+            Notification::make()
+                ->title('Aprove a peça antes de agendar')
+                ->warning()
+                ->send();
+            return;
+        }
+
         $raw = trim((string) ($this->scheduleInputs[$projectId] ?? ''));
 
         if ($raw === '') {
@@ -165,8 +173,70 @@ abstract class BaseClientSection extends Page
 
         Notification::make()
             ->title('Conteúdo aprovado')
-            ->body('O conteúdo foi liberado para a próxima etapa.')
+            ->body('A peça está pronta. Agora você pode publicar, agendar ou manter na galeria.')
             ->success()
+            ->send();
+    }
+
+    public function saveToGallery(int $projectId): void
+    {
+        $clientId = auth()->user()?->client_id;
+
+        if (! $clientId) {
+            return;
+        }
+
+        $project = ContentProject::query()
+            ->where('client_id', $clientId)
+            ->findOrFail($projectId);
+
+        abort_unless(in_array($project->status, ['ready', 'scheduled'], true), 422);
+
+        $project->forceFill([
+            'status' => 'ready',
+            'scheduled_at' => null,
+        ])->save();
+
+        Notification::make()
+            ->title('Salvo na galeria')
+            ->body('O conteúdo continua aprovado e poderá ser publicado ou agendado depois.')
+            ->success()
+            ->send();
+    }
+
+    public function publishContentNow(int $projectId): void
+    {
+        $clientId = auth()->user()?->client_id;
+
+        if (! $clientId) {
+            return;
+        }
+
+        $project = ContentProject::query()
+            ->where('client_id', $clientId)
+            ->findOrFail($projectId);
+
+        if (! in_array($project->status, ['ready', 'scheduled'], true)) {
+            Notification::make()
+                ->title('Aprove a peça antes de publicar')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        if (! in_array($project->channel, ['instagram', 'facebook'], true)) {
+            Notification::make()
+                ->title('Canal ainda não disponível para publicação direta')
+                ->body('Nesta fase, a publicação direta será habilitada inicialmente para Instagram e Facebook.')
+                ->warning()
+                ->send();
+            return;
+        }
+
+        Notification::make()
+            ->title('Conta publicadora necessária')
+            ->body('A peça está pronta para publicar, mas este cliente ainda não possui uma conta publicadora persistente vinculada. Nenhum status foi alterado.')
+            ->warning()
             ->send();
     }
 

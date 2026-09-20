@@ -99,14 +99,21 @@
                     @endif
 
                     <div class="vsm-card-actions">
-                        <button type="button" wire:click="approveContent({{ $generated->id }})" class="vsm-action ok">Aprovar</button>
-                        <button type="button" wire:click="requestAdjustment({{ $generated->id }})" class="vsm-action adjust">Pedir ajuste</button>
+                        @if($generated->status !== 'ready')
+                            <button type="button" wire:click="approveContent({{ $generated->id }})" class="vsm-action ok">Aprovar</button>
+                            <button type="button" wire:click="requestAdjustment({{ $generated->id }})" class="vsm-action adjust">Pedir ajuste</button>
+                        @else
+                            <button type="button" wire:click="publishContentNow({{ $generated->id }})" class="vsm-action ok">Publicar agora</button>
+                            <button type="button" wire:click="saveToGallery({{ $generated->id }})" class="vsm-action">Salvar na galeria</button>
+                        @endif
                     </div>
 
-                    <div class="vsm-schedule">
-                        <input type="datetime-local" wire:model="scheduleInputs.{{ $generated->id }}">
-                        <button type="button" wire:click="scheduleContent({{ $generated->id }})" class="vsm-action vsm-primary">Agendar</button>
-                    </div>
+                    @if($generated->status === 'ready')
+                        <div class="vsm-schedule">
+                            <input type="datetime-local" wire:model="scheduleInputs.{{ $generated->id }}">
+                            <button type="button" wire:click="scheduleContent({{ $generated->id }})" class="vsm-action vsm-primary">Agendar publicação</button>
+                        </div>
+                    @endif
                 </section>
             @endif
         @endif
@@ -163,16 +170,18 @@
                                 <div class="vsm-card-actions">
                                     @if(!in_array($item->status, ['ready', 'scheduled', 'published'], true))
                                         <button type="button" wire:click="approveContent({{ $item->id }})" class="vsm-action ok">Aprovar</button>
-                                    @endif
-                                    @if($item->status !== 'published')
+                                        <button type="button" wire:click="requestAdjustment({{ $item->id }})" class="vsm-action adjust">Pedir ajuste</button>
+                                    @elseif(in_array($item->status, ['ready', 'scheduled'], true))
+                                        <button type="button" wire:click="publishContentNow({{ $item->id }})" class="vsm-action ok">Publicar agora</button>
+                                        <button type="button" wire:click="saveToGallery({{ $item->id }})" class="vsm-action">Salvar na galeria</button>
                                         <button type="button" wire:click="requestAdjustment({{ $item->id }})" class="vsm-action adjust">Pedir ajuste</button>
                                     @endif
                                 </div>
 
-                                @if($item->status !== 'published')
+                                @if(in_array($item->status, ['ready', 'scheduled'], true))
                                     <div class="vsm-schedule">
                                         <input type="datetime-local" wire:model="scheduleInputs.{{ $item->id }}">
-                                        <button type="button" wire:click="scheduleContent({{ $item->id }})" class="vsm-action vsm-primary">Agendar</button>
+                                        <button type="button" wire:click="scheduleContent({{ $item->id }})" class="vsm-action vsm-primary">Agendar publicação</button>
                                         @if($item->scheduled_at)
                                             <span class="vsm-chip">Agendado: {{ $item->scheduled_at->format('d/m/Y H:i') }}</span>
                                         @endif
