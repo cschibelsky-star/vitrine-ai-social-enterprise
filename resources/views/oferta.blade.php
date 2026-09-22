@@ -27,7 +27,7 @@
     <div class="wrap nav-inner">
         <a class="brand" href="/">Vitrine <span>Social Mídia</span></a>
         <nav class="nav-links" aria-label="Navegação da oferta"><a href="#beneficios">Benefícios</a><a href="#planos">Planos</a><a href="#vip">VIP</a><a href="#faq">Dúvidas</a></nav>
-        <a class="btn btn-gold" href="#planos">Ver oferta VIP</a>
+        <div style="display:flex;gap:10px;align-items:center"><a class="btn" href="/app/login">Já sou cliente</a><a class="btn btn-gold" href="#planos">Ver oferta VIP</a></div>
     </div>
 </header>
 <main>

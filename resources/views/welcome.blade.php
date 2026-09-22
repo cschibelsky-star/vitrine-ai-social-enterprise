@@ -55,7 +55,7 @@
         <nav class="nav-links" aria-label="Navegação principal">
             <a href="#solucao">Solução</a><a href="#como-funciona">Como funciona</a><a href="#painel">Painel</a><a href="#vip">Lista VIP</a>
         </nav>
-        <div class="nav-actions"><a class="btn" href="/app/login">Área do cliente</a><a class="btn btn-primary" href="#vip">Entrar na Lista VIP</a></div>
+        <div class="nav-actions"><a class="btn" href="/app/login">Área do cliente</a><a class="btn btn-primary" href="/oferta#lista-vip">Entrar na Lista VIP</a></div>
     </div>
 </header>
 
@@ -66,7 +66,7 @@
             <span class="eyebrow">Presença digital com estratégia + IA</span>
             <h1>Sua empresa <span class="gradient">visível, relevante e lembrada.</span></h1>
             <p class="lead">Planejamento, conteúdo, aprovações, calendário e acompanhamento de resultados em uma experiência única — com operação organizada e visão clara do que está acontecendo.</p>
-            <div class="hero-actions"><a class="btn btn-gold" href="#vip">Quero entrar na Lista VIP</a><a class="btn" href="/app/login">Já sou cliente</a></div>
+            <div class="hero-actions"><a class="btn btn-gold" href="/oferta#lista-vip">Quero entrar na Lista VIP</a><a class="btn" href="/app/login">Já sou cliente</a></div>
             <div class="trust"><span><b>Conteúdo</b> com consistência</span><span><b>Aprovação</b> sem confusão</span><span><b>Resultados</b> visíveis</span></div>
         </div>
         <div class="hero-media" aria-label="Vídeo de apresentação Vitrine Social Mídia">
@@ -120,7 +120,7 @@
 <section class="section" id="vip">
     <div class="wrap vip">
         <div><span class="eyebrow">Lista VIP</span><h2>Entre primeiro na Vitrine Social Mídia.</h2><p>Receba prioridade nas próximas vagas, novidades do lançamento e condições de entrada da fase inicial.</p></div>
-        <div class="vip-actions"><a class="btn btn-gold" href="mailto:vitrineiapro@gmail.com?subject=Lista%20VIP%20-%20Vitrine%20Social%20M%C3%ADdia&body=Quero%20entrar%20na%20Lista%20VIP%20da%20Vitrine%20Social%20M%C3%ADdia.">Quero entrar na Lista VIP</a><a class="btn" href="/app/login">Acessar painel</a></div>
+        <div class="vip-actions"><a class="btn btn-gold" href="/oferta#lista-vip">Quero entrar na Lista VIP</a><a class="btn" href="/app/login">Acessar painel</a></div>
     </div>
 </section>
 </main>
