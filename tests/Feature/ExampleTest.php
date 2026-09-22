@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\AI\AiContentService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -50,17 +51,24 @@ class ExampleTest extends TestCase
         ]);
     }
 
-    public function test_checkout_redirects_to_configured_asaas_url(): void
+    public function test_checkout_redirects_to_infinitepay_url(): void
     {
-        config()->set('services.asaas.checkout_links.pro', 'https://checkout.example.test/pro');
+        config()->set('services.infinitepay.handle', 'vitrine-test');
+        config()->set('services.infinitepay.links_url', 'https://api.checkout.example.test/links');
+
+        Http::fake([
+            'https://api.checkout.example.test/links' => Http::response([
+                'url' => 'https://checkout.example.test/pro',
+            ], 200),
+        ]);
 
         $this->get('/checkout/pro')
             ->assertRedirect('https://checkout.example.test/pro');
     }
 
-    public function test_checkout_falls_back_to_offer_when_plan_url_is_not_configured(): void
+    public function test_checkout_falls_back_to_offer_when_infinitepay_is_not_configured(): void
     {
-        config()->set('services.asaas.checkout_links.essencial', null);
+        config()->set('services.infinitepay.handle', '');
 
         $this->get('/checkout/essencial')
             ->assertRedirect(route('oferta'))

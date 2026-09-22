@@ -80,17 +80,6 @@ Route::get('/oferta', function () {
 
 Route::get('/checkout/{plan}', function (string $plan, InfinitePayCheckoutProvider $checkout) {
     try {
-        $provider = (string) config('services.checkout.provider', 'infinitepay');
-        $asaasUrl = trim((string) config('services.asaas.checkout_links.'.$plan, ''));
-
-        if ($asaasUrl !== '') {
-            return redirect()->away($asaasUrl);
-        }
-
-        if ($provider === 'asaas') {
-            throw new RuntimeException('Asaas checkout link is not configured for this plan.');
-        }
-
         return redirect()->away($checkout->createCheckout(['plan' => $plan]));
     } catch (Throwable $exception) {
         report($exception);

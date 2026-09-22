@@ -53,19 +53,11 @@ return [
     ],
 
     'checkout' => [
-        'provider' => env('CHECKOUT_PROVIDER', 'infinitepay'),
+        'provider' => 'infinitepay',
         'plans' => [
             'essencial' => ['price' => 79900, 'description' => 'Vitrine Social Midia - Essencial Anual VIP'],
             'pro' => ['price' => 169900, 'description' => 'Vitrine Social Midia - Pro Anual VIP'],
             'premium' => ['price' => 349900, 'description' => 'Vitrine Social Midia - Premium Anual VIP'],
-        ],
-    ],
-
-    'asaas' => [
-        'checkout_links' => [
-            'essencial' => env('ASAAS_CHECKOUT_ESSENCIAL_URL'),
-            'pro' => env('ASAAS_CHECKOUT_PRO_URL'),
-            'premium' => env('ASAAS_CHECKOUT_PREMIUM_URL'),
         ],
     ],
 
