@@ -5,6 +5,7 @@ use App\Services\Checkout\InfinitePayCheckoutProvider;
 use App\Services\Launch\LaunchOrchestrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/health', function () {
@@ -152,6 +153,35 @@ Route::get('/checkout/{plan}', function (string $plan, Request $request, Infinit
             'updated_at' => now(),
         ]);
 
+        $recoveryHours = max(1, (int) config('services.checkout.vip_recovery_after_hours', 24));
+        dispatch(function () use ($leadId, $plan) {
+            $record = DB::table('waitlist_leads')->where('id', $leadId)->first();
+            if (! $record || (string) $record->source !== 'checkout_started_vip_'.$plan) {
+                return;
+            }
+
+            $clientId = DB::table('clients')->where('contact_email', $record->email)->value('id');
+            if ($clientId && DB::table('client_subscriptions')->where('client_id', $clientId)->where('status', 'active')->exists()) {
+                return;
+            }
+
+            $token = substr(hash('sha256', 'regular|'.$record->id.'|'.$record->email), 0, 24);
+            $url = route('offer.regular', ['lead' => $record->id, 'token' => $token]);
+
+            Mail::raw(
+                "Olá {$record->name},\n\nVimos que você conheceu a condição VIP da Vitrine Social Mídia, mas não concluiu a contratação.\n\nSe preferir começar com mais flexibilidade, agora você pode escolher um dos nossos planos mensais normais.\n\nVer planos mensais: {$url}\n\nVitrine IA Pro",
+                function ($message) use ($record) {
+                    $message->to($record->email, $record->name)
+                        ->subject('Vitrine Social Mídia: conheça os planos mensais');
+                }
+            );
+
+            DB::table('waitlist_leads')->where('id', $record->id)->update([
+                'source' => 'vip_expired_regular_offer',
+                'updated_at' => now(),
+            ]);
+        })->delay(now()->addHours($recoveryHours));
+
         return redirect()->away($checkoutUrl);
     } catch (Throwable $exception) {
         report($exception);
@@ -220,6 +250,24 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
         : 'landing_lista_vip';
 
     $record = $orchestrator->captureLead($validated + ['source' => $source]);
+
+    try {
+        $salesAddress = (string) config('mail.from.address');
+        if ($salesAddress !== '') {
+            $planLabel = $validated['plan'] ?? 'não selecionado';
+            $company = $record->company ?: 'não informada';
+            Mail::raw(
+                "Novo lead - Vitrine Social Mídia\n\nNome: {$record->name}\nE-mail: {$record->email}\nWhatsApp: {$record->whatsapp}\nEmpresa: {$company}\nPlano: {$planLabel}\nOrigem: {$source}",
+                function ($message) use ($salesAddress, $record) {
+                    $message->to($salesAddress)
+                        ->replyTo($record->email, $record->name)
+                        ->subject('Novo lead: Vitrine Social Mídia');
+                }
+            );
+        }
+    } catch (Throwable $exception) {
+        report($exception);
+    }
 
     if (! empty($validated['plan'])) {
         return redirect()->route('checkout.start', [
