@@ -5,8 +5,54 @@ use App\Services\Checkout\InfinitePayCheckoutProvider;
 use App\Services\Launch\LaunchOrchestrator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
+
+if (! function_exists('sendVitrineCommercialMail')) {
+    function sendVitrineCommercialMail(string $to, string $subject, string $body): void
+    {
+        if (! function_exists('sodium_crypto_sign_seed_keypair')) {
+            throw new RuntimeException('Ed25519 unavailable for commercial mail signing.');
+        }
+
+        $projectId = trim((string) config('services.centro_ia.project_id', 'vitrine-ai-social-enterprise'));
+        $appKey = (string) config('app.key', '');
+        if ($projectId === '' || $appKey === '') {
+            throw new RuntimeException('Service identity unavailable for commercial mail.');
+        }
+
+        $timestamp = now()->timestamp;
+        $nonce = bin2hex(random_bytes(20));
+        $normalizedTo = mb_strtolower(trim($to));
+        $canonical = implode("\n", [
+            $projectId,
+            (string) $timestamp,
+            $nonce,
+            $normalizedTo,
+            $subject,
+            hash('sha256', $body),
+        ]);
+
+        $seed = hash('sha256', 'vitrine-service-identity|' . $projectId . '|' . $appKey, true);
+        $keyPair = sodium_crypto_sign_seed_keypair($seed);
+        $secretKey = sodium_crypto_sign_secretkey($keyPair);
+        $signature = base64_encode(sodium_crypto_sign_detached($canonical, $secretKey));
+
+        Http::acceptJson()
+            ->asJson()
+            ->timeout(15)
+            ->post('https://hml.vitrineiapro.com.br/cockpit/internal/social-mail', [
+                'project_id' => $projectId,
+                'timestamp' => $timestamp,
+                'nonce' => $nonce,
+                'to' => $normalizedTo,
+                'subject' => $subject,
+                'body' => $body,
+                'signature' => $signature,
+            ])
+            ->throw();
+    }
+}
 
 Route::get('/health', function () {
     try {
@@ -168,12 +214,10 @@ Route::get('/checkout/{plan}', function (string $plan, Request $request, Infinit
             $token = substr(hash('sha256', 'regular|'.$record->id.'|'.$record->email), 0, 24);
             $url = route('offer.regular', ['lead' => $record->id, 'token' => $token]);
 
-            Mail::raw(
+            sendVitrineCommercialMail(
+                $record->email,
+                'Vitrine Social Mídia: conheça os planos mensais',
                 "Olá {$record->name},\n\nVimos que você conheceu a condição VIP da Vitrine Social Mídia, mas não concluiu a contratação.\n\nSe preferir começar com mais flexibilidade, agora você pode escolher um dos nossos planos mensais normais.\n\nVer planos mensais: {$url}\n\nVitrine IA Pro",
-                function ($message) use ($record) {
-                    $message->to($record->email, $record->name)
-                        ->subject('Vitrine Social Mídia: conheça os planos mensais');
-                }
             );
 
             DB::table('waitlist_leads')->where('id', $record->id)->update([
@@ -252,19 +296,13 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
     $record = $orchestrator->captureLead($validated + ['source' => $source]);
 
     try {
-        $salesAddress = (string) config('mail.from.address');
-        if ($salesAddress !== '') {
-            $planLabel = $validated['plan'] ?? 'não selecionado';
-            $company = $record->company ?: 'não informada';
-            Mail::raw(
-                "Novo lead - Vitrine Social Mídia\n\nNome: {$record->name}\nE-mail: {$record->email}\nWhatsApp: {$record->whatsapp}\nEmpresa: {$company}\nPlano: {$planLabel}\nOrigem: {$source}",
-                function ($message) use ($salesAddress, $record) {
-                    $message->to($salesAddress)
-                        ->replyTo($record->email, $record->name)
-                        ->subject('Novo lead: Vitrine Social Mídia');
-                }
-            );
-        }
+        $planLabel = $validated['plan'] ?? 'não selecionado';
+        $company = $record->company ?: 'não informada';
+        sendVitrineCommercialMail(
+            'vendas@vitrineiapro.com.br',
+            'Novo lead: Vitrine Social Mídia',
+            "Novo lead - Vitrine Social Mídia\n\nNome: {$record->name}\nE-mail: {$record->email}\nWhatsApp: {$record->whatsapp}\nEmpresa: {$company}\nPlano: {$planLabel}\nOrigem: {$source}",
+        );
     } catch (Throwable $exception) {
         report($exception);
     }
