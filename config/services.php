@@ -54,10 +54,16 @@ return [
 
     'checkout' => [
         'provider' => 'infinitepay',
+        'vip_recovery_after_hours' => 24,
         'plans' => [
             'essencial' => ['price' => 79900, 'description' => 'Vitrine Social Midia - Essencial Anual VIP'],
             'pro' => ['price' => 169900, 'description' => 'Vitrine Social Midia - Pro Anual VIP'],
             'premium' => ['price' => 349900, 'description' => 'Vitrine Social Midia - Premium Anual VIP'],
+        ],
+        'regular_plans' => [
+            'essencial' => ['price' => 7990, 'description' => 'Vitrine Social Midia - Essencial Mensal'],
+            'pro' => ['price' => 16990, 'description' => 'Vitrine Social Midia - Pro Mensal'],
+            'premium' => ['price' => 34990, 'description' => 'Vitrine Social Midia - Premium Mensal'],
         ],
     ],
 

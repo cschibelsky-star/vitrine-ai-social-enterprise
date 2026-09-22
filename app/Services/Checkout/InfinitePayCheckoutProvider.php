@@ -17,7 +17,9 @@ class InfinitePayCheckoutProvider implements CheckoutProvider
         }
 
         $plan = (string) ($order['plan'] ?? '');
-        $planConfig = config('services.checkout.plans.'.$plan);
+        $billing = (string) ($order['billing'] ?? 'vip');
+        $catalog = $billing === 'regular' ? 'regular_plans' : 'plans';
+        $planConfig = config('services.checkout.'.$catalog.'.'.$plan);
 
         if (! is_array($planConfig)) {
             throw new RuntimeException('Invalid checkout plan.');

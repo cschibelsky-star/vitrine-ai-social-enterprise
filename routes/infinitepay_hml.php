@@ -13,25 +13,37 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
 
 $parseInfinitePayOrder = static function (string $orderNsu): ?array {
-    if (! preg_match('/^vsm-(essencial|pro|premium)-(\d+)-([a-f0-9]{16})$/', $orderNsu, $matches)) {
+    $billing = 'vip';
+
+    if (preg_match('/^vsm-monthly-(essencial|pro|premium)-(\d+)-([a-f0-9]{16})$/', $orderNsu, $matches)) {
+        $billing = 'regular';
+        $plan = $matches[1];
+        $leadId = (int) $matches[2];
+        $hash = $matches[3];
+    } elseif (preg_match('/^vsm-(essencial|pro|premium)-(\d+)-([a-f0-9]{16})$/', $orderNsu, $matches)) {
+        $plan = $matches[1];
+        $leadId = (int) $matches[2];
+        $hash = $matches[3];
+    } else {
         return null;
     }
 
-    $plan = $matches[1];
-    $leadId = (int) $matches[2];
     $lead = DB::table('waitlist_leads')->where('id', $leadId)->first();
 
     if (! $lead) {
         return null;
     }
 
-    $expected = substr(hash('sha256', $plan.'|'.$leadId.'|'.$lead->email), 0, 16);
+    $fingerprintSource = $billing === 'regular'
+        ? 'monthly|'.$plan.'|'.$leadId.'|'.$lead->email
+        : $plan.'|'.$leadId.'|'.$lead->email;
+    $expected = substr(hash('sha256', $fingerprintSource), 0, 16);
 
-    if (! hash_equals($expected, $matches[3])) {
+    if (! hash_equals($expected, $hash)) {
         return null;
     }
 
-    return ['plan' => $plan, 'lead' => $lead];
+    return ['plan' => $plan, 'billing' => $billing, 'lead' => $lead];
 };
 
 $activateInfinitePayPurchase = static function (
@@ -52,7 +64,8 @@ $activateInfinitePayPurchase = static function (
         'slug' => $slug,
     ]);
 
-    $expectedAmount = (int) config('services.checkout.plans.'.$order['plan'].'.price', 0);
+    $catalog = $order['billing'] === 'regular' ? 'regular_plans' : 'plans';
+    $expectedAmount = (int) config('services.checkout.'.$catalog.'.'.$order['plan'].'.price', 0);
 
     if (! ($payment['success'] ?? false) || ! ($payment['paid'] ?? false)) {
         return ['ok' => false, 'message' => 'Pagamento ainda não confirmado'];
@@ -64,13 +77,14 @@ $activateInfinitePayPurchase = static function (
 
     $lead = $order['lead'];
     $plan = $order['plan'];
+    $billing = $order['billing'];
     $quota = match ($plan) {
         'essencial' => 10,
         'pro' => 25,
         'premium' => 50,
     };
 
-    $client = DB::transaction(function () use ($lead, $plan, $quota) {
+    $client = DB::transaction(function () use ($lead, $plan, $billing, $quota) {
         $client = Client::query()->where('contact_email', $lead->email)->first();
 
         if (! $client) {
@@ -107,7 +121,7 @@ $activateInfinitePayPurchase = static function (
             'plan_code' => $plan,
             'status' => 'active',
             'starts_at' => now(),
-            'ends_at' => now()->addYear(),
+            'ends_at' => $billing === 'regular' ? now()->addMonth() : now()->addYear(),
         ])->save();
 
         $periodStart = now()->startOfMonth();
@@ -145,6 +159,11 @@ $activateInfinitePayPurchase = static function (
             ])->save();
         }
 
+        DB::table('waitlist_leads')->where('id', $lead->id)->update([
+            'source' => 'converted_'.$billing.'_'.$plan,
+            'updated_at' => now(),
+        ]);
+
         return $client;
     });
 
@@ -152,6 +171,7 @@ $activateInfinitePayPurchase = static function (
         'ok' => true,
         'client_id' => $client->id,
         'plan' => $plan,
+        'billing' => $billing,
     ];
 };
 

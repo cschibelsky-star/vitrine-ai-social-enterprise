@@ -75,8 +75,56 @@ Route::middleware('web')->group(function () {
 });
 
 Route::get('/oferta', function () {
-    return view('oferta');
+    return view('oferta', ['offerMode' => 'vip']);
 })->name('oferta');
+
+Route::get('/oferta/regular/{lead}', function (int $lead, Request $request) {
+    $record = DB::table('waitlist_leads')->where('id', $lead)->first();
+
+    if (! $record) {
+        abort(404);
+    }
+
+    $token = (string) $request->query('token', '');
+    $expected = substr(hash('sha256', 'regular|'.$record->id.'|'.$record->email), 0, 24);
+
+    if ($token === '' || ! hash_equals($expected, $token)) {
+        abort(404);
+    }
+
+    $clientId = DB::table('clients')->where('contact_email', $record->email)->value('id');
+    if ($clientId && DB::table('client_subscriptions')->where('client_id', $clientId)->where('status', 'active')->exists()) {
+        return redirect('/app/login');
+    }
+
+    $source = (string) $record->source;
+    $alreadyRegular = $source === 'vip_expired_regular_offer'
+        || str_starts_with($source, 'checkout_started_regular_');
+
+    if (! $alreadyRegular) {
+        if (! str_starts_with($source, 'checkout_started_vip_')) {
+            abort(404);
+        }
+
+        $recoveryHours = max(1, (int) config('services.checkout.vip_recovery_after_hours', 24));
+        $eligibleAt = \Illuminate\Support\Carbon::parse($record->updated_at)->addHours($recoveryHours);
+
+        if (now()->lt($eligibleAt)) {
+            return redirect()->route('oferta')->with('vip_still_available', true);
+        }
+
+        DB::table('waitlist_leads')->where('id', $record->id)->update([
+            'source' => 'vip_expired_regular_offer',
+            'updated_at' => now(),
+        ]);
+    }
+
+    return view('oferta', [
+        'offerMode' => 'regular',
+        'recoveryLead' => $record,
+        'recoveryToken' => $expected,
+    ]);
+})->middleware('throttle:20,1')->name('offer.regular');
 
 Route::get('/checkout/{plan}', function (string $plan, Request $request, InfinitePayCheckoutProvider $checkout) {
     $leadId = (int) $request->query('lead', 0);
@@ -89,21 +137,69 @@ Route::get('/checkout/{plan}', function (string $plan, Request $request, Infinit
     try {
         $fingerprint = substr(hash('sha256', $plan.'|'.$lead->id.'|'.$lead->email), 0, 16);
         $orderNsu = 'vsm-'.$plan.'-'.$lead->id.'-'.$fingerprint;
-
-        return redirect()->away($checkout->createCheckout([
+        $checkoutUrl = $checkout->createCheckout([
             'plan' => $plan,
+            'billing' => 'vip',
             'order_nsu' => $orderNsu,
             'customer' => [
                 'name' => $lead->name,
                 'email' => $lead->email,
             ],
-        ]));
+        ]);
+
+        DB::table('waitlist_leads')->where('id', $lead->id)->update([
+            'source' => 'checkout_started_vip_'.$plan,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->away($checkoutUrl);
     } catch (Throwable $exception) {
         report($exception);
 
         return redirect()->route('oferta')->with('checkout_unavailable', $plan);
     }
 })->where('plan', 'essencial|pro|premium')->middleware('throttle:10,1')->name('checkout.start');
+
+Route::get('/checkout/mensal/{plan}', function (string $plan, Request $request, InfinitePayCheckoutProvider $checkout) {
+    $leadId = (int) $request->query('lead', 0);
+    $lead = $leadId > 0 ? DB::table('waitlist_leads')->where('id', $leadId)->first() : null;
+
+    if (! $lead) {
+        abort(404);
+    }
+
+    $token = (string) $request->query('token', '');
+    $expected = substr(hash('sha256', 'regular|'.$lead->id.'|'.$lead->email), 0, 24);
+    if ($token === '' || ! hash_equals($expected, $token)) {
+        abort(404);
+    }
+
+    try {
+        $fingerprint = substr(hash('sha256', 'monthly|'.$plan.'|'.$lead->id.'|'.$lead->email), 0, 16);
+        $orderNsu = 'vsm-monthly-'.$plan.'-'.$lead->id.'-'.$fingerprint;
+        $checkoutUrl = $checkout->createCheckout([
+            'plan' => $plan,
+            'billing' => 'regular',
+            'order_nsu' => $orderNsu,
+            'customer' => [
+                'name' => $lead->name,
+                'email' => $lead->email,
+            ],
+        ]);
+
+        DB::table('waitlist_leads')->where('id', $lead->id)->update([
+            'source' => 'checkout_started_regular_'.$plan,
+            'updated_at' => now(),
+        ]);
+
+        return redirect()->away($checkoutUrl);
+    } catch (Throwable $exception) {
+        report($exception);
+
+        return redirect()->route('offer.regular', ['lead' => $lead->id, 'token' => $expected])
+            ->with('checkout_unavailable', $plan);
+    }
+})->where('plan', 'essencial|pro|premium')->middleware('throttle:10,1')->name('checkout.regular');
 
 Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orchestrator) {
     $validated = $request->validate([
