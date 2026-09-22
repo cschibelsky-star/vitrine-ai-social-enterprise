@@ -78,9 +78,26 @@ Route::get('/oferta', function () {
     return view('oferta');
 })->name('oferta');
 
-Route::get('/checkout/{plan}', function (string $plan, InfinitePayCheckoutProvider $checkout) {
+Route::get('/checkout/{plan}', function (string $plan, Request $request, InfinitePayCheckoutProvider $checkout) {
+    $leadId = (int) $request->query('lead', 0);
+    $lead = $leadId > 0 ? DB::table('waitlist_leads')->where('id', $leadId)->first() : null;
+
+    if (! $lead) {
+        return redirect()->route('oferta')->with('checkout_requires_lead', $plan);
+    }
+
     try {
-        return redirect()->away($checkout->createCheckout(['plan' => $plan]));
+        $fingerprint = substr(hash('sha256', $plan.'|'.$lead->id.'|'.$lead->email), 0, 16);
+        $orderNsu = 'vsm-'.$plan.'-'.$lead->id.'-'.$fingerprint;
+
+        return redirect()->away($checkout->createCheckout([
+            'plan' => $plan,
+            'order_nsu' => $orderNsu,
+            'customer' => [
+                'name' => $lead->name,
+                'email' => $lead->email,
+            ],
+        ]));
     } catch (Throwable $exception) {
         report($exception);
 
@@ -106,7 +123,14 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
         ? 'oferta_vip_'.$validated['plan']
         : 'landing_lista_vip';
 
-    $orchestrator->captureLead($validated + ['source' => $source]);
+    $record = $orchestrator->captureLead($validated + ['source' => $source]);
+
+    if (! empty($validated['plan'])) {
+        return redirect()->route('checkout.start', [
+            'plan' => $validated['plan'],
+            'lead' => $record->id,
+        ]);
+    }
 
     return redirect()->route('oferta')->with('waitlist_success', true);
 })->middleware('throttle:10,1')->name('waitlist.store');

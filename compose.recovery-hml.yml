@@ -80,8 +80,8 @@ services:
       INFINITEPAY_HANDLE: ${INFINITEPAY_HANDLE:-}
       INFINITEPAY_LINKS_URL: ${INFINITEPAY_LINKS_URL:-https://api.checkout.infinitepay.io/links}
       INFINITEPAY_PAYMENT_CHECK_URL: ${INFINITEPAY_PAYMENT_CHECK_URL:-https://api.checkout.infinitepay.io/payment_check}
-      INFINITEPAY_REDIRECT_URL: ${INFINITEPAY_REDIRECT_URL:-}
-      INFINITEPAY_WEBHOOK_URL: ${INFINITEPAY_WEBHOOK_URL:-}
+      INFINITEPAY_REDIRECT_URL: ${INFINITEPAY_REDIRECT_URL:-https://social.hml.vitrineiapro.com.br/checkout/retorno}
+      INFINITEPAY_WEBHOOK_URL: ${INFINITEPAY_WEBHOOK_URL:-https://social.hml.vitrineiapro.com.br/api/integrations/infinitepay/events}
       INFINITEPAY_TIMEOUT: ${INFINITEPAY_TIMEOUT:-15}
       MARKETING_ENGINE_TOKEN: ${MARKETING_ENGINE_TOKEN:?MARKETING_ENGINE_TOKEN is required}
       MARKETING_ENGINE_URL: http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/image

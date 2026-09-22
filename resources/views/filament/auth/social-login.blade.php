@@ -36,6 +36,9 @@
                 <div class="vsm-login-badge">{{ $areaTitle }}</div>
                 <h2>Acessar plataforma</h2>
                 <p>{{ $areaSubtitle }}</p>
+                @if(session('payment_success'))
+                    <div style="margin:14px 0;padding:12px 14px;border-radius:12px;background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.32);color:#a7f3d0;font-weight:700;">Pagamento confirmado. Seu plano {{ ucfirst((string) session('payment_success')) }} foi ativado. Use a recuperação de senha para definir seu primeiro acesso, se necessário.</div>
+                @endif
                 <div class="vsm-login-form">
                     {{ $this->content }}
                 </div>

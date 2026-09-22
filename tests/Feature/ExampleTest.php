@@ -12,6 +12,7 @@ use App\Models\User;
 use App\Services\AI\AiContentService;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -56,13 +57,25 @@ class ExampleTest extends TestCase
         config()->set('services.infinitepay.handle', 'vitrine-test');
         config()->set('services.infinitepay.links_url', 'https://api.checkout.example.test/links');
 
+        $leadId = DB::table('waitlist_leads')->insertGetId([
+            'name' => 'Comprador Teste',
+            'email' => 'comprador@example.com',
+            'whatsapp' => '19999999999',
+            'company' => 'Empresa Comprador',
+            'source' => 'oferta_vip_pro',
+            'consent' => true,
+            'joined_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         Http::fake([
             'https://api.checkout.example.test/links' => Http::response([
                 'url' => 'https://checkout.example.test/pro',
             ], 200),
         ]);
 
-        $this->get('/checkout/pro')
+        $this->get('/checkout/pro?lead='.$leadId)
             ->assertRedirect('https://checkout.example.test/pro');
     }
 
@@ -70,7 +83,19 @@ class ExampleTest extends TestCase
     {
         config()->set('services.infinitepay.handle', '');
 
-        $this->get('/checkout/essencial')
+        $leadId = DB::table('waitlist_leads')->insertGetId([
+            'name' => 'Comprador Sem Checkout',
+            'email' => 'semcheckout@example.com',
+            'whatsapp' => '19999999998',
+            'company' => null,
+            'source' => 'oferta_vip_essencial',
+            'consent' => true,
+            'joined_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $this->get('/checkout/essencial?lead='.$leadId)
             ->assertRedirect(route('oferta'))
             ->assertSessionHas('checkout_unavailable', 'essencial');
     }
