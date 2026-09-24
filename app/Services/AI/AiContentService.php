@@ -55,7 +55,7 @@ class AiContentService
                 'cta' => $output['cta'],
                 'hashtags' => $output['hashtags'],
                 'score' => (float) $output['score'],
-                'status' => 'editing',
+                'status' => 'pending_approval',
             ]);
 
             $project->slides()->delete();

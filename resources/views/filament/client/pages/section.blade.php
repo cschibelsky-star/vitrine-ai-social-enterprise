@@ -111,7 +111,7 @@
                     @if($generated->status === 'ready')
                         <div class="vsm-schedule">
                             <input type="datetime-local" wire:model="scheduleInputs.{{ $generated->id }}">
-                            <button type="button" wire:click="scheduleContent({{ $generated->id }})" class="vsm-action vsm-primary">Agendar publicação</button>
+                            <button type="button" wire:click="scheduleContent({{ $generated->id }})" class="vsm-action vsm-primary">Adicionar ao calendário</button>
                         </div>
                     @endif
                 </section>
@@ -181,7 +181,7 @@
                                 @if(in_array($item->status, ['ready', 'scheduled'], true))
                                     <div class="vsm-schedule">
                                         <input type="datetime-local" wire:model="scheduleInputs.{{ $item->id }}">
-                                        <button type="button" wire:click="scheduleContent({{ $item->id }})" class="vsm-action vsm-primary">Agendar publicação</button>
+                                        <button type="button" wire:click="scheduleContent({{ $item->id }})" class="vsm-action vsm-primary">Adicionar ao calendário</button>
                                         @if($item->scheduled_at)
                                             <span class="vsm-chip">Agendado: {{ $item->scheduled_at->format('d/m/Y H:i') }}</span>
                                         @endif
@@ -229,7 +229,7 @@
                     @break
 
                 @case('channels')
-                    <h2>Canais Conectados / com atividade</h2>
+                    <h2>Canais com atividade</h2>
                     <div class="vsm-list">
                         @forelse($items as $item)
                             <div class="vsm-row"><b>{{ ucfirst($item->channel) }}</b><span>{{ $item->total }} conteúdos</span><span>Última atividade</span><span>{{ \Illuminate\Support\Carbon::parse($item->last_activity)->format('d/m/Y') }}</span></div>

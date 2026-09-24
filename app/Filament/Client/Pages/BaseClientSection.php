@@ -151,8 +151,8 @@ abstract class BaseClientSection extends Page
         ])->save();
 
         Notification::make()
-            ->title('Conteúdo agendado')
-            ->body('A data foi registrada no calendário editorial.')
+            ->title('Planejamento salvo')
+            ->body('A data foi registrada no calendário editorial. A publicação automática só ocorrerá quando houver uma conta publicadora e um executor ativos.')
             ->success()
             ->send();
     }
