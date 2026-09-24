@@ -32,6 +32,7 @@ return [
     ],
 
     'marketing_engine' => [
+        'base_url' => env('MARKETING_ENGINE_BASE_URL', 'http://vitrine_marketing_web_internal_hml'),
         'url' => env('MARKETING_ENGINE_URL', 'http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/image'),
         'video_url' => env('MARKETING_ENGINE_VIDEO_URL', 'http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/video'),
         'video_refresh_url' => env('MARKETING_ENGINE_VIDEO_REFRESH_URL', 'http://vitrine_marketing_web_internal_hml/api/internal/marketing/media/video/refresh'),
