@@ -127,7 +127,7 @@ services:
     container_name: social_recovery_hml_worker
     restart: unless-stopped
     environment: *app_environment
-    command: php artisan queue:work --sleep=3 --tries=1 --timeout=120 --max-time=3600
+    command: php artisan queue:work --sleep=3 --tries=1 --timeout=240 --max-time=3600
     volumes:
       - ./:/var/www/html
       - recovery_vendor:/var/www/html/vendor
