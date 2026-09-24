@@ -229,6 +229,38 @@
                     @break
 
                 @case('channels')
+                    <h2>Conta publicadora</h2>
+
+                    @if(session('publisher_success'))
+                        <div class="vsm-note">{{ session('publisher_success') }}</div>
+                    @endif
+                    @if(session('publisher_error'))
+                        <div class="vsm-note">{{ session('publisher_error') }}</div>
+                    @endif
+
+                    @if(!empty($meta['publisher']['connected']))
+                        <div class="vsm-content-card" style="margin-bottom:16px">
+                            <div class="vsm-content-meta">
+                                <span class="vsm-chip">Meta conectada</span>
+                                @if(!empty($meta['publisher']['page_name']))<span class="vsm-chip">Facebook: {{ $meta['publisher']['page_name'] }}</span>@endif
+                                @if(!empty($meta['publisher']['instagram_username']))<span class="vsm-chip">Instagram: @{{ $meta['publisher']['instagram_username'] }}</span>@endif
+                            </div>
+                            <p style="margin:0;color:#cbd5e1">Esta conta será usada somente quando você clicar em Publicar agora ou quando chegar o horário de uma publicação agendada.</p>
+                            <form method="POST" action="{{ route('publisher.meta.disconnect') }}">
+                                @csrf
+                                <button type="submit" class="vsm-action adjust">Desconectar conta Meta</button>
+                            </form>
+                        </div>
+                    @else
+                        <div class="vsm-content-card" style="margin-bottom:16px">
+                            <h3>Conectar Instagram e Facebook</h3>
+                            <p style="margin:0;color:#cbd5e1">Autorize sua Página Meta. O token fica criptografado no servidor e não aparece no painel.</p>
+                            <div class="vsm-card-actions">
+                                <a href="{{ route('publisher.meta.connect') }}" class="vsm-action ok">Conectar conta Meta</a>
+                            </div>
+                        </div>
+                    @endif
+
                     <h2>Canais com atividade</h2>
                     <div class="vsm-list">
                         @forelse($items as $item)
