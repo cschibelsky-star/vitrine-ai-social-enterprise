@@ -90,7 +90,7 @@ services:
       CENTRO_IA_INTERNAL_TOKEN: ${CENTRO_IA_INTERNAL_TOKEN:-}
       CENTRO_IA_PROJECT_ID: ${CENTRO_IA_PROJECT_ID:-vitrine-ai-social-enterprise}
       CENTRO_IA_CAPABILITY: ${CENTRO_IA_CAPABILITY:-social_content_generation}
-      CENTRO_IA_TIMEOUT: ${CENTRO_IA_TIMEOUT:-30}
+      CENTRO_IA_TIMEOUT: ${CENTRO_IA_TIMEOUT:-150}
     volumes:
       - ./:/var/www/html
       - recovery_vendor:/var/www/html/vendor
