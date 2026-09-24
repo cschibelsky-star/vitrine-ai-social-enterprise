@@ -41,7 +41,7 @@ services:
       dockerfile: Dockerfile
     container_name: social_recovery_hml_app
     labels:
-      com.vitrine.tracking_revision: "20260924-3"
+      com.vitrine.tracking_revision: "20260924-4"
     restart: unless-stopped
     environment: &app_environment
       APP_NAME: Vitrine Social Midia Recovery HML

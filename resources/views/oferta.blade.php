@@ -7,6 +7,24 @@
     <meta name="robots" content="noindex,nofollow">
     <meta name="description" content="Oferta Vitrine Social Mídia: planos mensais e condição VIP anual para organizar e fortalecer a presença digital da sua empresa.">
     <title>Oferta VIP | Vitrine Social Mídia</title>
+    <!-- Meta Pixel -->
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1073810998586049');
+    fbq('track', 'PageView');
+    fbq('track', 'ViewContent', {
+        content_name: @json(($offerMode ?? 'vip') === 'regular' ? 'Vitrine Social Mídia - Planos Mensais' : 'Vitrine Social Mídia - Oferta VIP'),
+        content_category: 'Vitrine Social Mídia'
+    });
+    </script>
+    <!-- End Meta Pixel -->
     <style>
         :root{--bg:#070b17;--surface:#0d1324;--surface-2:#111a31;--line:rgba(255,255,255,.09);--text:#f7f9ff;--muted:#a8b3cf;--cyan:#25d9ff;--blue:#4b7cff;--violet:#8b5cf6;--magenta:#ff4fd8;--gold:#ffc928;--green:#79f2b0;--radius:24px;--shadow:0 24px 80px rgba(0,0,0,.38)}
         *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(circle at 12% 8%,rgba(37,217,255,.14),transparent 28%),radial-gradient(circle at 88% 12%,rgba(255,79,216,.12),transparent 24%),linear-gradient(180deg,#070b17 0%,#090f1e 46%,#070b17 100%);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
@@ -23,6 +41,9 @@
     </style>
 </head>
 <body>
+<noscript><img height="1" width="1" style="display:none" alt=""
+src="https://www.facebook.com/tr?id=1073810998586049&ev=PageView&noscript=1"
+/></noscript>
 @php($isRegular = ($offerMode ?? 'vip') === 'regular')
 @php($hasRecoveryLead = isset($recoveryLead) && isset($recoveryToken))
 <header class="nav">
@@ -135,7 +156,18 @@
         });
 
         form.addEventListener('submit', function () {
-            track('form_submit', document.getElementById('selected-plan')?.value || null);
+            var selectedPlan = document.getElementById('selected-plan')?.value || null;
+            track('form_submit', selectedPlan);
+
+            if (typeof window.fbq === 'function') {
+                window.fbq('track', 'Lead', {
+                    content_name: offerMode === 'regular'
+                        ? 'Vitrine Social Mídia - Plano Mensal'
+                        : 'Vitrine Social Mídia - Lista VIP',
+                    content_category: 'Vitrine Social Mídia',
+                    content_ids: selectedPlan ? [selectedPlan] : []
+                });
+            }
         });
     }
 })();
