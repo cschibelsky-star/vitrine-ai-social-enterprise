@@ -2,11 +2,13 @@
 
 namespace App\Filament\Client\Pages;
 
+use App\Jobs\PublishScheduledContent;
 use App\Models\Brand;
 use App\Models\ClientBalance;
 use App\Models\ClientSubscription;
 use App\Models\ContentProject;
 use App\Services\AI\AiContentService;
+use App\Services\Publishing\MetaPublisherService;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
@@ -150,9 +152,11 @@ abstract class BaseClientSection extends Page
             'status' => 'scheduled',
         ])->save();
 
+        PublishScheduledContent::dispatch($project->id)->delay($scheduledAt);
+
         Notification::make()
-            ->title('Planejamento salvo')
-            ->body('A data foi registrada no calendário editorial. A publicação automática só ocorrerá quando houver uma conta publicadora e um executor ativos.')
+            ->title('Publicação agendada')
+            ->body('O conteúdo foi colocado na fila e será publicado automaticamente no horário escolhido se a conta Meta continuar conectada.')
             ->success()
             ->send();
     }
@@ -233,11 +237,23 @@ abstract class BaseClientSection extends Page
             return;
         }
 
-        Notification::make()
-            ->title('Conta publicadora necessária')
-            ->body('A peça está pronta para publicar, mas este cliente ainda não possui uma conta publicadora persistente vinculada. Nenhum status foi alterado.')
-            ->warning()
-            ->send();
+        try {
+            $result = app(MetaPublisherService::class)->publish($project);
+
+            Notification::make()
+                ->title('Conteúdo publicado')
+                ->body('A Meta confirmou a publicação'.(! empty($result['external_id']) ? ' (ID '.$result['external_id'].').' : '.'))
+                ->success()
+                ->send();
+        } catch (Throwable $exception) {
+            report($exception);
+
+            Notification::make()
+                ->title('Não foi possível publicar')
+                ->body($exception->getMessage())
+                ->danger()
+                ->send();
+        }
     }
 
     public function requestAdjustment(int $projectId): void
@@ -355,10 +371,16 @@ abstract class BaseClientSection extends Page
                     ->groupBy('channel')
                     ->orderByDesc('total')
                     ->get();
+                $publisher = app(MetaPublisherService::class)->connectionStatus((int) $clientId);
                 $stats = [
+                    'Conta Meta' => $publisher['connected'] ? 'Conectada' : 'Não conectada',
                     'Canais com atividade' => $items->count(),
                     'Conteúdos vinculados' => (clone $base)->whereNotNull('channel')->count(),
                 ];
+                $meta['publisher'] = $publisher;
+                $meta['notice'] = $publisher['connected']
+                    ? 'A conta Meta está pronta para publicação direta e agendamento automático.'
+                    : 'Conecte uma Página Meta para habilitar publicação direta no Facebook e no Instagram profissional vinculado.';
                 break;
 
             case 'files':
