@@ -3,10 +3,13 @@
 use App\Http\Controllers\SocialAuthController;
 use App\Services\Checkout\InfinitePayCheckoutProvider;
 use App\Services\Launch\LaunchOrchestrator;
+use App\Services\Publishing\MetaPublisherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 if (! function_exists('sendVitrineCommercialMail')) {
     function sendVitrineCommercialMail(string $to, string $subject, string $body): void
@@ -109,6 +112,17 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+
+Route::get('/publisher/assets/{project}.png', function (int $project) {
+    $path = 'publisher/assets/project-'.$project.'.png';
+    abort_unless(Storage::disk('public')->exists($path), 404);
+
+    return response(Storage::disk('public')->get($path), 200, [
+        'Content-Type' => 'image/png',
+        'Cache-Control' => 'public, max-age=86400',
+    ]);
+})->whereNumber('project')->name('publisher.asset');
+
 Route::middleware('web')->group(function () {
     Route::get('/auth/{area}/{provider}/redirect', [SocialAuthController::class, 'redirect'])
         ->whereIn('area', ['client', 'admin'])
@@ -119,6 +133,126 @@ Route::middleware('web')->group(function () {
         ->whereIn('area', ['client', 'admin'])
         ->whereIn('provider', ['google', 'facebook'])
         ->name('social-auth.callback');
+});
+
+
+
+Route::middleware(['web', 'auth'])->group(function () {
+    Route::get('/app/publisher/meta/connect', function (Request $request) {
+        $clientId = (int) (auth()->user()?->client_id ?? 0);
+        abort_unless($clientId > 0, 403);
+
+        $appId = trim((string) config('services.social_login.facebook.client_id', ''));
+        $appSecret = trim((string) config('services.social_login.facebook.client_secret', ''));
+        $version = trim((string) config('services.social_login.facebook.graph_version', 'v26.0'));
+
+        if ($appId === '' || $appSecret === '') {
+            return redirect('/app/canais')->with('publisher_error', 'Aplicativo Meta não configurado no servidor.');
+        }
+
+        $state = Str::random(64);
+        $request->session()->put('social.publisher.meta.state', $state);
+
+        $dialog = 'https://www.facebook.com/'.$version.'/dialog/oauth?'.http_build_query([
+            'client_id' => $appId,
+            'redirect_uri' => route('publisher.meta.callback'),
+            'state' => $state,
+            'response_type' => 'code',
+            'scope' => implode(',', [
+                'pages_show_list',
+                'pages_read_engagement',
+                'pages_manage_posts',
+                'instagram_basic',
+                'instagram_content_publish',
+                'business_management',
+            ]),
+        ]);
+
+        return redirect()->away($dialog);
+    })->name('publisher.meta.connect');
+
+    Route::get('/app/publisher/meta/callback', function (Request $request, MetaPublisherService $publisher) {
+        $clientId = (int) (auth()->user()?->client_id ?? 0);
+        abort_unless($clientId > 0, 403);
+
+        $expectedState = (string) $request->session()->pull('social.publisher.meta.state', '');
+        $receivedState = (string) $request->query('state', '');
+        abort_unless($expectedState !== '' && hash_equals($expectedState, $receivedState), 419);
+
+        $appId = trim((string) config('services.social_login.facebook.client_id', ''));
+        $appSecret = trim((string) config('services.social_login.facebook.client_secret', ''));
+        $version = trim((string) config('services.social_login.facebook.graph_version', 'v26.0'));
+        $code = trim((string) $request->query('code', ''));
+
+        if ($code === '' || $appId === '' || $appSecret === '') {
+            return redirect('/app/canais')->with('publisher_error', 'A autorização Meta não foi concluída.');
+        }
+
+        try {
+            $tokenResponse = Http::acceptJson()->timeout(30)->get(
+                'https://graph.facebook.com/'.$version.'/oauth/access_token',
+                [
+                    'client_id' => $appId,
+                    'client_secret' => $appSecret,
+                    'redirect_uri' => route('publisher.meta.callback'),
+                    'code' => $code,
+                ]
+            );
+
+            if (! $tokenResponse->successful() || trim((string) $tokenResponse->json('access_token')) === '') {
+                throw new RuntimeException('Falha ao obter autorização Meta.');
+            }
+
+            $userToken = trim((string) $tokenResponse->json('access_token'));
+
+            $accountsResponse = Http::acceptJson()->timeout(30)->get(
+                'https://graph.facebook.com/'.$version.'/me/accounts',
+                [
+                    'fields' => 'id,name,access_token,instagram_business_account{id,username,name}',
+                    'access_token' => $userToken,
+                    'limit' => 100,
+                ]
+            );
+
+            if (! $accountsResponse->successful()) {
+                throw new RuntimeException('Falha ao consultar Páginas Meta autorizadas.');
+            }
+
+            $accounts = (array) $accountsResponse->json('data', []);
+            $account = collect($accounts)->first(fn ($item) => is_array($item) && ! empty($item['id']) && ! empty($item['access_token']));
+
+            if (! is_array($account)) {
+                throw new RuntimeException('Nenhuma Página Meta elegível foi encontrada.');
+            }
+
+            $instagram = (array) ($account['instagram_business_account'] ?? []);
+
+            $publisher->saveConnection($clientId, [
+                'provider' => 'meta',
+                'page_id' => (string) $account['id'],
+                'page_name' => (string) ($account['name'] ?? 'Página Meta'),
+                'instagram_user_id' => (string) ($instagram['id'] ?? ''),
+                'instagram_username' => (string) ($instagram['username'] ?? ''),
+                'access_token' => (string) $account['access_token'],
+                'connected_at' => now()->toIso8601String(),
+            ]);
+
+            return redirect('/app/canais')->with('publisher_success', 'Conta Meta conectada com segurança.');
+        } catch (Throwable $exception) {
+            report($exception);
+
+            return redirect('/app/canais')->with('publisher_error', 'Não foi possível conectar a conta Meta: '.$exception->getMessage());
+        }
+    })->name('publisher.meta.callback');
+
+    Route::post('/app/publisher/meta/disconnect', function (MetaPublisherService $publisher) {
+        $clientId = (int) (auth()->user()?->client_id ?? 0);
+        abort_unless($clientId > 0, 403);
+
+        $publisher->disconnect($clientId);
+
+        return redirect('/app/canais')->with('publisher_success', 'Conta Meta desconectada.');
+    })->name('publisher.meta.disconnect');
 });
 
 Route::get('/oferta', function () {
