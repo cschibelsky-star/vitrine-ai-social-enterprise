@@ -14,6 +14,7 @@ use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -68,6 +69,8 @@ class ExampleTest extends TestCase
             'created_at' => now(),
             'updated_at' => now(),
         ]);
+
+        Queue::fake();
 
         Http::fake([
             'https://api.checkout.example.test/links' => Http::response([
@@ -230,7 +233,7 @@ class ExampleTest extends TestCase
             ->first();
 
         $this->assertNotNull($project);
-        $this->assertSame('editing', $project->status);
+        $this->assertSame('pending_approval', $project->status);
         $this->assertNotEmpty($project->title);
         $this->assertNotEmpty($project->caption);
         $this->assertDatabaseHas('client_balances', [
