@@ -12,6 +12,35 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
+if (! function_exists('recordVsmFunnelEvent')) {
+    function recordVsmFunnelEvent(array $payload): void
+    {
+        $event = array_filter([
+            'occurred_at' => now()->toIso8601String(),
+            'event' => $payload['event'] ?? null,
+            'tracking_id' => $payload['tracking_id'] ?? null,
+            'offer_mode' => $payload['offer_mode'] ?? null,
+            'plan' => $payload['plan'] ?? null,
+            'lead_id' => $payload['lead_id'] ?? null,
+            'utm_source' => $payload['utm_source'] ?? null,
+            'utm_medium' => $payload['utm_medium'] ?? null,
+            'utm_campaign' => $payload['utm_campaign'] ?? null,
+            'utm_content' => $payload['utm_content'] ?? null,
+            'utm_term' => $payload['utm_term'] ?? null,
+            'utm_id' => $payload['utm_id'] ?? null,
+            'referer' => $payload['referer'] ?? null,
+            'user_agent' => $payload['user_agent'] ?? null,
+        ], static fn ($value) => $value !== null && $value !== '');
+
+        Log::info('vsm_funnel_event', $event);
+
+        Storage::disk('local')->append(
+            'analytics/vsm-funnel.jsonl',
+            json_encode($event, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        );
+    }
+}
+
 if (! function_exists('sendVitrineCommercialMail')) {
     function sendVitrineCommercialMail(string $to, string $subject, string $body): void
     {
@@ -168,6 +197,71 @@ Route::middleware(['web', 'auth'])->group(function () {
             return redirect('/app/canais')->with('publisher_error', 'Não foi possível desconectar a conta Meta.');
         }
     })->name('publisher.meta.disconnect');
+
+    Route::get('/app/analytics/launch', function (Request $request) {
+        if (! auth()->check()) {
+            return response()->json([
+                'ok' => false,
+                'error' => 'unauthenticated',
+            ], 401);
+        }
+
+        $days = min(90, max(1, (int) $request->query('days', 7)));
+        $since = now()->subDays($days);
+        $path = 'analytics/vsm-funnel.jsonl';
+
+        $events = [];
+        if (Storage::disk('local')->exists($path)) {
+            foreach (preg_split('/\R/', trim(Storage::disk('local')->get($path))) ?: [] as $line) {
+                if ($line === '') {
+                    continue;
+                }
+
+                $event = json_decode($line, true);
+                if (! is_array($event) || empty($event['occurred_at'])) {
+                    continue;
+                }
+
+                try {
+                    $occurredAt = \Illuminate\Support\Carbon::parse((string) $event['occurred_at']);
+                } catch (Throwable) {
+                    continue;
+                }
+
+                if ($occurredAt->gte($since)) {
+                    $events[] = $event;
+                }
+            }
+        }
+
+        $counts = [];
+        $visitors = [];
+        $sources = [];
+
+        foreach ($events as $event) {
+            $name = (string) ($event['event'] ?? 'unknown');
+            $counts[$name] = ($counts[$name] ?? 0) + 1;
+
+            if (! empty($event['tracking_id'])) {
+                $visitors[(string) $event['tracking_id']] = true;
+            }
+
+            $source = (string) ($event['utm_source'] ?? 'direct');
+            $sources[$source] = ($sources[$source] ?? 0) + 1;
+        }
+
+        ksort($counts);
+        arsort($sources);
+
+        return response()->json([
+            'ok' => true,
+            'window_days' => $days,
+            'unique_visitors' => count($visitors),
+            'events' => $counts,
+            'sources' => $sources,
+            'generated_at' => now()->toIso8601String(),
+        ]);
+    })->withoutMiddleware('auth')->name('analytics.launch');
 });
 
 Route::get('/oferta', function (Request $request) {
@@ -192,7 +286,7 @@ Route::get('/oferta', function (Request $request) {
     }
 
     if (! $isBot) {
-        Log::info('vsm_funnel_event', [
+        recordVsmFunnelEvent([
             'event' => 'page_view',
             'tracking_id' => $trackingId,
             'offer_mode' => 'vip',
@@ -232,7 +326,7 @@ Route::get('/oferta/mensal', function (Request $request) {
     }
 
     if (! $isBot) {
-        Log::info('vsm_funnel_event', [
+        recordVsmFunnelEvent([
             'event' => 'page_view',
             'tracking_id' => $trackingId,
             'offer_mode' => 'regular',
@@ -266,7 +360,7 @@ Route::post('/tracking/landing', function (Request $request) {
         'offer_mode' => ['nullable', 'in:vip,regular'],
     ]);
 
-    Log::info('vsm_funnel_event', [
+    recordVsmFunnelEvent([
         'event' => $validated['event'],
         'tracking_id' => (string) $request->session()->get('vsm_tracking_id', ''),
         'offer_mode' => $validated['offer_mode'] ?? 'vip',
@@ -457,7 +551,7 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
 
     $record = $orchestrator->captureLead($validated + ['source' => $source]);
 
-    Log::info('vsm_funnel_event', [
+    recordVsmFunnelEvent([
         'event' => 'lead_submit',
         'tracking_id' => (string) $request->session()->get('vsm_tracking_id', ''),
         'lead_id' => (int) $record->id,
