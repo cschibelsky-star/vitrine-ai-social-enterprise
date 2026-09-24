@@ -7,6 +7,7 @@ use App\Services\Publishing\MetaPublisherService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -169,9 +170,117 @@ Route::middleware(['web', 'auth'])->group(function () {
     })->name('publisher.meta.disconnect');
 });
 
-Route::get('/oferta', function () {
-    return view('oferta', ['offerMode' => 'vip']);
+Route::get('/oferta', function (Request $request) {
+    $userAgent = mb_strtolower((string) $request->userAgent());
+    $isBot = str_contains($userAgent, 'facebookexternalhit')
+        || str_contains($userAgent, 'bot')
+        || str_contains($userAgent, 'crawler')
+        || str_contains($userAgent, 'spider')
+        || str_contains($userAgent, 'vitrine-super-http-probe');
+
+    $trackingId = (string) $request->session()->get('vsm_tracking_id', '');
+    if ($trackingId === '') {
+        $trackingId = (string) Str::uuid();
+        $request->session()->put('vsm_tracking_id', $trackingId);
+    }
+
+    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id', 'fbclid'] as $key) {
+        $value = trim((string) $request->query($key, ''));
+        if ($value !== '') {
+            $request->session()->put('vsm_'.$key, mb_substr($value, 0, 255));
+        }
+    }
+
+    if (! $isBot) {
+        Log::info('vsm_funnel_event', [
+            'event' => 'page_view',
+            'tracking_id' => $trackingId,
+            'offer_mode' => 'vip',
+            'utm_source' => $request->session()->get('vsm_utm_source'),
+            'utm_medium' => $request->session()->get('vsm_utm_medium'),
+            'utm_campaign' => $request->session()->get('vsm_utm_campaign'),
+            'utm_content' => $request->session()->get('vsm_utm_content'),
+            'utm_term' => $request->session()->get('vsm_utm_term'),
+            'utm_id' => $request->session()->get('vsm_utm_id'),
+            'referer' => $request->headers->get('referer'),
+            'user_agent' => mb_substr((string) $request->userAgent(), 0, 300),
+        ]);
+    }
+
+    return view('oferta', ['offerMode' => 'vip', 'trackingId' => $trackingId]);
 })->name('oferta');
+
+Route::get('/oferta/mensal', function (Request $request) {
+    $userAgent = mb_strtolower((string) $request->userAgent());
+    $isBot = str_contains($userAgent, 'facebookexternalhit')
+        || str_contains($userAgent, 'bot')
+        || str_contains($userAgent, 'crawler')
+        || str_contains($userAgent, 'spider')
+        || str_contains($userAgent, 'vitrine-super-http-probe');
+
+    $trackingId = (string) $request->session()->get('vsm_tracking_id', '');
+    if ($trackingId === '') {
+        $trackingId = (string) Str::uuid();
+        $request->session()->put('vsm_tracking_id', $trackingId);
+    }
+
+    foreach (['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id', 'fbclid'] as $key) {
+        $value = trim((string) $request->query($key, ''));
+        if ($value !== '') {
+            $request->session()->put('vsm_'.$key, mb_substr($value, 0, 255));
+        }
+    }
+
+    if (! $isBot) {
+        Log::info('vsm_funnel_event', [
+            'event' => 'page_view',
+            'tracking_id' => $trackingId,
+            'offer_mode' => 'regular',
+            'utm_source' => $request->session()->get('vsm_utm_source'),
+            'utm_medium' => $request->session()->get('vsm_utm_medium'),
+            'utm_campaign' => $request->session()->get('vsm_utm_campaign'),
+            'utm_content' => $request->session()->get('vsm_utm_content'),
+            'utm_term' => $request->session()->get('vsm_utm_term'),
+            'utm_id' => $request->session()->get('vsm_utm_id'),
+            'referer' => $request->headers->get('referer'),
+            'user_agent' => mb_substr((string) $request->userAgent(), 0, 300),
+        ]);
+    }
+
+    return view('oferta', ['offerMode' => 'regular', 'trackingId' => $trackingId]);
+})->name('oferta.mensal');
+
+Route::post('/tracking/landing', function (Request $request) {
+    $userAgent = mb_strtolower((string) $request->userAgent());
+    if (str_contains($userAgent, 'facebookexternalhit')
+        || str_contains($userAgent, 'bot')
+        || str_contains($userAgent, 'crawler')
+        || str_contains($userAgent, 'spider')
+        || str_contains($userAgent, 'vitrine-super-http-probe')) {
+        return response()->noContent();
+    }
+
+    $validated = $request->validate([
+        'event' => ['required', 'in:cta_click,plan_choice,form_start,form_submit'],
+        'plan' => ['nullable', 'in:essencial,pro,premium'],
+        'offer_mode' => ['nullable', 'in:vip,regular'],
+    ]);
+
+    Log::info('vsm_funnel_event', [
+        'event' => $validated['event'],
+        'tracking_id' => (string) $request->session()->get('vsm_tracking_id', ''),
+        'offer_mode' => $validated['offer_mode'] ?? 'vip',
+        'plan' => $validated['plan'] ?? null,
+        'utm_source' => $request->session()->get('vsm_utm_source'),
+        'utm_medium' => $request->session()->get('vsm_utm_medium'),
+        'utm_campaign' => $request->session()->get('vsm_utm_campaign'),
+        'utm_content' => $request->session()->get('vsm_utm_content'),
+        'utm_term' => $request->session()->get('vsm_utm_term'),
+        'utm_id' => $request->session()->get('vsm_utm_id'),
+    ]);
+
+    return response()->noContent();
+})->middleware('throttle:120,1')->name('tracking.landing');
 
 Route::get('/oferta/regular/{lead}', function (int $lead, Request $request) {
     $record = DB::table('waitlist_leads')->where('id', $lead)->first();
@@ -334,14 +443,35 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
         'utm_medium' => ['nullable', 'string', 'max:120'],
         'utm_campaign' => ['nullable', 'string', 'max:160'],
         'utm_content' => ['nullable', 'string', 'max:160'],
+        'utm_term' => ['nullable', 'string', 'max:160'],
+        'utm_id' => ['nullable', 'string', 'max:160'],
+        'fbclid' => ['nullable', 'string', 'max:255'],
+        'offer_type' => ['nullable', 'in:vip,regular'],
         'plan' => ['nullable', 'in:essencial,pro,premium'],
     ]);
 
+    $offerType = $validated['offer_type'] ?? 'vip';
     $source = isset($validated['plan'])
-        ? 'oferta_vip_'.$validated['plan']
-        : 'landing_lista_vip';
+        ? ($offerType === 'regular' ? 'oferta_regular_'.$validated['plan'] : 'oferta_vip_'.$validated['plan'])
+        : ($offerType === 'regular' ? 'landing_oferta_regular' : 'landing_lista_vip');
 
     $record = $orchestrator->captureLead($validated + ['source' => $source]);
+
+    Log::info('vsm_funnel_event', [
+        'event' => 'lead_submit',
+        'tracking_id' => (string) $request->session()->get('vsm_tracking_id', ''),
+        'lead_id' => (int) $record->id,
+        'offer_mode' => $offerType,
+        'plan' => $validated['plan'] ?? null,
+        'utm_source' => $validated['utm_source'] ?? $request->session()->get('vsm_utm_source'),
+        'utm_medium' => $validated['utm_medium'] ?? $request->session()->get('vsm_utm_medium'),
+        'utm_campaign' => $validated['utm_campaign'] ?? $request->session()->get('vsm_utm_campaign'),
+        'utm_content' => $validated['utm_content'] ?? $request->session()->get('vsm_utm_content'),
+        'utm_term' => $validated['utm_term'] ?? $request->session()->get('vsm_utm_term'),
+        'utm_id' => $validated['utm_id'] ?? $request->session()->get('vsm_utm_id'),
+    ]);
+
+    $request->session()->put('vsm_lead_id', (int) $record->id);
 
     try {
         $planLabel = $validated['plan'] ?? 'não selecionado';
@@ -356,13 +486,23 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
     }
 
     if (! empty($validated['plan'])) {
+        if ($offerType === 'regular') {
+            $token = substr(hash('sha256', 'regular|'.$record->id.'|'.$record->email), 0, 24);
+
+            return redirect()->route('checkout.regular', [
+                'plan' => $validated['plan'],
+                'lead' => $record->id,
+                'token' => $token,
+            ]);
+        }
+
         return redirect()->route('checkout.start', [
             'plan' => $validated['plan'],
             'lead' => $record->id,
         ]);
     }
 
-    return redirect()->route('oferta')->with('waitlist_success', true);
+    return redirect()->route($offerType === 'regular' ? 'oferta.mensal' : 'oferta')->with('waitlist_success', true);
 })->middleware('throttle:10,1')->name('waitlist.store');
 
 if (file_exists(__DIR__.'/infinitepay_hml.php')) {

@@ -24,11 +24,12 @@
 </head>
 <body>
 @php($isRegular = ($offerMode ?? 'vip') === 'regular')
+@php($hasRecoveryLead = isset($recoveryLead) && isset($recoveryToken))
 <header class="nav">
     <div class="wrap nav-inner">
         <a class="brand" href="/">Vitrine <span>Social Mídia</span></a>
         <nav class="nav-links" aria-label="Navegação da oferta"><a href="#beneficios">Benefícios</a><a href="#planos">Planos</a><a href="#vip">VIP</a><a href="#faq">Dúvidas</a></nav>
-        <div style="display:flex;gap:10px;align-items:center"><a class="btn" href="/app/login">Já sou cliente</a><a class="btn btn-gold" href="#planos">Ver oferta VIP</a></div>
+        <div style="display:flex;gap:10px;align-items:center"><a class="btn" href="/app/login">Já sou cliente</a><a class="btn btn-gold" href="#planos">{{ $isRegular ? 'Ver planos mensais' : 'Ver oferta VIP' }}</a></div>
     </div>
 </header>
 <main>
@@ -38,8 +39,8 @@
             <span class="eyebrow">{{ $isRegular ? 'Planos mensais' : 'Condição VIP de lançamento' }}</span>
             <h1>{{ $isRegular ? 'Continue sua operação' : 'Sua empresa' }} <span class="gradient">{{ $isRegular ? 'com flexibilidade mensal.' : 'visível, relevante e lembrada.' }}</span></h1>
             <p class="lead">Transforme sua presença digital em uma operação organizada: planejamento, criação, aprovação, calendário, publicação e acompanhamento em um só lugar.</p>
-            <div class="hero-actions"><a class="btn btn-gold" href="#planos">Quero a condição VIP</a><a class="btn" href="#como-funciona">Como funciona</a></div>
-            <div class="trust"><span><b>12 meses</b> pelo equivalente a 10</span><span><b>Onboarding</b> prioritário</span><span><b>Planejamento</b> inicial incluído</span></div>
+            <div class="hero-actions"><a class="btn btn-gold" href="#planos">{{ $isRegular ? 'Ver planos mensais' : 'Quero a condição VIP' }}</a><a class="btn" href="#como-funciona">Como funciona</a></div>
+            <div class="trust">@if($isRegular)<span><b>Mensal</b> sem compromisso anual</span><span><b>Operação</b> organizada</span><span><b>Planejamento</b> por ciclo</span>@else<span><b>12 meses</b> pelo equivalente a 10</span><span><b>Onboarding</b> prioritário</span><span><b>Planejamento</b> inicial incluído</span>@endif</div>
         </div>
         <aside class="offer-box">
             <span class="eyebrow">Por que entrar agora</span>
@@ -59,9 +60,9 @@
     <div class="wrap">
         <div class="section-head"><span class="eyebrow">Planos</span><h2>{{ $isRegular ? 'Escolha seu plano mensal e continue quando fizer sentido para sua empresa.' : 'Escolha seu nível de operação. No VIP anual, você paga o equivalente a 10 meses e usa 12.' }}</h2><p>{{ $isRegular ? 'A condição VIP anterior não foi concluída. Você pode contratar agora um dos planos mensais normais.' : 'Os preços mensais continuam disponíveis como referência. A condição anual abaixo é exclusiva da oferta VIP de lançamento.' }}</p></div>
         <div class="plans">
-            <article class="plan"><div class="plan-name">Essencial</div><div class="monthly">Mensal: R$ 79,90</div><div class="price">{{ $isRegular ? 'R$ 79,90' : 'R$ 799' }}<span>{{ $isRegular ? '/mês' : '/ano' }}</span></div>@unless($isRegular)<div class="saving">Economia de R$ 159,80</div>@endunless<ul><li>100 créditos por mês</li><li>Até 10 conteúdos padrão</li><li>1 perfil/marca</li><li>Posts, carrosséis e Stories</li><li>Legenda, CTA e hashtags</li><li>Roteiros de vídeo</li></ul>@if($isRegular)<a class="btn btn-primary" href="{{ route('checkout.regular', ['plan' => 'essencial', 'lead' => $recoveryLead->id, 'token' => $recoveryToken]) }}">Escolher Essencial mensal</a>@else<a class="btn btn-primary plan-choice" href="#lista-vip" data-plan="essencial">Escolher Essencial VIP</a>@endif</article>
-            <article class="plan featured"><span class="badge">Mais indicado</span><div class="plan-name">Pro</div><div class="monthly">Mensal: R$ 169,90</div><div class="price">{{ $isRegular ? 'R$ 169,90' : 'R$ 1.699' }}<span>{{ $isRegular ? '/mês' : '/ano' }}</span></div>@unless($isRegular)<div class="saving">Economia de R$ 339,80</div>@endunless<ul><li>250 créditos por mês</li><li>Até 25 conteúdos</li><li>Calendário editorial</li><li>Agendamento incluído</li><li>Publicação em redes homologadas</li><li>Condições diferenciadas para vídeo</li><li>Suporte prioritário</li></ul>@if($isRegular)<a class="btn btn-gold" href="{{ route('checkout.regular', ['plan' => 'pro', 'lead' => $recoveryLead->id, 'token' => $recoveryToken]) }}">Escolher Pro mensal</a>@else<a class="btn btn-gold plan-choice" href="#lista-vip" data-plan="pro">Escolher Pro VIP</a>@endif</article>
-            <article class="plan"><div class="plan-name">Premium</div><div class="monthly">Mensal: R$ 349,90</div><div class="price">{{ $isRegular ? 'R$ 349,90' : 'R$ 3.499' }}<span>{{ $isRegular ? '/mês' : '/ano' }}</span></div>@unless($isRegular)<div class="saving">Economia de R$ 699,80</div>@endunless<ul><li>500 créditos por mês</li><li>Até 50 conteúdos</li><li>Agendamento e publicação</li><li>300s de vídeo renderizado/mês</li><li>60s de avatar incluídos</li><li>Revisão editorial ampliada</li></ul>@if($isRegular)<a class="btn btn-primary" href="{{ route('checkout.regular', ['plan' => 'premium', 'lead' => $recoveryLead->id, 'token' => $recoveryToken]) }}">Escolher Premium mensal</a>@else<a class="btn btn-primary plan-choice" href="#lista-vip" data-plan="premium">Escolher Premium VIP</a>@endif</article>
+            <article class="plan"><div class="plan-name">Essencial</div><div class="monthly">Mensal: R$ 79,90</div><div class="price">{{ $isRegular ? 'R$ 79,90' : 'R$ 799' }}<span>{{ $isRegular ? '/mês' : '/ano' }}</span></div>@unless($isRegular)<div class="saving">Economia de R$ 159,80</div>@endunless<ul><li>100 créditos por mês</li><li>Até 10 conteúdos padrão</li><li>1 perfil/marca</li><li>Posts, carrosséis e Stories</li><li>Legenda, CTA e hashtags</li><li>Roteiros de vídeo</li></ul>@if($isRegular && $hasRecoveryLead)<a class="btn btn-primary" href="{{ route('checkout.regular', ['plan' => 'essencial', 'lead' => $recoveryLead->id, 'token' => $recoveryToken]) }}">Escolher Essencial mensal</a>@elseif($isRegular)<a class="btn btn-primary plan-choice" href="#lista-vip" data-plan="essencial">Escolher Essencial mensal</a>@else<a class="btn btn-primary plan-choice" href="#lista-vip" data-plan="essencial">Escolher Essencial VIP</a>@endif</article>
+            <article class="plan featured"><span class="badge">Mais indicado</span><div class="plan-name">Pro</div><div class="monthly">Mensal: R$ 169,90</div><div class="price">{{ $isRegular ? 'R$ 169,90' : 'R$ 1.699' }}<span>{{ $isRegular ? '/mês' : '/ano' }}</span></div>@unless($isRegular)<div class="saving">Economia de R$ 339,80</div>@endunless<ul><li>250 créditos por mês</li><li>Até 25 conteúdos</li><li>Calendário editorial</li><li>Agendamento incluído</li><li>Publicação em redes homologadas</li><li>Condições diferenciadas para vídeo</li><li>Suporte prioritário</li></ul>@if($isRegular && $hasRecoveryLead)<a class="btn btn-gold" href="{{ route('checkout.regular', ['plan' => 'pro', 'lead' => $recoveryLead->id, 'token' => $recoveryToken]) }}">Escolher Pro mensal</a>@elseif($isRegular)<a class="btn btn-gold plan-choice" href="#lista-vip" data-plan="pro">Escolher Pro mensal</a>@else<a class="btn btn-gold plan-choice" href="#lista-vip" data-plan="pro">Escolher Pro VIP</a>@endif</article>
+            <article class="plan"><div class="plan-name">Premium</div><div class="monthly">Mensal: R$ 349,90</div><div class="price">{{ $isRegular ? 'R$ 349,90' : 'R$ 3.499' }}<span>{{ $isRegular ? '/mês' : '/ano' }}</span></div>@unless($isRegular)<div class="saving">Economia de R$ 699,80</div>@endunless<ul><li>500 créditos por mês</li><li>Até 50 conteúdos</li><li>Agendamento e publicação</li><li>300s de vídeo renderizado/mês</li><li>60s de avatar incluídos</li><li>Revisão editorial ampliada</li></ul>@if($isRegular && $hasRecoveryLead)<a class="btn btn-primary" href="{{ route('checkout.regular', ['plan' => 'premium', 'lead' => $recoveryLead->id, 'token' => $recoveryToken]) }}">Escolher Premium mensal</a>@elseif($isRegular)<a class="btn btn-primary plan-choice" href="#lista-vip" data-plan="premium">Escolher Premium mensal</a>@else<a class="btn btn-primary plan-choice" href="#lista-vip" data-plan="premium">Escolher Premium VIP</a>@endif</article>
         </div>
         <p class="note">Regra de conteúdo: 10 créditos = 1 conteúdo padrão. Recursos e integrações dependem das redes homologadas e do escopo de cada plano.</p>
     </div>
@@ -78,18 +79,66 @@
 <section class="section"><div class="wrap"><div class="section-head"><span class="eyebrow">Comparativo rápido</span><h2>Mensal para flexibilidade. Anual VIP para melhor condição.</h2></div><div class="compare"><table><thead><tr><th>Condição</th><th>Mensal</th><th>Anual VIP</th></tr></thead><tbody><tr><td>Compromisso</td><td>Mês a mês</td><td>12 meses</td></tr><tr><td>Preço de referência</td><td>12 mensalidades</td><td>Equivalente a 10 mensalidades</td></tr><tr><td>Economia</td><td>—</td><td class="yes">2 mensalidades</td></tr><tr><td>Onboarding prioritário</td><td>Padrão</td><td class="yes">Incluído</td></tr><tr><td>Diagnóstico inicial</td><td>Padrão</td><td class="yes">Incluído</td></tr><tr><td>Planejamento do primeiro ciclo</td><td>Padrão</td><td class="yes">Incluído</td></tr></tbody></table></div></div></section>
 @endunless
 <section class="section" id="faq"><div class="wrap"><div class="section-head"><span class="eyebrow">Dúvidas frequentes</span><h2>Antes de escolher seu plano.</h2></div><div class="faq"><details><summary>O que significa 10 créditos = 1 conteúdo padrão?</summary><p>É a unidade operacional usada para controlar a franquia de conteúdos. Cada 10 créditos correspondem a um conteúdo padrão dentro do escopo previsto.</p></details><details><summary>Vídeo está incluído em todos os planos?</summary><p>O Premium inclui 300 segundos de vídeo renderizado por mês. Nos demais planos, vídeo é tratado por condições específicas ou pacotes adicionais.</p></details><details><summary>O Premium inclui avatar?</summary><p>Sim. O Premium prevê 60 segundos de avatar incluídos por mês. Consumos adicionais podem ser contratados separadamente.</p></details><details><summary>Posso contratar mensalmente?</summary><p>Sim. Os preços mensais continuam como referência comercial. A condição VIP anual foi criada para quem prefere compromisso anual em troca de economia e benefícios de implantação.</p></details><details><summary>As publicações são automáticas em qualquer rede?</summary><p>Publicação e integrações dependem das redes e fluxos homologados pela operação. O escopo deve ser confirmado no momento da contratação.</p></details></div></div></section>
-@unless($isRegular)
-<section class="section" id="lista-vip"><div class="wrap cta"><span class="eyebrow">Lista VIP</span><h2>Entre na Lista VIP da Vitrine Social Mídia.</h2><p>Escolha um plano acima e cadastre seus dados. Depois do cadastro, você será direcionado ao checkout seguro da InfinitePay.</p>@if(session('waitlist_success'))<div class="form-status form-success">Cadastro realizado com sucesso. Você entrou na Lista VIP.</div>@endif @if($errors->any())<div class="form-status form-error">Revise os campos e tente novamente.</div>@endif @if(session('checkout_requires_lead'))<div class="form-status form-error">Antes de abrir o checkout, preencha seus dados abaixo e selecione o plano.</div>@endif @if(session('checkout_unavailable'))<div class="form-status form-error">Não foi possível abrir o checkout agora. Seus dados continuam salvos para atendimento prioritário.</div>@endif @if(session('payment_error'))<div class="form-status form-error">{{ session('payment_error') }}</div>@endif<form class="vip-form" method="POST" action="{{ route('waitlist.store') }}">@csrf<input type="hidden" name="plan" id="selected-plan" value="{{ old('plan', session('checkout_unavailable')) }}"><input name="name" value="{{ old('name') }}" maxlength="120" required placeholder="Seu nome"><input type="email" name="email" value="{{ old('email') }}" maxlength="190" required placeholder="Seu melhor e-mail"><input name="whatsapp" value="{{ old('whatsapp') }}" maxlength="30" required placeholder="WhatsApp com DDD"><input name="company" value="{{ old('company') }}" maxlength="160" placeholder="Empresa (opcional)"><label class="full"><input type="checkbox" name="consent" value="1" required>Autorizo o contato da Vitrine IA Pro sobre a Lista VIP e a oferta Vitrine Social Mídia.</label><button class="btn btn-gold" type="submit">Quero entrar na Lista VIP</button></form></div></section>
-@endunless
+@if(!$isRegular || !$hasRecoveryLead)
+<section class="section" id="lista-vip"><div class="wrap cta"><span class="eyebrow">{{ $isRegular ? 'Planos mensais' : 'Lista VIP' }}</span><h2>{{ $isRegular ? 'Escolha seu plano mensal.' : 'Entre na Lista VIP da Vitrine Social Mídia.' }}</h2><p>{{ $isRegular ? 'Cadastre seus dados e siga para o checkout seguro da InfinitePay.' : 'Escolha um plano acima e cadastre seus dados. Depois do cadastro, você será direcionado ao checkout seguro da InfinitePay.' }}</p>@if(session('waitlist_success'))<div class="form-status form-success">Cadastro realizado com sucesso.</div>@endif @if($errors->any())<div class="form-status form-error">Revise os campos e tente novamente.</div>@endif @if(session('checkout_requires_lead'))<div class="form-status form-error">Antes de abrir o checkout, preencha seus dados abaixo e selecione o plano.</div>@endif @if(session('checkout_unavailable'))<div class="form-status form-error">Não foi possível abrir o checkout agora. Seus dados continuam salvos para atendimento prioritário.</div>@endif @if(session('payment_error'))<div class="form-status form-error">{{ session('payment_error') }}</div>@endif<form class="vip-form" id="conversion-form" method="POST" action="{{ route('waitlist.store') }}">@csrf<input type="hidden" name="offer_type" value="{{ $isRegular ? 'regular' : 'vip' }}"><input type="hidden" name="plan" id="selected-plan" value="{{ old('plan', session('checkout_unavailable')) }}"><input type="hidden" name="utm_source" value="{{ old('utm_source', request('utm_source', session('vsm_utm_source'))) }}"><input type="hidden" name="utm_medium" value="{{ old('utm_medium', request('utm_medium', session('vsm_utm_medium'))) }}"><input type="hidden" name="utm_campaign" value="{{ old('utm_campaign', request('utm_campaign', session('vsm_utm_campaign'))) }}"><input type="hidden" name="utm_content" value="{{ old('utm_content', request('utm_content', session('vsm_utm_content'))) }}"><input type="hidden" name="utm_term" value="{{ old('utm_term', request('utm_term', session('vsm_utm_term'))) }}"><input type="hidden" name="utm_id" value="{{ old('utm_id', request('utm_id', session('vsm_utm_id'))) }}"><input type="hidden" name="fbclid" value="{{ old('fbclid', request('fbclid', session('vsm_fbclid'))) }}"><input name="name" value="{{ old('name') }}" maxlength="120" required placeholder="Seu nome"><input type="email" name="email" value="{{ old('email') }}" maxlength="190" required placeholder="Seu melhor e-mail"><input name="whatsapp" value="{{ old('whatsapp') }}" maxlength="30" required placeholder="WhatsApp com DDD"><input name="company" value="{{ old('company') }}" maxlength="160" placeholder="Empresa (opcional)"><label class="full"><input type="checkbox" name="consent" value="1" required>Autorizo o contato da Vitrine IA Pro sobre a oferta Vitrine Social Mídia.</label><button class="btn btn-gold" type="submit">{{ $isRegular ? 'Continuar para o checkout' : 'Quero entrar na Lista VIP' }}</button></form></div></section>
+@endif
 </main>
 <footer class="footer"><div class="wrap footer-inner"><div><strong>Vitrine Social Mídia</strong> · Vitrine IA Pro</div><div>Oferta comercial sujeita à formalização da contratação e às condições aplicáveis ao plano escolhido.</div></div></footer>
 <script>
-document.querySelectorAll('.plan-choice').forEach(function (link) {
-    link.addEventListener('click', function () {
-        var field = document.getElementById('selected-plan');
-        if (field) field.value = link.dataset.plan || '';
+(function () {
+    var endpoint = @json(route('tracking.landing'));
+    var csrf = @json(csrf_token());
+    var offerMode = @json($isRegular ? 'regular' : 'vip');
+    var formStarted = false;
+
+    function track(eventName, plan) {
+        fetch(endpoint, {
+            method: 'POST',
+            credentials: 'same-origin',
+            keepalive: true,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrf
+            },
+            body: JSON.stringify({
+                event: eventName,
+                plan: plan || null,
+                offer_mode: offerMode
+            })
+        }).catch(function () {});
+    }
+
+    document.querySelectorAll('a[href="#planos"], a[href="#lista-vip"]').forEach(function (link) {
+        link.addEventListener('click', function () {
+            track('cta_click', link.dataset.plan || null);
+        });
     });
-});
+
+    document.querySelectorAll('.plan-choice').forEach(function (link) {
+        link.addEventListener('click', function () {
+            var field = document.getElementById('selected-plan');
+            if (field) field.value = link.dataset.plan || '';
+            track('plan_choice', link.dataset.plan || null);
+        });
+    });
+
+    var form = document.getElementById('conversion-form');
+    if (form) {
+        form.querySelectorAll('input').forEach(function (input) {
+            input.addEventListener('focus', function () {
+                if (!formStarted && input.type !== 'hidden') {
+                    formStarted = true;
+                    track('form_start', document.getElementById('selected-plan')?.value || null);
+                }
+            }, { once: true });
+        });
+
+        form.addEventListener('submit', function () {
+            track('form_submit', document.getElementById('selected-plan')?.value || null);
+        });
+    }
+})();
 </script>
 </body>
 </html>
