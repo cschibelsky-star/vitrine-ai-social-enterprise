@@ -3,7 +3,6 @@
 namespace App\Services\Publishing;
 
 use App\Models\ContentProject;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
@@ -13,9 +12,21 @@ class MetaPublisherService
 {
     public function connectionStatus(int $clientId): array
     {
-        $connection = $this->loadConnection($clientId);
+        try {
+            $response = $this->engineRequest('/api/internal/marketing/publisher/meta/status', [
+                'project_id' => $this->projectId(),
+                'client_id' => $clientId,
+            ]);
 
-        if ($connection === null) {
+            return [
+                'connected' => (bool) $response->json('connected', false),
+                'page_name' => $response->json('page_name'),
+                'instagram_username' => $response->json('instagram_username'),
+                'connected_at' => $response->json('connected_at'),
+            ];
+        } catch (Throwable $exception) {
+            report($exception);
+
             return [
                 'connected' => false,
                 'page_name' => null,
@@ -23,28 +34,35 @@ class MetaPublisherService
                 'connected_at' => null,
             ];
         }
-
-        return [
-            'connected' => true,
-            'page_name' => $connection['page_name'] ?? null,
-            'instagram_username' => $connection['instagram_username'] ?? null,
-            'connected_at' => $connection['connected_at'] ?? null,
-        ];
     }
 
-    public function saveConnection(int $clientId, array $connection): void
+    public function beginConnection(int $clientId, string $returnUrl): string
     {
-        Storage::disk('local')->makeDirectory('publisher/meta');
+        $response = $this->engineRequest('/api/internal/marketing/publisher/meta/connect-url', [
+            'project_id' => $this->projectId(),
+            'client_id' => $clientId,
+            'return_url' => $returnUrl,
+        ]);
 
-        Storage::disk('local')->put(
-            $this->connectionPath($clientId),
-            Crypt::encryptString(json_encode($connection, JSON_THROW_ON_ERROR | JSON_UNESCAPED_UNICODE))
-        );
+        $url = trim((string) $response->json('authorization_url', ''));
+
+        if (! $response->successful() || ! $response->json('ok') || $url === '') {
+            throw new RuntimeException('Não foi possível iniciar a autorização Meta.');
+        }
+
+        return $url;
     }
 
     public function disconnect(int $clientId): void
     {
-        Storage::disk('local')->delete($this->connectionPath($clientId));
+        $response = $this->engineRequest('/api/internal/marketing/publisher/meta/disconnect', [
+            'project_id' => $this->projectId(),
+            'client_id' => $clientId,
+        ]);
+
+        if (! $response->successful() || ! $response->json('ok')) {
+            throw new RuntimeException('Não foi possível desconectar a conta Meta.');
+        }
     }
 
     public function publish(ContentProject $project): array
@@ -57,12 +75,6 @@ class MetaPublisherService
             throw new RuntimeException('Publicação direta disponível apenas para Instagram e Facebook.');
         }
 
-        $connection = $this->loadConnection((int) $project->client_id);
-
-        if ($connection === null) {
-            throw new RuntimeException('Nenhuma conta Meta publicadora está conectada para este cliente.');
-        }
-
         $assetUrl = $this->ensureImageAsset($project);
         $caption = trim(implode("\n\n", array_filter([
             (string) $project->caption,
@@ -70,83 +82,30 @@ class MetaPublisherService
             (string) $project->hashtags,
         ])));
 
-        $baseUrl = 'https://graph.facebook.com';
-        $version = trim((string) config('services.social_login.facebook.graph_version', 'v26.0'));
-        $accessToken = trim((string) ($connection['access_token'] ?? ''));
+        $response = $this->engineRequest('/api/internal/marketing/publisher/meta/publish', [
+            'project_id' => $this->projectId(),
+            'client_id' => (int) $project->client_id,
+            'channel' => (string) $project->channel,
+            'asset_url' => $assetUrl,
+            'caption' => $caption,
+            'type' => 'image',
+        ]);
 
-        if ($accessToken === '') {
-            throw new RuntimeException('A conexão Meta não possui credencial de publicação válida.');
+        if (! $response->successful() || ! $response->json('ok', false)) {
+            $status = (string) $response->json('status', '');
+            $error = (string) $response->json('error', '');
+
+            if ($response->status() === 409 || $status === 'PUBLISHER_NOT_CONNECTED') {
+                throw new RuntimeException('Nenhuma conta Meta publicadora está conectada para este cliente.');
+            }
+
+            throw new RuntimeException('A Meta não confirmou a publicação'.($error !== '' ? ': '.$error : '.'));
         }
 
-        if ($project->channel === 'instagram') {
-            $instagramUserId = trim((string) ($connection['instagram_user_id'] ?? ''));
+        $result = (array) $response->json();
 
-            if ($instagramUserId === '') {
-                throw new RuntimeException('A Página conectada não possui uma conta profissional do Instagram vinculada.');
-            }
-
-            $create = Http::asForm()
-                ->acceptJson()
-                ->timeout(45)
-                ->post($baseUrl.'/'.$version.'/'.$instagramUserId.'/media', [
-                    'image_url' => $assetUrl,
-                    'caption' => $caption,
-                    'access_token' => $accessToken,
-                ]);
-
-            if (! $create->successful() || trim((string) $create->json('id')) === '') {
-                throw new RuntimeException('Falha ao criar mídia no Instagram. HTTP '.$create->status().'.');
-            }
-
-            $containerId = trim((string) $create->json('id'));
-
-            $publish = Http::asForm()
-                ->acceptJson()
-                ->timeout(45)
-                ->post($baseUrl.'/'.$version.'/'.$instagramUserId.'/media_publish', [
-                    'creation_id' => $containerId,
-                    'access_token' => $accessToken,
-                ]);
-
-            if (! $publish->successful() || trim((string) $publish->json('id')) === '') {
-                throw new RuntimeException('Falha ao publicar no Instagram. HTTP '.$publish->status().'.');
-            }
-
-            $result = [
-                'provider' => 'meta',
-                'channel' => 'instagram',
-                'external_id' => trim((string) $publish->json('id')),
-                'container_id' => $containerId,
-                'asset_url' => $assetUrl,
-            ];
-        } else {
-            $pageId = trim((string) ($connection['page_id'] ?? ''));
-
-            if ($pageId === '') {
-                throw new RuntimeException('A conexão Meta não possui uma Página do Facebook válida.');
-            }
-
-            $publish = Http::asForm()
-                ->acceptJson()
-                ->timeout(60)
-                ->post($baseUrl.'/'.$version.'/'.$pageId.'/photos', [
-                    'url' => $assetUrl,
-                    'caption' => $caption,
-                    'published' => 'true',
-                    'access_token' => $accessToken,
-                ]);
-
-            if (! $publish->successful() || trim((string) $publish->json('id')) === '') {
-                throw new RuntimeException('Falha ao publicar no Facebook. HTTP '.$publish->status().'.');
-            }
-
-            $result = [
-                'provider' => 'meta',
-                'channel' => 'facebook',
-                'external_id' => trim((string) $publish->json('id')),
-                'container_id' => null,
-                'asset_url' => $assetUrl,
-            ];
+        if (strtoupper((string) ($result['status'] ?? '')) !== 'PUBLISHED' || empty($result['external_id'])) {
+            throw new RuntimeException('A publicação ainda não foi confirmada pela Meta.');
         }
 
         $project->forceFill([
@@ -168,57 +127,24 @@ class MetaPublisherService
         return $result;
     }
 
-    public function publishDue(): int
+    private function engineRequest(string $path, array $payload)
     {
-        $published = 0;
+        $token = trim((string) config('services.marketing_engine.token', ''));
+        $baseUrl = rtrim((string) config('services.marketing_engine.base_url', 'http://vitrine_marketing_web_internal_hml'), '/');
 
-        ContentProject::query()
-            ->where('status', 'scheduled')
-            ->whereNotNull('scheduled_at')
-            ->where('scheduled_at', '<=', now())
-            ->whereNull('published_at')
-            ->orderBy('scheduled_at')
-            ->limit(20)
-            ->get()
-            ->each(function (ContentProject $project) use (&$published): void {
-                try {
-                    $this->publish($project);
-                    $published++;
-                } catch (Throwable $exception) {
-                    report($exception);
-                }
-            });
-
-        return $published;
-    }
-
-    private function loadConnection(int $clientId): ?array
-    {
-        $path = $this->connectionPath($clientId);
-
-        if (! Storage::disk('local')->exists($path)) {
-            return null;
+        if ($token === '' || $baseUrl === '') {
+            throw new RuntimeException('Motor de publicação indisponível.');
         }
 
-        try {
-            $decoded = json_decode(
-                Crypt::decryptString(Storage::disk('local')->get($path)),
-                true,
-                512,
-                JSON_THROW_ON_ERROR
-            );
-
-            return is_array($decoded) ? $decoded : null;
-        } catch (Throwable $exception) {
-            report($exception);
-
-            return null;
-        }
+        return Http::withToken($token)
+            ->acceptJson()
+            ->timeout((int) config('services.marketing_engine.timeout', 150))
+            ->post($baseUrl.$path, $payload);
     }
 
-    private function connectionPath(int $clientId): string
+    private function projectId(): string
     {
-        return 'publisher/meta/client-'.$clientId.'.enc';
+        return (string) config('services.marketing_engine.project_id', 'vitrine-ai-social-enterprise');
     }
 
     private function ensureImageAsset(ContentProject $project): string
@@ -237,7 +163,7 @@ class MetaPublisherService
                 ->acceptJson()
                 ->timeout((int) config('services.marketing_engine.timeout', 150))
                 ->post($url, [
-                    'project_id' => (string) config('services.marketing_engine.project_id', 'vitrine-ai-social-enterprise'),
+                    'project_id' => $this->projectId(),
                     'brand' => (string) ($project->brand?->name ?: 'Vitrine Social Midia'),
                     'idea' => (string) $project->idea,
                     'objective' => (string) $project->objective,
