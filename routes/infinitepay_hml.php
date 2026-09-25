@@ -84,7 +84,7 @@ $activateInfinitePayPurchase = static function (
         'premium' => 50,
     };
 
-    $client = DB::transaction(function () use ($lead, $plan, $billing, $quota) {
+    $client = DB::transaction(function () use ($lead, $plan, $billing, $quota, $transactionNsu) {
         $client = Client::query()->where('contact_email', $lead->email)->first();
 
         if (! $client) {
@@ -117,12 +117,20 @@ $activateInfinitePayPurchase = static function (
             'client_id' => $client->id,
             'source' => 'infinitepay',
         ]);
-        $subscription->forceFill([
-            'plan_code' => $plan,
-            'status' => 'active',
-            'starts_at' => now(),
-            'ends_at' => $billing === 'regular' ? now()->addMonth() : now()->addYear(),
-        ])->save();
+
+        $alreadyProcessed = $subscription->exists
+            && $subscription->status === 'active'
+            && (string) $subscription->core_subscription_id === $transactionNsu;
+
+        if (! $alreadyProcessed) {
+            $subscription->forceFill([
+                'plan_code' => $plan,
+                'status' => 'active',
+                'starts_at' => now(),
+                'ends_at' => $billing === 'regular' ? now()->addMonth() : now()->addYear(),
+                'core_subscription_id' => $transactionNsu,
+            ])->save();
+        }
 
         $periodStart = now()->startOfMonth();
         $periodEnd = now()->addMonth()->startOfMonth();
