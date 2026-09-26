@@ -279,7 +279,7 @@
                     @break
 
                 @case('balance')
-                    <h2>Consumo e Saldo</h2>
+                    <h2>Plano e uso</h2>
                     <div class="vsm-list">
                         @forelse($items as $item)
                             <div class="vsm-row"><b>{{ $item->balance_type }}</b><span>Concedido: {{ $item->granted ?? 0 }}</span><span>Consumido: {{ $item->consumed ?? 0 }}</span><span class="vsm-badge">Disponível: {{ $item->available ?? 0 }}</span></div>

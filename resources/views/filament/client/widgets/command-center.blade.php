@@ -259,16 +259,16 @@
             <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 5h16v12H8l-4 4V5Z"/></svg>Solicitações</a>
             <a href="{{ \App\Filament\Client\Pages\Channels::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12a7 7 0 0 1 7-7M5 17a12 12 0 0 1 12-12"/><circle cx="6" cy="18" r="2"/></svg>Canais</a>
             <a href="{{ \App\Filament\Client\Pages\Files::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 7h7l2 2h9v10H3V7Z"/></svg>Arquivos</a>
-            <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Consumo</a>
+            <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Plano e uso</a>
             <a href="{{ \App\Filament\Client\Pages\Account::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.5 3.3-7 8-7s7.3 2.5 8 7"/></svg>Conta</a>
         </nav>
         <div class="vsm-side-support">
             <div style="width:28px;height:28px;border-radius:8px;display:grid;place-items:center;margin-bottom:9px;background:linear-gradient(145deg,#9c2aff,#5417c8);box-shadow:0 0 14px rgba(160,45,255,.4)">
                 <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="white" stroke-width="1.8"><path d="M4 5h16v12H9l-5 3V5Z"/></svg>
             </div>
-            <strong>DÚVIDAS?</strong><b>Fale com a gente!</b>
-            <p>Resposta em até<br>1h útil</p>
-            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Abrir chat →</a>
+            <strong>PRECISA DE AJUDA?</strong><b>Fale com nossa equipe</b>
+            <p>Envie uma solicitação e acompanhe o andamento pelo painel.</p>
+            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Nova solicitação →</a>
         </div>
     </aside>
     <div class="vsm-dashboard">
@@ -402,29 +402,56 @@
         <div class="vsm-kpi gold"><div class="vsm-kpi-icon">▥</div><div><small>Alcance do mês</small><strong>{{ $reachValue ?? '—' }}</strong><em class="{{ $reachValue ? 'good' : '' }}">{{ $reachValue ? 'Dados sincronizados' : 'Aguardando integração de analytics' }}</em></div></div>
     </div>
 
+    @if($approvals > 0 || $requests->isNotEmpty())
+        <section class="vsm-panel" style="border-color:rgba(255,191,0,.34);background:linear-gradient(180deg,rgba(35,27,8,.86),rgba(11,14,28,.96))">
+            <div class="vsm-panel-head">
+                <h3 class="vsm-panel-title"><i>!</i> Precisa da sua atenção</h3>
+            </div>
+            <div class="vsm-request-list">
+                @if($approvals > 0)
+                    <div class="vsm-request-row">
+                        <div class="vsm-mini-icon">✓</div>
+                        <div class="vsm-row-copy"><b>{{ $approvals }} conteúdo(s) aguardando aprovação</b><span>Revise as peças para liberar a próxima etapa.</span></div>
+                        <a class="vsm-link" href="{{ \App\Filament\Client\Pages\Approvals::getUrl() }}">Revisar</a>
+                    </div>
+                @endif
+                @if($requests->isNotEmpty())
+                    <div class="vsm-request-row">
+                        <div class="vsm-mini-icon">✎</div>
+                        <div class="vsm-row-copy"><b>{{ $requests->count() }} solicitação(ões) em andamento</b><span>Acompanhe ajustes e revisões abertas.</span></div>
+                        <a class="vsm-link" href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Acompanhar</a>
+                    </div>
+                @endif
+            </div>
+        </section>
+    @endif
+
     <div class="vsm-grid-main">
         <section class="vsm-panel">
             <div class="vsm-panel-head">
-                <h3 class="vsm-panel-title"><i>▣</i> Calendário Editorial</h3>
+                <h3 class="vsm-panel-title"><i>▣</i> Próximas publicações</h3>
                 <a class="vsm-link" href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}">Ver calendário completo ›</a>
             </div>
-            <div class="vsm-weekline"><span>‹</span><b>{{ $weekStart->format('d') }} – {{ $weekEnd->format('d \d\e M \d\e Y') }}</b><span>›</span></div>
-            <div class="vsm-calendar">
-                <div class="vsm-cal-cell vsm-cal-day"></div>
-                @foreach($calendarDays as $day)<div class="vsm-cal-cell vsm-cal-day">{{ strtoupper($day['date']->locale('pt_BR')->isoFormat('ddd D')) }}</div>@endforeach
-                @foreach(['09:00','12:00','18:00'] as $time)
-                    <div class="vsm-cal-cell vsm-cal-time">{{ $time }}</div>
-                    @foreach($calendarDays as $day)
-                        <div class="vsm-cal-cell">
-                            @foreach($day['items']->take(2) as $item)
-                                @php $tone = $item->published_at ? 'green' : (str_contains(strtolower((string)$item->channel),'youtube') ? 'red' : (str_contains(strtolower((string)$item->channel),'facebook') || str_contains(strtolower((string)$item->channel),'linkedin') ? 'blue' : '')); @endphp
-                                <div class="vsm-calendar-event {{ $tone }}"><b>{{ $item->title }}</b><span>{{ $item->channel ? ucfirst($item->channel) : ($item->format ?: 'Conteúdo') }}</span></div>
-                            @endforeach
+            <div class="vsm-weekline"><b>{{ $weekStart->format('d') }} – {{ $weekEnd->format('d \d\e M \d\e Y') }}</b></div>
+            <div class="vsm-request-list">
+                @forelse($upcomingItems as $item)
+                    @php $moment = $item->scheduled_at ?: $item->published_at; @endphp
+                    <div class="vsm-request-row">
+                        <div class="vsm-mini-icon">{{ $moment?->format('H:i') ?: '•' }}</div>
+                        <div class="vsm-row-copy">
+                            <b>{{ $item->title ?: 'Conteúdo programado' }}</b>
+                            <span>{{ $moment?->format('d/m/Y H:i') }} • {{ $item->channel ? ucfirst($item->channel) : ($item->format ?: 'Conteúdo') }}</span>
                         </div>
-                    @endforeach
-                @endforeach
+                        <span class="vsm-status {{ $item->published_at ? 'done' : 'open' }}">{{ $item->published_at ? 'Publicado' : 'Agendado' }}</span>
+                    </div>
+                @empty
+                    <div class="vsm-request-row">
+                        <div class="vsm-mini-icon">✓</div>
+                        <div class="vsm-row-copy"><b>Nenhuma publicação nesta semana</b><span>Use o calendário para planejar os próximos conteúdos.</span></div>
+                        <a class="vsm-link" href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}">Planejar</a>
+                    </div>
+                @endforelse
             </div>
-            <div class="vsm-legend"><span><i class="vsm-dot purple"></i>Agendado</span><span><i class="vsm-dot green"></i>Publicado</span><span><i class="vsm-dot gray"></i>Rascunho</span></div>
         </section>
 
         <section class="vsm-panel">
@@ -479,7 +506,7 @@
         </section>
 
         <section class="vsm-panel">
-            <div class="vsm-panel-head"><h3 class="vsm-panel-title"><i>♧</i> Canais conectados</h3></div>
+            <div class="vsm-panel-head"><h3 class="vsm-panel-title"><i>♧</i> Canais com atividade</h3></div>
             <div class="vsm-channel-list">
                 @forelse($channels as $channel)
                     @php $ch = strtolower((string) $channel->channel); @endphp
@@ -500,7 +527,7 @@
                             @endif
                         </div>
                         <div class="vsm-row-copy"><b>{{ ucfirst($channel->channel) }}</b><span>{{ $channel->total }} conteúdo(s) vinculados</span></div>
-                        <span class="vsm-connected">Conectado</span>
+                        <span class="vsm-status">Planejamento</span>
                     </div>
                 @empty
                     <div class="vsm-channel-row"><div class="vsm-channel-platform">•</div><div class="vsm-row-copy"><b>Nenhum canal com atividade</b><span>Conecte seus canais para começar.</span></div><span class="vsm-status">Pendente</span></div>

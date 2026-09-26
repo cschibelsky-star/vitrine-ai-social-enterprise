@@ -117,6 +117,8 @@ class ClientCommandCenter extends Widget
             ->orderByRaw('COALESCE(scheduled_at, published_at) asc')
             ->get();
 
+        $upcomingItems = $weekProjects->take(5);
+
         $calendarDays = collect(range(0, 6))->map(function (int $offset) use ($weekStart, $weekProjects) {
             $date = (clone $weekStart)->addDays($offset);
             $items = $weekProjects->filter(function (ContentProject $project) use ($date) {
@@ -162,6 +164,7 @@ class ClientCommandCenter extends Widget
             'scorePercent' => max(0, min(100, (int) round($scoreRaw))),
             'approvalItems' => $approvalItems,
             'calendarDays' => $calendarDays,
+            'upcomingItems' => $upcomingItems,
             'weekStart' => $weekStart,
             'weekEnd' => $weekEnd,
             'channels' => $channels,
