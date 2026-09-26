@@ -47,7 +47,7 @@
     /* Canonical client shell */
     .fi-sidebar,.fi-topbar{display:none!important}
     .fi-main,.fi-main-ctn{padding:0!important;margin:0!important;max-width:none!important;width:100%!important}
-    .vsm-shell{min-height:100vh;display:grid;grid-template-columns:245px minmax(0,1fr);background:linear-gradient(180deg,#040712,#030610 66%,#02040b)}
+    .vsm-shell{min-height:100vh;display:grid;grid-template-columns:245px minmax(0,1fr);background:radial-gradient(circle at 72% 8%,rgba(36,74,168,.16),transparent 30%),linear-gradient(180deg,#0a1020,#070d1b 62%,#050a15)}
     .vsm-side{position:sticky;top:0;height:100vh;padding:24px 16px 18px;border-right:1px solid rgba(100,76,255,.22);background:linear-gradient(180deg,#050917,#030712 72%,#05081a);display:flex;flex-direction:column}
     .vsm-brand{display:flex;align-items:center;gap:8px;margin:2px 6px 26px}.vsm-brand-mark{width:46px;height:52px;display:grid;place-items:center;filter:drop-shadow(0 0 14px rgba(120,57,255,.65))}.vsm-brand-mark svg{width:44px;height:50px}.vsm-brand-copy{line-height:.82;min-width:126px}.vsm-brand-copy b{display:block;color:#fff;font-size:1.7rem;font-weight:1000;font-style:italic;letter-spacing:-.07em;text-shadow:0 0 14px rgba(255,255,255,.08)}.vsm-brand-copy span{display:block;margin-top:8px;color:#ffc400;font-size:.72rem;font-weight:1000;letter-spacing:.06em}
     .vsm-own-nav{display:grid;gap:5px}.vsm-own-nav a{min-height:42px;padding:0 12px;display:flex;align-items:center;gap:10px;border-radius:9px;color:#b7c0d7;text-decoration:none;font-size:.76rem;font-weight:760;border:1px solid transparent}.vsm-own-nav a.active{color:#fff;background:linear-gradient(90deg,rgba(90,27,199,.82),rgba(81,28,177,.28));border-color:rgba(166,54,255,.65);box-shadow:inset 3px 0 0 #2bdfff,0 0 18px rgba(115,40,255,.16)}.vsm-own-nav .vsm-badge{margin-left:auto}
@@ -152,6 +152,16 @@
         linear-gradient(132deg,transparent 34%,rgba(115,48,255,.42) 35%,transparent 36%),
         linear-gradient(24deg,transparent 62%,rgba(74,108,255,.35) 63%,transparent 64%)}
     .vsm-side-support a{background:#ffc400!important;border-radius:999px!important;padding:0 18px!important;min-height:36px!important;box-shadow:0 0 18px rgba(255,196,0,.35)!important}
+    .vsm-via-entry{background:radial-gradient(circle at 74% 24%,rgba(33,228,255,.14),transparent 24%),radial-gradient(circle at 22% 82%,rgba(227,55,255,.22),transparent 34%),linear-gradient(155deg,#0b1230,#080916 72%,#120821)!important}
+    .vsm-via-core{width:38px;height:38px!important;min-width:38px!important;margin:0 auto 9px!important;position:relative;display:grid!important;place-items:center;border-radius:50%;background:transparent!important;box-shadow:none!important}
+    .vsm-via-core:before,.vsm-via-core:after{content:"";position:absolute;border-radius:50%;border:1px solid rgba(84,220,255,.72);box-shadow:0 0 12px rgba(33,228,255,.25)}
+    .vsm-via-core:before{inset:2px;animation:vsmViaSpin 8s linear infinite}.vsm-via-core:after{inset:8px;border-color:rgba(224,73,255,.72);animation:vsmViaSpin 5s linear infinite reverse}
+    .vsm-via-dot{width:9px;height:9px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff,0 0 18px #21e4ff,0 0 26px #d837ff}
+    .vsm-via-entry strong{color:#aeefff!important;letter-spacing:.05em}.vsm-via-entry a{background:linear-gradient(135deg,rgba(18,128,255,.35),rgba(115,30,218,.5))!important;color:#eafdff!important;border:1px solid rgba(58,226,255,.55)!important}
+    @keyframes vsmViaSpin{to{transform:rotate(360deg)}}
+    .vsm-via-panel{position:fixed;right:18px;bottom:18px;width:min(390px,calc(100vw - 36px));z-index:90;border:1px solid rgba(96,66,255,.6);border-radius:18px;background:linear-gradient(180deg,#0c1830,#08101f);box-shadow:0 24px 70px rgba(0,0,0,.55),0 0 30px rgba(107,48,255,.18);display:none;overflow:hidden}
+    .vsm-via-panel.open{display:block}.vsm-via-head{display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid rgba(148,163,184,.12)}.vsm-via-head b{font-size:.78rem}.vsm-via-head span{display:block;color:#8fa0bd;font-size:.58rem}.vsm-via-close{width:32px;height:32px;border:0;border-radius:9px;background:#0d1426;color:#fff;cursor:pointer}.vsm-via-body{padding:14px}.vsm-via-message{padding:11px 12px;border-radius:12px;background:rgba(76,29,149,.18);border:1px solid rgba(139,92,246,.24);color:#dbeafe;font-size:.7rem;line-height:1.5}.vsm-via-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.vsm-via-actions a{display:flex;align-items:center;justify-content:center;min-height:40px;border-radius:10px;border:1px solid rgba(99,102,241,.25);background:#0d1426;color:#dbeafe;text-decoration:none;font-size:.65rem;font-weight:800}.vsm-via-foot{padding:10px 14px;border-top:1px solid rgba(148,163,184,.1);color:#7f8da8;font-size:.56rem}
+    .vsm-platform svg{width:14px;height:14px}
 
     @media(min-width:821px){
         .vsm-shell{grid-template-columns:242px minmax(0,1fr)!important}
@@ -262,20 +272,17 @@
             <a href="{{ \App\Filament\Client\Pages\Balance::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M12 8v8"/></svg>Plano e uso</a>
             <a href="{{ \App\Filament\Client\Pages\Account::getUrl() }}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c.7-4.5 3.3-7 8-7s7.3 2.5 8 7"/></svg>Conta</a>
         </nav>
-        <div class="vsm-side-support">
-            <div style="width:28px;height:28px;border-radius:8px;display:grid;place-items:center;margin-bottom:9px;background:linear-gradient(145deg,#9c2aff,#5417c8);box-shadow:0 0 14px rgba(160,45,255,.4)">
-                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="white" stroke-width="1.8"><path d="M4 5h16v12H9l-5 3V5Z"/></svg>
-            </div>
-            <strong>PRECISA DE AJUDA?</strong><b>Fale com nossa equipe</b>
-            <p>Envie uma solicitação e acompanhe o andamento pelo painel.</p>
-            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Nova solicitação →</a>
+        <div class="vsm-side-support vsm-via-entry">
+            <div class="vsm-via-core" aria-hidden="true"><span class="vsm-via-dot"></span></div>
+            <strong>VIA</strong><b>Como posso ajudar?</b>
+            <p>A assistente do ecossistema para orientar aprovações, agenda, conteúdos e próximos passos.</p>
+            <a href="#vsm-via-panel" id="vsmViaOpen">Abrir VIA →</a>
         </div>
     </aside>
     <div class="vsm-dashboard">
     <div class="vsm-topline">
         <div></div>
         <div class="vsm-actions">
-            <a class="vsm-adjust" href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">✎ Solicitar ajuste</a>
             <div class="vsm-bell" aria-label="Notificações"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/><path d="M10 21h4"/></svg></div>
             <div class="vsm-profile">
                 <div class="vsm-avatar" aria-hidden="true"></div>
@@ -465,7 +472,20 @@
                     <article class="vsm-approval">
                         <div class="vsm-thumb {{ $slideUrl ? 'has-media' : ($index === 1 ? 'blue' : ($index === 2 ? 'gold' : '')) }}" @if($slideUrl) style="background-image:url('{{ $slideUrl }}')" @endif>
                             <div class="vsm-thumb-text">{{ $item->title }}</div>
-                            <div class="vsm-platform">{{ strtoupper(mb_substr($item->channel ?: 'C',0,1)) }}</div>
+                            @php $approvalChannel = strtolower((string) ($item->channel ?: '')); @endphp
+                            <div class="vsm-platform" style="background:{{ str_contains($approvalChannel,'facebook') ? '#1877f2' : (str_contains($approvalChannel,'tiktok') ? '#111827' : (str_contains($approvalChannel,'youtube') ? '#e31a3d' : 'linear-gradient(145deg,#7d2aff,#f42686)')) }}">
+                                @if(str_contains($approvalChannel,'instagram'))
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+                                @elseif(str_contains($approvalChannel,'facebook'))
+                                    <span style="font-weight:1000;font-size:.78rem">f</span>
+                                @elseif(str_contains($approvalChannel,'tiktok'))
+                                    <span style="font-weight:1000;font-size:.72rem">♪</span>
+                                @elseif(str_contains($approvalChannel,'youtube'))
+                                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M21 7.3a2.8 2.8 0 0 0-2-2C17.2 4.8 12 4.8 12 4.8s-5.2 0-7 .5a2.8 2.8 0 0 0-2 2A29 29 0 0 0 2.5 12 29 29 0 0 0 3 16.7a2.8 2.8 0 0 0 2 2c1.8.5 7 .5 7 .5s5.2 0 7-.5a2.8 2.8 0 0 0 2-2 29 29 0 0 0 .5-4.7 29 29 0 0 0-.5-4.7ZM10 15.5v-7l6 3.5-6 3.5Z"/></svg>
+                                @else
+                                    <span>{{ strtoupper(mb_substr($item->channel ?: 'C',0,1)) }}</span>
+                                @endif
+                            </div>
                         </div>
                         <div class="vsm-approval-body">
                             <div class="vsm-approval-meta">{{ $item->channel ? ucfirst($item->channel) : 'Canal' }} • {{ $item->format ?: ($item->content_type ?: 'Conteúdo') }}</div>
@@ -540,6 +560,20 @@
     </div>
 </div>
 
+<div class="vsm-via-panel" id="vsm-via-panel" aria-live="polite">
+    <div class="vsm-via-head"><div><b>VIA · Assistente do Vitrine Social</b><span>Entrada integrada ao painel do cliente</span></div><button type="button" class="vsm-via-close" id="vsmViaClose" aria-label="Fechar VIA">×</button></div>
+    <div class="vsm-via-body">
+        <div class="vsm-via-message">Olá, {{ $userName }}. Posso orientar você pelas áreas do Vitrine Social Mídia. A conversa completa da VIA será conectada a este painel pelo runtime do ecossistema.</div>
+        <div class="vsm-via-actions">
+            <a href="{{ \App\Filament\Client\Pages\Approvals::getUrl() }}">Ver aprovações</a>
+            <a href="{{ \App\Filament\Client\Pages\CalendarPage::getUrl() }}">Ver agenda</a>
+            <a href="{{ \App\Filament\Client\Pages\Requests::getUrl() }}">Solicitações</a>
+            <a href="{{ \App\Filament\Client\Pages\Channels::getUrl() }}">Estado dos canais</a>
+        </div>
+    </div>
+    <div class="vsm-via-foot">Acesso da VIA implantado; o runtime conversacional permanece desacoplado até a integração própria.</div>
+</div>
+
 <nav class="vsm-mobile-nav" aria-label="Navegação rápida">
     <a class="active" href="{{ \App\Filament\Client\Pages\ClientDashboard::getUrl() }}">Painel</a>
     <a href="{{ \App\Filament\Client\Pages\Contents::getUrl() }}">Conteúdos</a>
@@ -547,6 +581,15 @@
     <a href="{{ \App\Filament\Client\Pages\Approvals::getUrl() }}">Aprovações</a>
     <a href="{{ \App\Filament\Client\Pages\Performance::getUrl() }}">Desempenho</a>
 </nav>
+<script>
+(() => {
+    const open = document.getElementById('vsmViaOpen');
+    const close = document.getElementById('vsmViaClose');
+    const panel = document.getElementById('vsm-via-panel');
+    if (open && panel) open.addEventListener('click', (event) => { event.preventDefault(); panel.classList.add('open'); });
+    if (close && panel) close.addEventListener('click', () => panel.classList.remove('open'));
+})();
+</script>
 @endif
 </x-filament-widgets::widget>
 
