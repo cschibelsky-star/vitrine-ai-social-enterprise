@@ -14,6 +14,7 @@ use App\Filament\Client\Pages\Contents;
 use App\Filament\Client\Pages\Files;
 use App\Filament\Client\Pages\Performance;
 use App\Filament\Client\Pages\Requests;
+use App\Filament\Client\Pages\SocialLab;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -53,6 +54,7 @@ class ClientPanelProvider extends PanelProvider
                 Approvals::class,
                 Performance::class,
                 Requests::class,
+                SocialLab::class,
                 Channels::class,
                 Files::class,
                 Balance::class,
