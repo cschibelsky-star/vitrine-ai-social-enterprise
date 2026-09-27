@@ -108,6 +108,76 @@ class ExampleTest extends TestCase
         $this->get('/checkout/inexistente')->assertNotFound();
     }
 
+    public function test_infinitepay_webhook_confirms_payment_and_activates_client_plan(): void
+    {
+        config()->set('services.infinitepay.handle', 'vitrine-test');
+        config()->set('services.infinitepay.payment_check_url', 'https://api.checkout.example.test/payment_check');
+
+        $leadId = DB::table('waitlist_leads')->insertGetId([
+            'name' => 'Cliente Pago',
+            'email' => 'cliente.pago@example.com',
+            'whatsapp' => '19999999997',
+            'company' => 'Empresa Paga',
+            'source' => 'checkout_started_vip_pro',
+            'consent' => true,
+            'joined_at' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        $fingerprint = substr(hash('sha256', 'pro|'.$leadId.'|cliente.pago@example.com'), 0, 16);
+        $orderNsu = 'vsm-pro-'.$leadId.'-'.$fingerprint;
+
+        Http::fake([
+            'https://api.checkout.example.test/payment_check' => Http::response([
+                'success' => true,
+                'paid' => true,
+                'amount' => 169900,
+                'paid_amount' => 169900,
+                'installments' => 1,
+                'capture_method' => 'pix',
+            ], 200),
+        ]);
+
+        $this->postJson('/api/integrations/infinitepay/events', [
+            'invoice_slug' => 'invoice-test',
+            'amount' => 169900,
+            'paid_amount' => 169900,
+            'installments' => 1,
+            'capture_method' => 'pix',
+            'transaction_nsu' => 'transaction-test-001',
+            'order_nsu' => $orderNsu,
+            'receipt_url' => 'https://receipt.example.test/001',
+            'items' => [],
+        ])->assertOk()->assertJson(['success' => true]);
+
+        $client = Client::query()->where('contact_email', 'cliente.pago@example.com')->first();
+        $this->assertNotNull($client);
+        $this->assertDatabaseHas('client_subscriptions', [
+            'client_id' => $client->id,
+            'plan_code' => 'pro',
+            'status' => 'active',
+            'source' => 'infinitepay',
+            'core_subscription_id' => 'transaction-test-001',
+        ]);
+        $this->assertDatabaseHas('client_balances', [
+            'client_id' => $client->id,
+            'balance_type' => 'content_credit',
+            'granted' => 25,
+            'available' => 25,
+        ]);
+        $this->assertDatabaseHas('users', [
+            'email' => 'cliente.pago@example.com',
+            'client_id' => $client->id,
+            'role' => 'client',
+            'status' => 'active',
+        ]);
+        $this->assertDatabaseHas('waitlist_leads', [
+            'id' => $leadId,
+            'source' => 'converted_vip_pro',
+        ]);
+    }
+
     public function test_content_generation_consumes_credit_and_writes_ledger(): void
     {
         config()->set('services.centro_ia.url', '');
