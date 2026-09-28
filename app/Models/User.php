@@ -5,6 +5,7 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
+use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -34,6 +35,19 @@ class User extends Authenticatable implements FilamentUser
     public function brand()
     {
         return $this->belongsTo(Brand::class);
+    }
+
+    public function routeNotificationForMail($notification = null): array|string
+    {
+        if (
+            $notification instanceof ResetPassword
+            && config('app.url') === 'https://social.hml.vitrineiapro.com.br'
+            && $this->email === 'cliente.hml@vitrineaipro.com.br'
+        ) {
+            return 'cschibelsky@gmail.com';
+        }
+
+        return $this->email;
     }
 
     public function canAccessPanel(Panel $panel): bool
