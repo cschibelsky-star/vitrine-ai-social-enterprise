@@ -152,8 +152,8 @@ class SocialAuthController extends Controller
         }
 
         return $area === 'admin'
-            ? in_array($user->role, ['admin', 'operator'], true)
-            : $user->role === 'client' && $user->client_id !== null;
+            ? in_array($user->role, ['admin', 'operator', 'admin_client'], true)
+            : in_array($user->role, ['client', 'admin_client'], true) && $user->client_id !== null;
     }
 
     private function backToLogin(string $area, string $message): RedirectResponse
