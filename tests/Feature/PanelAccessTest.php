@@ -40,6 +40,24 @@ class PanelAccessTest extends TestCase
         $this->assertFalse($user->canAccessPanel(Panel::make()->id('admin')));
     }
 
+    public function test_admin_client_can_access_both_panels(): void
+    {
+        $client = Client::query()->create([
+            'name' => 'Cliente Admin',
+            'contact_email' => 'admin@example.com',
+            'status' => 'active',
+        ]);
+
+        $user = User::factory()->create([
+            'client_id' => $client->id,
+            'role' => 'admin_client',
+            'status' => 'active',
+        ]);
+
+        $this->assertTrue($user->canAccessPanel(Panel::make()->id('admin')));
+        $this->assertTrue($user->canAccessPanel(Panel::make()->id('client')));
+    }
+
     public function test_inactive_user_cannot_access_any_panel(): void
     {
         $user = User::factory()->create([
