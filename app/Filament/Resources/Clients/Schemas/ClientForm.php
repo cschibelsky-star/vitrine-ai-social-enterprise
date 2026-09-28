@@ -41,7 +41,7 @@ class ClientForm
                     ->schema([
                         Grid::make(2)->schema([
                             TextInput::make('contact_name')->label('Responsável'),
-                            TextInput::make('contact_email')->label('E-mail')->email(),
+                            TextInput::make('contact_email')->label('E-mail de recuperação')->email()->required(),
                             TextInput::make('contact_phone')->label('Telefone/WhatsApp'),
                             TextInput::make('website')->label('Site')->url(),
                             TextInput::make('instagram')->label('Instagram'),

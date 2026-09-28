@@ -50,4 +50,34 @@ class PanelAccessTest extends TestCase
         $this->assertFalse($user->canAccessPanel(Panel::make()->id('admin')));
         $this->assertFalse($user->canAccessPanel(Panel::make()->id('client')));
     }
+
+    public function test_client_recovery_email_is_independent_from_login_email(): void
+    {
+        $client = Client::query()->create([
+            'name' => 'Cliente Recovery',
+            'contact_email' => 'responsavel@example.com',
+            'status' => 'active',
+        ]);
+
+        $user = User::factory()->create([
+            'client_id' => $client->id,
+            'email' => 'login-tecnico@example.test',
+            'role' => 'client',
+            'status' => 'active',
+        ]);
+
+        $this->assertSame('responsavel@example.com', $user->recoveryEmail());
+        $this->assertNotSame($user->email, $user->recoveryEmail());
+    }
+
+    public function test_user_without_client_contact_falls_back_to_login_email(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'usuario@example.com',
+            'role' => 'admin',
+            'status' => 'active',
+        ]);
+
+        $this->assertSame('usuario@example.com', $user->recoveryEmail());
+    }
 }

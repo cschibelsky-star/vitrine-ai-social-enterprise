@@ -5,8 +5,8 @@ namespace App\Models;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
-use Illuminate\Auth\Notifications\ResetPassword;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -37,17 +37,32 @@ class User extends Authenticatable implements FilamentUser
         return $this->belongsTo(Brand::class);
     }
 
-    public function routeNotificationForMail($notification = null): array|string
+    public function recoveryEmail(): string
     {
-        if (
-            $notification instanceof ResetPassword
-            && config('app.url') === 'https://social.hml.vitrineiapro.com.br'
-            && $this->email === 'cliente.hml@vitrineaipro.com.br'
-        ) {
-            return 'cschibelsky@gmail.com';
+        $clientEmail = trim((string) ($this->client?->contact_email ?? ''));
+
+        return filter_var($clientEmail, FILTER_VALIDATE_EMAIL)
+            ? $clientEmail
+            : $this->email;
+    }
+
+    public function sendPasswordResetNotification($token): void
+    {
+        $resetUrl = URL::temporarySignedRoute(
+            'filament.client.auth.password-reset.reset',
+            now()->addMinutes(60),
+            ['token' => $token, 'email' => $this->email],
+        );
+
+        if (! function_exists('sendVitrineCommercialMail')) {
+            throw new \RuntimeException('Central mail service unavailable.');
         }
 
-        return $this->email;
+        sendVitrineCommercialMail(
+            $this->recoveryEmail(),
+            'Redefinição de senha - Vitrine Social Mídia',
+            "Use o link abaixo para redefinir sua senha:\n\n{$resetUrl}\n\nO link expira em 60 minutos."
+        );
     }
 
     public function canAccessPanel(Panel $panel): bool

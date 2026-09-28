@@ -416,7 +416,8 @@ abstract class BaseClientSection extends Page
             case 'account':
                 $stats = [
                     'Nome' => $user?->name ?: '—',
-                    'E-mail' => $user?->email ?: '—',
+                    'Login' => $user?->email ?: '—',
+                    'E-mail de recuperação' => $user?->recoveryEmail() ?: '—',
                     'Cliente' => (string) $clientId,
                 ];
                 break;
