@@ -125,7 +125,7 @@
 </section>
 </main>
 
-<footer class="footer"><div class="wrap footer-inner"><span><strong>Vitrine Social Mídia</strong> · Vitrine IA Pro</span><span>social.vitrineaipro.com.br</span></div></footer>
+<footer class="footer"><div class="wrap footer-inner"><span><strong>Vitrine Social Mídia</strong> · Vitrine IA Pro</span><span>social.vitrineiapro.com.br</span></div></footer>
 <script>
 (() => {
     const video = document.getElementById('hero-video');
