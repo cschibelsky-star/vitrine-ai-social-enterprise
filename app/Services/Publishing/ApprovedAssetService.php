@@ -19,7 +19,7 @@ class ApprovedAssetService
             throw new RuntimeException('Use PNG, JPEG ou MP4.');
         }
         $placement = (new PublicationContract)->placement($project->format);
-        $binary = file_get_contents($file);
+        $binary = $mime === "video/mp4" ? null : file_get_contents($file);
         $metadata = [];
         if ($mime !== 'video/mp4') {
             $size = getimagesize($file);
@@ -77,15 +77,19 @@ class ApprovedAssetService
         }
         $ext = match ($mime) { 'image/jpeg' => 'jpg', 'image/png' => 'png', default => 'mp4' };
         $path = 'publisher/assets/'.Str::uuid().'.'.$ext;
-        Storage::disk('local')->put($path, $binary);
+        $assetHash = $binary === null ? hash_file('sha256', $file) : hash('sha256', $binary);
+        $stream = $binary === null ? fopen($file, 'rb') : null;
         try {
-            DB::transaction(function () use ($project, $path, $binary, $mime, $metadata) {
+            if (! Storage::disk('local')->put($path, $stream ?? $binary)) { throw new RuntimeException('Falha ao armazenar arquivo final.'); }
+        } finally { if (is_resource($stream)) { fclose($stream); } }
+        try {
+            DB::transaction(function () use ($project, $path, $assetHash, $mime, $metadata) {
                 $fresh = ContentProject::query()->lockForUpdate()->findOrFail($project->id);
                 if ($fresh->published_at || DB::table('publication_attempts')->where('content_project_id', $fresh->id)->exists()) {
                     throw new RuntimeException('A tentativa existente precisa ser reconciliada antes de alterar a peça.');
                 }
                 $fresh->forceFill([
-                    'publishing_asset' => ['path' => $path, 'mime' => $mime, 'sha256' => hash('sha256', $binary)] + $metadata,
+                    'publishing_asset' => ['path' => $path, 'mime' => $mime, 'sha256' => $assetHash] + $metadata,
                     'approved_fingerprint' => null, 'approved_at' => null, 'approved_by' => null,
                     'scheduled_at' => null, 'status' => 'review',
                 ])->save();
@@ -109,7 +113,7 @@ class ApprovedAssetService
     {
         $a = (array) $project->publishing_asset;
         if (empty($a['path']) || ! Storage::disk('local')->exists($a['path'])
-            || ! hash_equals($a['sha256'] ?? '', hash('sha256', Storage::disk('local')->get($a['path'])))) {
+            || ! hash_equals($a['sha256'] ?? '', hash_file('sha256', Storage::disk('local')->path($a['path'])))) {
             throw new RuntimeException('Arquivo final ausente ou alterado.');
         }
     }

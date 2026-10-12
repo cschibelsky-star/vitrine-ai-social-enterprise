@@ -25,5 +25,6 @@ jobs:
           coverage: none
       - run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
       - run: composer dump-autoload --no-scripts
-      - run: find app/Services/Publishing app/Jobs database/migrations tests/Feature/PublishingSafetyTest.php -name '*.php' -print0 | xargs -0 -n1 php -l
+      - run: find app/Services/Publishing app/Jobs app/Filament/Client/Pages/BaseClientSection.php app/Models/ContentProject.php routes database/migrations tests/Feature/PublishingSafetyTest.php -name '*.php' -print0 | xargs -0 -n1 php -l
       - run: vendor/bin/phpunit tests/Feature/PublishingSafetyTest.php
+      - run: php artisan view:cache

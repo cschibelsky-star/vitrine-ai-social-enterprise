@@ -156,7 +156,11 @@ abstract class BaseClientSection extends Page
         }
 
         try {
-            $scheduledAt = Carbon::createFromFormat('!Y-m-d\\TH:i', $raw, config('publishing.timezone'))->utc();
+            $scheduledAt = Carbon::createFromFormat('!Y-m-d\\TH:i', $raw, config('publishing.timezone'));
+            if (! $scheduledAt || $scheduledAt->format('Y-m-d\\TH:i') !== $raw) {
+                throw new \RuntimeException('Data inválida.');
+            }
+            $scheduledAt = $scheduledAt->utc();
         } catch (Throwable) {
             Notification::make()->title('Data ou horário inválido')->danger()->send();
             return;
