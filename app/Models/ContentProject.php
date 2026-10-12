@@ -13,6 +13,8 @@ class ContentProject extends Model
     ];
 
     protected $casts = [
+        'publishing_asset' => 'array',
+        'approved_at' => 'datetime',
         'score' => 'decimal:2',
         'scheduled_at' => 'datetime',
         'published_at' => 'datetime',
@@ -24,3 +26,4 @@ class ContentProject extends Model
     public function slides() { return $this->hasMany(ContentSlide::class)->orderBy('slide_number'); }
     public function generations() { return $this->hasMany(ContentGeneration::class); }
 }
+

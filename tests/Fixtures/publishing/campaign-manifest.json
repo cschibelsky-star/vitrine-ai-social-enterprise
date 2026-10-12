@@ -1,0 +1,352 @@
+[
+  {
+    "file": "feed/post_01_1080x1080.png",
+    "sha256": "d95d59eca4bbb411ea57d9f9cef65c26e823d01094cf7de765cd91314acaee38",
+    "bytes": 153173,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_02_1080x1080.png",
+    "sha256": "8ef83a6df568bb866d2ef877f6087dc2b232ea60b6c9f9bf305dabfd527d4ed9",
+    "bytes": 142411,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_03_1080x1080.png",
+    "sha256": "67d5cbc993bcbf392803e0946927799b1c102d056f75504cea97e22d0dccdb8a",
+    "bytes": 142972,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_04_1080x1080.png",
+    "sha256": "baaa1305a1ddaa9811865cebf6ae7ecfe5856d02ddfc13f4f50445ffea2dda37",
+    "bytes": 156201,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_05_1080x1080.png",
+    "sha256": "6bf77e61fed5aa2f2190651e4bfa7afc2ec0223a7b9be58a415d3513160935bc",
+    "bytes": 153987,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_06_1080x1080.png",
+    "sha256": "d6d9e16556c9c9365f8ab1f022ae651e75f088ca6ab21712354239fd6e7fac7a",
+    "bytes": 159565,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_07_1080x1080.png",
+    "sha256": "09b6d6ac8e10e43a6aea4dbd3ebded56b00b1dda073ca46ee69a616c5adc7810",
+    "bytes": 146735,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_08_1080x1080.png",
+    "sha256": "1faebaeab8db9f6cafd9e535c6be2392e3d026e72e3abca34bcdc21eb48041c2",
+    "bytes": 151169,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_09_1080x1080.png",
+    "sha256": "6b298c43bf25ad94011e81febc30c7792c7aef22d5adbd70d2774e06e3267152",
+    "bytes": 147943,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "feed/post_10_1080x1080.png",
+    "sha256": "fc8a97eedcecc1baa665e197a268476c68328be61789bb195498b29271306982",
+    "bytes": 160575,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1080,
+    "placement": "feed",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "reels/post_01_REEL_1080x1920.mp4",
+    "sha256": "828137193ce4612335450ff478e4fbc04988d73c97b354d3026f40e921b076b6",
+    "bytes": 2609598,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_02_REEL_1080x1920.mp4",
+    "sha256": "2cb47cd8b09f0a988ad8864e840459f2421767ca33c3ef2fa7389d3ad02ef72e",
+    "bytes": 2866401,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_03_REEL_1080x1920.mp4",
+    "sha256": "27a10602143f15fb29081aa8be439cdb7225aee34f9e0438cd2e9613084f2ae6",
+    "bytes": 2369278,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_04_REEL_1080x1920.mp4",
+    "sha256": "c4a07e6d0921209298ec95687458c821ff40aee6cf55b9ed2ffd4b1c80bd9d20",
+    "bytes": 2814577,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_05_REEL_1080x1920.mp4",
+    "sha256": "9db47abb277c96398a186a4b2c6c237328509a260193905d28358d9e319fcfb1",
+    "bytes": 2550522,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_06_REEL_1080x1920.mp4",
+    "sha256": "0eaadeeb125f208e1322482a59d7554dcfca9487c9bf49ee10362bb3b8026695",
+    "bytes": 2991638,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_07_REEL_1080x1920.mp4",
+    "sha256": "7e264753142d7e7d246a328df6b3b7b016a7d8efd1d67aa03e9f633dc264fa49",
+    "bytes": 2393264,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_08_REEL_1080x1920.mp4",
+    "sha256": "a9a3da9d4ad36bdaf54a6cbeb070414335ec74ae351d2e71d64e15a12c54cc87",
+    "bytes": 2862992,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_09_REEL_1080x1920.mp4",
+    "sha256": "3f86d9a4030b4e13565d1d0a312e88c04f494a2b36781edff920cfcef58b3e16",
+    "bytes": 2614071,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "reels/post_10_REEL_1080x1920.mp4",
+    "sha256": "0d90e0e2465718c45c750561a6459d803e8d411268da1d876cf1f919c95138e0",
+    "bytes": 3281871,
+    "mime": "video/mp4",
+    "width": 1080,
+    "height": 1920,
+    "duration": 16.166667,
+    "fps": 24.061855173982366,
+    "codec": "h264",
+    "audio": [
+      "aac"
+    ],
+    "placement": "reels"
+  },
+  {
+    "file": "stories/post_01_1080x1920.png",
+    "sha256": "8bff9813234ab57cde0f7cf1cc7462df3a357871a1a94fceeccfdeb2c158a42e",
+    "bytes": 197295,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_02_1080x1920.png",
+    "sha256": "730b74c00d5bac1d347fd609f4a5867b5d81cc1c979beb0a845a03aecd995d0e",
+    "bytes": 197656,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_03_1080x1920.png",
+    "sha256": "08b1495e4d49d04ace71d5338326a109aba796cb86a708a98f9ad1b6555a631c",
+    "bytes": 186461,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_04_1080x1920.png",
+    "sha256": "c2ffeb9eb2ddba73d00a1a595d1affb462752d9476733741d674ad21022c2848",
+    "bytes": 202888,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_05_1080x1920.png",
+    "sha256": "534760c61fa96b7606bc4f9563634413359df12026650ece809252c8f6f423bc",
+    "bytes": 203935,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_06_1080x1920.png",
+    "sha256": "91dd686b34abf6524dac6637575454446440def16be680ac335e6c0487aa7c44",
+    "bytes": 214195,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_07_1080x1920.png",
+    "sha256": "4cfc5d2b4040ec8e03660e40e46bb8abb35f2c92213261bf21ac9d3c8309adb8",
+    "bytes": 189289,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_08_1080x1920.png",
+    "sha256": "2a43d29143c17200315462a880a76829ac6e5030b2110142c6738a4730af239a",
+    "bytes": 197775,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_09_1080x1920.png",
+    "sha256": "ab14f2602cd4e311ba100094bf632af109835c88803fb51788a1113624d1d941",
+    "bytes": 192341,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  },
+  {
+    "file": "stories/post_10_1080x1920.png",
+    "sha256": "6dc106ec76dc2b2f5bc8edd1b332bd2361e3d465795c031e4211b3fac9f7edaf",
+    "bytes": 218869,
+    "mime": "image/png",
+    "width": 1080,
+    "height": 1920,
+    "placement": "stories",
+    "requires_instagram_jpeg": true
+  }
+]

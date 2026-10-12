@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     unzip \
+    ffmpeg \
     libicu-dev \
     libzip-dev \
     libpng-dev \
@@ -54,3 +55,4 @@ COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/99-studio-uploads.ini
 USER www-data
 
 CMD ["sh", "-c", "php artisan filament:assets && php artisan livewire:publish --assets && exec php-fpm"]
+

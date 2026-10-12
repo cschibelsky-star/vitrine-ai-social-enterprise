@@ -15,7 +15,7 @@ class PublishScheduledContent implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $tries = 1;
-    public int $timeout = 180;
+    public int $timeout = 90;
 
     public function __construct(public int $projectId)
     {
@@ -30,7 +30,7 @@ class PublishScheduledContent implements ShouldQueue
         }
 
         if ($project->scheduled_at && $project->scheduled_at->isFuture()) {
-            $this->release($project->scheduled_at->diffInSeconds(now()));
+            $this->release(max(1, (int) ceil(now()->diffInSeconds($project->scheduled_at))));
 
             return;
         }
@@ -38,3 +38,4 @@ class PublishScheduledContent implements ShouldQueue
         $publisher->publish($project);
     }
 }
+
