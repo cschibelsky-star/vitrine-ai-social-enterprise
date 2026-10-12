@@ -16,7 +16,7 @@ Artisan::command('inspire', function () {
         ->whereNull('published_at')->chunkById(100, function ($projects) {
             foreach ($projects as $project) { \App\Jobs\PublishScheduledContent::dispatch($project->id); }
         });
-})->everyMinute()->withoutOverlapping();
+})->name("social-publication-due-scan")->everyMinute()->withoutOverlapping();
 
 Artisan::command('publisher:attach {project} {file}', function () {
     $project = \App\Models\ContentProject::query()->findOrFail((int) $this->argument('project'));
