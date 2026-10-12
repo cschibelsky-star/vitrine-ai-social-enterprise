@@ -20,4 +20,19 @@ class PublicationScheduleService
             $fresh->forceFill(['scheduled_at' => $at->copy()->utc(), 'status' => 'scheduled'])->save();
         });
     }
+    public function withdraw(ContentProject $project, bool $revision = false): void
+    {
+        DB::transaction(function () use ($project, $revision) {
+            $fresh = ContentProject::query()->lockForUpdate()->findOrFail($project->id);
+            if ($fresh->published_at || DB::table('publication_attempts')->where('content_project_id', $fresh->id)->exists()) {
+                throw new RuntimeException('Envio existente; não é possível alterar a peça.');
+            }
+            if (! $revision && ! in_array($fresh->status, ['ready', 'scheduled'], true)) {
+                throw new RuntimeException('Peça não aprovada.');
+            }
+            $changes = ['scheduled_at' => null, 'status' => $revision ? 'editing' : 'ready'];
+            if ($revision) { $changes += ['approved_at' => null, 'approved_by' => null, 'approved_fingerprint' => null]; }
+            $fresh->forceFill($changes)->save();
+        });
+    }
 }

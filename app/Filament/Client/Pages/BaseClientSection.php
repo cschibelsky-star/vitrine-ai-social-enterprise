@@ -225,13 +225,7 @@ abstract class BaseClientSection extends Page
             ->where('client_id', $clientId)
             ->findOrFail($projectId);
 
-        abort_unless(in_array($project->status, ['ready', 'scheduled'], true) && ! $project->published_at, 422);
-        abort_if(\Illuminate\Support\Facades\DB::table('publication_attempts')->where('content_project_id', $project->id)->exists(), 422);
-
-        $project->forceFill([
-            'status' => 'ready',
-            'scheduled_at' => null,
-        ])->save();
+        app(\App\Services\Publishing\PublicationScheduleService::class)->withdraw($project);
 
         Notification::make()
             ->title('Salvo na galeria')
@@ -300,9 +294,7 @@ abstract class BaseClientSection extends Page
             ->where('client_id', $clientId)
             ->findOrFail($projectId);
 
-        abort_if($project->published_at || \Illuminate\Support\Facades\DB::table('publication_attempts')->where('content_project_id', $project->id)->exists(), 422);
-        $project->forceFill(['status' => 'editing', 'approved_at' => null, 'approved_by' => null,
-            'approved_fingerprint' => null, 'scheduled_at' => null])->save();
+        app(\App\Services\Publishing\PublicationScheduleService::class)->withdraw($project, true);
 
         Notification::make()
             ->title('Ajuste solicitado')

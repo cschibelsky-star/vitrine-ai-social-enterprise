@@ -37,5 +37,11 @@ class PublishScheduledContent implements ShouldQueue
 
         $publisher->publish($project);
     }
+    public function failed(?\Throwable $exception): void
+    {
+        // Stop repeated scanner dispatch on configuration/approval errors before submission.
+        ContentProject::query()->whereKey($this->projectId)->where('status', 'scheduled')
+            ->update(['status' => 'publication_blocked']);
+    }
 }
 

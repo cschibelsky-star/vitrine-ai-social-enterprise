@@ -194,4 +194,28 @@ class PublishingSafetyTest extends TestCase
             (new ApprovedAssetService)->verify($p); Http::assertNothingSent();
         } finally { unlink($file); }
     }
+    public function test_asset_change_during_preflight_cannot_send_stale_payload(): void
+    {
+        $p = $this->project();
+        Http::fake(function () use ($p) {
+            $p->caption = 'Changed during capability lookup'; $p->save();
+            (new ApprovedAssetService)->approve($p, 1);
+            return Http::response(['connected' => true, 'contract_version' => 2,
+                'durable_idempotency' => true, 'capabilities' => ['instagram.feed.image']]);
+        });
+        try { (new MetaPublisherService)->publish($p); $this->fail('Must block stale snapshot'); } catch (\RuntimeException) {}
+        Http::assertSentCount(1); $this->assertSame(0, DB::table('publication_attempts')->count());
+    }
+    public function test_withdraw_cannot_change_submitted_publication(): void
+    {
+        $p = $this->project(); $this->fake(); (new MetaPublisherService)->publish($p);
+        $this->expectException(\RuntimeException::class);
+        (new PublicationScheduleService)->withdraw($p, true);
+    }
+    public function test_failed_scheduled_job_stops_scanner_retry(): void
+    {
+        $p = $this->project(); (new PublicationScheduleService)->schedule($p, now()->addHour());
+        (new \App\Jobs\PublishScheduledContent($p->id))->failed(new \RuntimeException('configuration'));
+        $this->assertSame('publication_blocked', $p->refresh()->status);
+    }
 }
