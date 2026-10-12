@@ -17,7 +17,7 @@ class PublishScheduledContent implements ShouldQueue
     public int $tries = 1;
     public int $timeout = 180;
 
-    public function __construct(public int $projectId)
+    public function __construct(public int $projectId, public ?string $expectedScheduledAt = null)
     {
     }
 
@@ -29,7 +29,17 @@ class PublishScheduledContent implements ShouldQueue
             return;
         }
 
-        if ($project->scheduled_at && $project->scheduled_at->isFuture()) {
+        // Ignore obsolete queued jobs after a reschedule or cancellation.
+        if ($this->expectedScheduledAt !== null &&
+            ($project->scheduled_at === null || $project->scheduled_at->toIso8601String() !== $this->expectedScheduledAt)) {
+            return;
+        }
+
+        if (! $project->scheduled_at) {
+            return;
+        }
+
+        if ($project->scheduled_at->isFuture()) {
             $this->release($project->scheduled_at->diffInSeconds(now()));
 
             return;

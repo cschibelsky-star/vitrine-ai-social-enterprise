@@ -136,7 +136,8 @@ abstract class BaseClientSection extends Page
             return;
         }
 
-        $scheduledAt = Carbon::parse($raw);
+        $scheduledAt = Carbon::parse($raw, 'America/Sao_Paulo');
+        $scheduledAt = $scheduledAt->copy()->utc();
 
         if ($scheduledAt->isPast()) {
             Notification::make()
@@ -152,7 +153,7 @@ abstract class BaseClientSection extends Page
             'status' => 'scheduled',
         ])->save();
 
-        PublishScheduledContent::dispatch($project->id)->delay($scheduledAt);
+        PublishScheduledContent::dispatch($project->id, $scheduledAt->toIso8601String())->delay($scheduledAt);
 
         Notification::make()
             ->title('Publicação agendada')
