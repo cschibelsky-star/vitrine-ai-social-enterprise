@@ -136,7 +136,7 @@ abstract class BaseClientSection extends Page
             return;
         }
 
-        $scheduledAt = Carbon::parse($raw, config('app.timezone', 'America/Sao_Paulo'));
+        $scheduledAt = Carbon::parse($raw, 'America/Sao_Paulo');
         $scheduledAt = $scheduledAt->copy()->utc();
 
         if ($scheduledAt->isPast()) {
