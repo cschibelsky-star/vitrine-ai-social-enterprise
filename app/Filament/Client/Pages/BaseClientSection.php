@@ -182,7 +182,8 @@ abstract class BaseClientSection extends Page
             return;
         }
 
-        PublishScheduledContent::dispatch($project->id)->delay($scheduledAt);
+        $project->refresh();
+        PublishScheduledContent::dispatch($project->id, (int) $project->schedule_generation)->delay($scheduledAt);
 
         Notification::make()
             ->title('Publicação agendada')
