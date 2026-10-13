@@ -149,12 +149,12 @@ class PublishingSafetyTest extends TestCase
         $latestGeneration = (int) $p->refresh()->schedule_generation;
         $this->assertGreaterThan($firstGeneration, $latestGeneration);
 
-        (new \\App\\Jobs\\PublishScheduledContent($p->id, $firstGeneration))
+        (new \App\\Jobs\\PublishScheduledContent($p->id, $firstGeneration))
             ->handle(new MetaPublisherService);
         Http::assertNothingSent();
 
         $scheduler->withdraw($p);
-        (new \\App\\Jobs\\PublishScheduledContent($p->id, $latestGeneration))
+        (new \App\\Jobs\\PublishScheduledContent($p->id, $latestGeneration))
             ->handle(new MetaPublisherService);
         Http::assertNothingSent();
     }
