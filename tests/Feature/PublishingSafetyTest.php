@@ -136,6 +136,29 @@ class PublishingSafetyTest extends TestCase
         $p = $this->project(); (new \App\Jobs\PublishScheduledContent($p->id))->handle(new MetaPublisherService);
         Http::assertNothingSent();
     }
+    public function test_reschedule_generation_invalidates_old_jobs_even_when_time_returns_to_original(): void
+    {
+        $p = $this->project();
+        $scheduler = new PublicationScheduleService;
+        $original = now()->addHours(2);
+        $scheduler->schedule($p, $original);
+        $firstGeneration = (int) $p->refresh()->schedule_generation;
+
+        $scheduler->schedule($p, now()->addHours(3));
+        $scheduler->schedule($p, $original);
+        $latestGeneration = (int) $p->refresh()->schedule_generation;
+        $this->assertGreaterThan($firstGeneration, $latestGeneration);
+
+        (new \\App\\Jobs\\PublishScheduledContent($p->id, $firstGeneration))
+            ->handle(new MetaPublisherService);
+        Http::assertNothingSent();
+
+        $scheduler->withdraw($p);
+        (new \\App\\Jobs\\PublishScheduledContent($p->id, $latestGeneration))
+            ->handle(new MetaPublisherService);
+        Http::assertNothingSent();
+    }
+
     public function test_duplicate_attempt_has_database_constraint(): void
     {
         $p = $this->project(); $this->fake(); (new MetaPublisherService)->publish($p);
