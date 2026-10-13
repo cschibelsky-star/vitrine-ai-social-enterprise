@@ -17,7 +17,11 @@ class PublicationScheduleService
                 throw new RuntimeException('Agendamento exige arquivo aprovado, sem envio anterior e data futura.');
             }
             (new ApprovedAssetService)->verify($fresh);
-            $fresh->forceFill(['scheduled_at' => $at->copy()->utc(), 'status' => 'scheduled'])->save();
+            $fresh->forceFill([
+                'scheduled_at' => $at->copy()->utc(),
+                'status' => 'scheduled',
+                'schedule_generation' => ((int) $fresh->schedule_generation) + 1,
+            ])->save();
         });
     }
     public function withdraw(ContentProject $project, bool $revision = false): void
@@ -30,7 +34,11 @@ class PublicationScheduleService
             if (! $revision && ! in_array($fresh->status, ['ready', 'scheduled'], true)) {
                 throw new RuntimeException('Peça não aprovada.');
             }
-            $changes = ['scheduled_at' => null, 'status' => $revision ? 'editing' : 'ready'];
+            $changes = [
+                'scheduled_at' => null,
+                'status' => $revision ? 'editing' : 'ready',
+                'schedule_generation' => ((int) $fresh->schedule_generation) + 1,
+            ];
             if ($revision) { $changes += ['approved_at' => null, 'approved_by' => null, 'approved_fingerprint' => null]; }
             $fresh->forceFill($changes)->save();
         });
