@@ -10,6 +10,7 @@ return new class extends Migration {
             $table->string('approved_fingerprint', 64)->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
+            $table->unsignedBigInteger('schedule_generation')->default(0);
         });
         Schema::create('publication_attempts', function (Blueprint $table) {
             $table->id();
@@ -25,7 +26,7 @@ return new class extends Migration {
     {
         Schema::dropIfExists('publication_attempts');
         Schema::table('content_projects', fn (Blueprint $table) => $table->dropColumn([
-            'publishing_asset', 'approved_fingerprint', 'approved_at', 'approved_by',
+            'publishing_asset', 'approved_fingerprint', 'approved_at', 'approved_by', 'schedule_generation',
         ]));
     }
 };
