@@ -49,6 +49,7 @@ services:
     restart: "no"
     environment:
       APP_ENV: testing
+      PUBLISHING_RUNTIME_VALIDATION: "1"
       APP_DEBUG: "false"
       APP_URL: http://localhost
       SOCIAL_PUBLISHING_ENABLED: "false"
@@ -68,7 +69,7 @@ services:
       - |
         export DB_PASSWORD="$$(cat /run/secrets-local/db_password)"
         export APP_KEY="$$(cat /run/secrets-local/app_key)"
-        php vendor/bin/phpunit tests/Feature/PublishingSafetyTest.php --colors=never
+        php vendor/bin/phpunit tests/Feature --filter 'Publishing(Safety|WorkerRuntime)Test' --colors=never
         exec php-fpm
     volumes:
       - validation_app_storage:/var/www/html/storage
