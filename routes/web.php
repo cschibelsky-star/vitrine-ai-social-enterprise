@@ -143,6 +143,28 @@ Route::get('/', function () {
 });
 
 
+Route::get('/app/publisher/preview/{project}', function (int $project) {
+    $content = \App\Models\ContentProject::query()->where('client_id', auth()->user()?->client_id)->findOrFail($project);
+    (new \App\Services\Publishing\ApprovedAssetService)->verify($content);
+    return response()->file(Storage::disk('local')->path($content->publishing_asset['path']), [
+        'Content-Type' => $content->publishing_asset['mime'], 'Cache-Control' => 'private, no-store',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+})->middleware('auth')->whereNumber('project')->name('publisher.preview');
+
+// Only the immutable approved asset is exposed; the URL expires and is signed.
+Route::get('/publisher/approved-assets/{project}/{hash}', function (int $project, string $hash) {
+    $content = \App\Models\ContentProject::query()->findOrFail($project);
+    $asset = (array) $content->publishing_asset;
+    abort_unless($content->approved_at && hash_equals($asset['sha256'] ?? '', $hash), 404);
+    abort_unless(hash_equals($content->approved_fingerprint ?? '', (new \App\Services\Publishing\PublicationContract)->fingerprint($content)), 404);
+    (new \App\Services\Publishing\ApprovedAssetService)->verify($content);
+    return response()->file(Storage::disk('local')->path($asset['path']), [
+        'Content-Type' => $asset['mime'], 'Cache-Control' => 'private, max-age=300',
+        'X-Content-Type-Options' => 'nosniff',
+    ]);
+})->middleware('signed')->whereNumber('project')->where('hash', '[a-f0-9]{64}')->name('publisher.approved-asset');
+
 Route::get('/publisher/assets/{project}.png', function (int $project) {
     $path = 'publisher/assets/project-'.$project.'.png';
     abort_unless(Storage::disk('public')->exists($path), 404);
@@ -602,3 +624,4 @@ Route::post('/lista-vip', function (Request $request, LaunchOrchestrator $orches
 if (file_exists(__DIR__.'/infinitepay_hml.php')) {
     require __DIR__.'/infinitepay_hml.php';
 }
+

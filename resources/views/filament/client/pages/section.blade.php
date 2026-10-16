@@ -110,7 +110,7 @@
 
                     @if($generated->status === 'ready')
                         <div class="vsm-schedule">
-                            <input type="datetime-local" wire:model="scheduleInputs.{{ $generated->id }}">
+                            <input aria-label="Data e horário (São Paulo)" type="datetime-local" wire:model="scheduleInputs.{{ $generated->id }}">
                             <button type="button" wire:click="scheduleContent({{ $generated->id }})" class="vsm-action vsm-primary">Adicionar ao calendário</button>
                         </div>
                     @endif
@@ -143,6 +143,23 @@
                                 </div>
 
                                 <h3>{{ $item->title ?: 'Conteúdo em produção' }}</h3>
+                                @if($item->publishing_asset)
+                                    @if(($item->publishing_asset['mime'] ?? '') === 'video/mp4')
+                                        <video controls preload="metadata" style="max-width:100%;max-height:360px" src="{{ route('publisher.preview', ['project' => $item->id]) }}"></video>
+                                    @else
+                                        <img style="max-width:100%;max-height:360px;object-fit:contain" alt="Arquivo final para revisão" src="{{ route('publisher.preview', ['project' => $item->id]) }}">
+                                    @endif
+                                @endif
+                                @if(!$item->published_at && !in_array($item->status, ['publishing', 'publication_unknown', 'publication_processing'], true))
+                                    <label for="publication-file-{{ $item->id }}">Arquivo final (PNG, JPEG ou MP4)</label>
+                                    <input id="publication-file-{{ $item->id }}" type="file" accept="image/png,image/jpeg,video/mp4" wire:model="publicationFiles.{{ $item->id }}">
+                                    @error('publicationFiles.'.$item->id)<p role="alert">{{ $message }}</p>@enderror
+                                    <button type="button" class="vsm-action" wire:click="attachPublicationFile({{ $item->id }})" wire:loading.attr="disabled">Anexar para revisão</button>
+                                @endif
+                                @if(in_array($item->status, ['publishing', 'publication_unknown', 'publication_processing'], true))
+                                    <p role="status">Envio aguardando confirmação. Reenvio bloqueado para evitar duplicação.</p>
+                                @endif
+
 
                                 @if($item->caption)
                                     <div class="vsm-copy-block"><small>Legenda</small><p>{{ $item->caption }}</p></div>
@@ -168,7 +185,7 @@
                                 @endif
 
                                 <div class="vsm-card-actions">
-                                    @if(!in_array($item->status, ['ready', 'scheduled', 'published'], true))
+                                    @if(!in_array($item->status, ['ready', 'scheduled', 'published', 'publishing', 'publication_unknown', 'publication_processing'], true))
                                         <button type="button" wire:click="approveContent({{ $item->id }})" class="vsm-action ok">Aprovar</button>
                                         <button type="button" wire:click="requestAdjustment({{ $item->id }})" class="vsm-action adjust">Pedir ajuste</button>
                                     @elseif(in_array($item->status, ['ready', 'scheduled'], true))
@@ -180,10 +197,10 @@
 
                                 @if(in_array($item->status, ['ready', 'scheduled'], true))
                                     <div class="vsm-schedule">
-                                        <input type="datetime-local" wire:model="scheduleInputs.{{ $item->id }}">
+                                        <input aria-label="Data e horário (São Paulo)" type="datetime-local" wire:model="scheduleInputs.{{ $item->id }}">
                                         <button type="button" wire:click="scheduleContent({{ $item->id }})" class="vsm-action vsm-primary">Adicionar ao calendário</button>
                                         @if($item->scheduled_at)
-                                            <span class="vsm-chip">Agendado: {{ $item->scheduled_at->format('d/m/Y H:i') }}</span>
+                                            <span class="vsm-chip">Agendado: {{ $item->scheduled_at->copy()->timezone(config('publishing.timezone'))->format('d/m/Y H:i') }}</span>
                                         @endif
                                     </div>
                                 @endif
@@ -196,7 +213,7 @@
                     <h2>Calendário Editorial</h2>
                     <div class="vsm-list">
                         @forelse($items as $item)
-                            <div class="vsm-row"><b>{{ $item->title }}</b><span>{{ optional($item->scheduled_at)->format('d/m/Y H:i') }}</span><span>{{ $item->channel ?: 'Canal não definido' }}</span><span class="vsm-badge">{{ $item->status ?: 'planejado' }}</span></div>
+                            <div class="vsm-row"><b>{{ $item->title }}</b><span>{{ $item->scheduled_at?->copy()->timezone(config('publishing.timezone'))->format('d/m/Y H:i') }}</span><span>{{ $item->channel ?: 'Canal não definido' }}</span><span class="vsm-badge">{{ $item->status ?: 'planejado' }}</span></div>
                         @empty <div class="vsm-empty">Nenhum conteúdo agendado.</div> @endforelse
                     </div>
                     @break
@@ -300,3 +317,4 @@
         </section>
     @endif
 </x-filament-panels::page>
+

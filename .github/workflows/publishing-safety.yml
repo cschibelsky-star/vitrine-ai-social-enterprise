@@ -1,0 +1,30 @@
+name: Publishing safety (isolated HML)
+on:
+  pull_request:
+  push:
+    branches: ['codex/publishing-*']
+permissions:
+  contents: read
+jobs:
+  publishing:
+    runs-on: ubuntu-latest
+    env:
+      APP_ENV: testing
+      SOCIAL_PUBLISHING_ENABLED: 'false'
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: gd, sqlite3, pdo_sqlite, intl, mbstring, bcmath
+          coverage: none
+      - run: composer install --no-interaction --prefer-dist --no-progress --no-scripts
+      - run: composer dump-autoload --no-scripts
+      - run: find app/Services/Publishing app/Jobs app/Filament/Client/Pages/BaseClientSection.php app/Models/ContentProject.php routes database/migrations tests/Feature/PublishingSafetyTest.php -name '*.php' -print0 | xargs -0 -n1 php -l
+      - run: vendor/bin/phpunit tests/Feature/PublishingSafetyTest.php
+      - run: php artisan view:cache

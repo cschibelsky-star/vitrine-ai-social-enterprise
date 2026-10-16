@@ -16,6 +16,10 @@ use Throwable;
 
 abstract class BaseClientSection extends Page
 {
+    use \Livewire\WithFileUploads;
+
+    public array $publicationFiles = [];
+
     protected string $view = 'filament.client.pages.section';
 
     public static string $sectionKey = 'overview';
@@ -105,6 +109,21 @@ abstract class BaseClientSection extends Page
         }
     }
 
+    public function attachPublicationFile(int $projectId): void
+    {
+        $clientId = auth()->user()?->client_id;
+        abort_unless($clientId, 403);
+        $project = ContentProject::query()->where('client_id', $clientId)->findOrFail($projectId);
+        $this->validate(['publicationFiles.'.$projectId => ['required', 'file', 'mimes:png,jpg,jpeg,mp4', 'max:102400']]);
+        try {
+            app(\App\Services\Publishing\ApprovedAssetService::class)->attach($project, $this->publicationFiles[$projectId]->getRealPath());
+            unset($this->publicationFiles[$projectId]);
+            Notification::make()->title('Arquivo final anexado')->body('Confira a prévia antes de aprovar.')->success()->send();
+        } catch (Throwable $exception) {
+            Notification::make()->title('Arquivo não aceito')->body('Confira o formato, as dimensões e a configuração de mídia.')->danger()->send();
+        }
+    }
+
     public function scheduleContent(int $projectId): void
     {
         $clientId = auth()->user()?->client_id;
@@ -136,7 +155,16 @@ abstract class BaseClientSection extends Page
             return;
         }
 
-        $scheduledAt = Carbon::parse($raw);
+        try {
+            $scheduledAt = Carbon::createFromFormat('!Y-m-d\\TH:i', $raw, config('publishing.timezone'));
+            if (! $scheduledAt || $scheduledAt->format('Y-m-d\\TH:i') !== $raw) {
+                throw new \RuntimeException('Data inválida.');
+            }
+            $scheduledAt = $scheduledAt->utc();
+        } catch (Throwable) {
+            Notification::make()->title('Data ou horário inválido')->danger()->send();
+            return;
+        }
 
         if ($scheduledAt->isPast()) {
             Notification::make()
@@ -147,12 +175,15 @@ abstract class BaseClientSection extends Page
             return;
         }
 
-        $project->forceFill([
-            'scheduled_at' => $scheduledAt,
-            'status' => 'scheduled',
-        ])->save();
+        try {
+            app(\App\Services\Publishing\PublicationScheduleService::class)->schedule($project, $scheduledAt);
+        } catch (Throwable $exception) {
+            Notification::make()->title('Não foi possível agendar')->body($exception->getMessage())->danger()->send();
+            return;
+        }
 
-        PublishScheduledContent::dispatch($project->id)->delay($scheduledAt);
+        $project->refresh();
+        PublishScheduledContent::dispatch($project->id, (int) $project->schedule_generation)->delay($scheduledAt);
 
         Notification::make()
             ->title('Publicação agendada')
@@ -173,7 +204,12 @@ abstract class BaseClientSection extends Page
             ->where('client_id', $clientId)
             ->findOrFail($projectId);
 
-        $project->forceFill(['status' => 'ready'])->save();
+        try {
+            app(\App\Services\Publishing\ApprovedAssetService::class)->approve($project, (int) auth()->id());
+        } catch (Throwable $exception) {
+            Notification::make()->title('Não foi possível aprovar')->body($exception->getMessage())->danger()->send();
+            return;
+        }
 
         Notification::make()
             ->title('Conteúdo aprovado')
@@ -194,12 +230,7 @@ abstract class BaseClientSection extends Page
             ->where('client_id', $clientId)
             ->findOrFail($projectId);
 
-        abort_unless(in_array($project->status, ['ready', 'scheduled'], true), 422);
-
-        $project->forceFill([
-            'status' => 'ready',
-            'scheduled_at' => null,
-        ])->save();
+        app(\App\Services\Publishing\PublicationScheduleService::class)->withdraw($project);
 
         Notification::make()
             ->title('Salvo na galeria')
@@ -268,7 +299,7 @@ abstract class BaseClientSection extends Page
             ->where('client_id', $clientId)
             ->findOrFail($projectId);
 
-        $project->forceFill(['status' => 'editing'])->save();
+        app(\App\Services\Publishing\PublicationScheduleService::class)->withdraw($project, true);
 
         Notification::make()
             ->title('Ajuste solicitado')
@@ -379,7 +410,7 @@ abstract class BaseClientSection extends Page
                 ];
                 $meta['publisher'] = $publisher;
                 $meta['notice'] = $publisher['connected']
-                    ? 'A conta Meta está pronta para publicação direta e agendamento automático.'
+                    ? 'Conta conectada. Formatos e publicação dependem da validação do contrato e autorização.'
                     : 'Conecte uma Página Meta para habilitar publicação direta no Facebook e no Instagram profissional vinculado.';
                 break;
 
@@ -426,3 +457,4 @@ abstract class BaseClientSection extends Page
         return compact('section', 'clientId', 'items', 'stats', 'meta');
     }
 }
+

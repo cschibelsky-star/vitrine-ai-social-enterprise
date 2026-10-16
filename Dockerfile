@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-bookworm
+FROM php:8.3-fpm-bookworm AS runtime
 
 ARG APP_ENV=production
 
@@ -6,6 +6,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     unzip \
+    ffmpeg \
     libicu-dev \
     libzip-dev \
     libpng-dev \
@@ -54,3 +55,18 @@ COPY docker/php/uploads.ini /usr/local/etc/php/conf.d/99-studio-uploads.ini
 USER www-data
 
 CMD ["sh", "-c", "php artisan filament:assets && php artisan livewire:publish --assets && exec php-fpm"]
+
+
+# Opt-in validation stage. Default build remains production below.
+FROM runtime AS validation
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libsqlite3-dev \
+    && docker-php-ext-install pdo_sqlite \
+    && rm -rf /var/lib/apt/lists/*
+RUN composer install --no-interaction --no-progress --prefer-dist --no-scripts \
+    && composer dump-autoload --no-scripts --optimize \
+    && chown -R www-data:www-data storage bootstrap/cache
+USER www-data
+
+FROM runtime AS production
