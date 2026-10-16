@@ -1,4 +1,4 @@
-FROM php:8.3-fpm-bookworm
+FROM php:8.3-fpm-bookworm AS runtime
 
 ARG APP_ENV=production
 
@@ -56,3 +56,17 @@ USER www-data
 
 CMD ["sh", "-c", "php artisan filament:assets && php artisan livewire:publish --assets && exec php-fpm"]
 
+
+# Opt-in validation stage. Default build remains production below.
+FROM runtime AS validation
+USER root
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libsqlite3-dev \
+    && docker-php-ext-install pdo_sqlite \
+    && rm -rf /var/lib/apt/lists/*
+RUN composer install --no-interaction --no-progress --prefer-dist --no-scripts \
+    && composer dump-autoload --no-scripts --optimize \
+    && chown -R www-data:www-data storage bootstrap/cache
+USER www-data
+
+FROM runtime AS production
