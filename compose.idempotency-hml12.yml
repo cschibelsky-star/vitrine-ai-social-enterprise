@@ -1,0 +1,45 @@
+# Isolated database only. No Meta egress, workers, scheduler or published ports.
+# For a disposable lab only; never connect to the main vitrine_social database.
+services:
+  db:
+    image: mariadb:11.4
+    environment:
+      MARIADB_DATABASE: social_idempotency_hml12
+      MARIADB_USER: social_hml12
+      MARIADB_PASSWORD: ${HML12_DB_PASSWORD:?required}
+      MARIADB_ROOT_PASSWORD: ${HML12_ROOT_PASSWORD:?required}
+    volumes:
+      - idempotency_db_data:/var/lib/mysql
+    networks: [isolated]
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  app:
+    build: .
+    command: ["sleep", "infinity"]
+    environment:
+      APP_ENV: testing
+      APP_DEBUG: "false"
+      APP_KEY: ${HML12_APP_KEY:?required}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: "3306"
+      DB_DATABASE: social_idempotency_hml12
+      DB_USERNAME: social_hml12
+      DB_PASSWORD: ${HML12_DB_PASSWORD:?required}
+      DB_URL: ""
+      QUEUE_CONNECTION: "null"
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      MAIL_MAILER: array
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [isolated]
+volumes:
+  idempotency_db_data:
+networks:
+  isolated:
+    internal: true
