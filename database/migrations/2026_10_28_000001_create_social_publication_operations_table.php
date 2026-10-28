@@ -8,9 +8,15 @@ return new class extends Migration
 {
     public function up(): void
     {
+        // Composite parent identity ensures operations cannot reference another tenant's project.
+        // Legacy projects without a client remain untouched but cannot be published via this table.
+        Schema::table('content_projects', function (Blueprint $table) {
+            $table->unique(['id', 'client_id'], 'content_projects_id_client_unique');
+        });
+
         Schema::create('social_publication_operations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('content_project_id')->constrained('content_projects')->restrictOnDelete();
+            $table->foreignId('content_project_id');
             $table->foreignId('client_id')->constrained('clients')->restrictOnDelete();
             $table->string('channel', 32);
             $table->string('content_version', 64);
@@ -29,6 +35,8 @@ return new class extends Migration
                 ['client_id', 'content_project_id', 'channel', 'content_version'],
                 'social_publication_operation_identity'
             );
+            $table->foreign(['content_project_id', 'client_id'], 'social_pub_project_tenant_fk')
+                ->references(['id', 'client_id'])->on('content_projects')->restrictOnDelete();
             $table->index(['status', 'updated_at']);
             $table->index(['client_id', 'channel', 'status']);
         });
@@ -37,5 +45,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('social_publication_operations');
+        Schema::table('content_projects', function (Blueprint $table) {
+            $table->dropUnique('content_projects_id_client_unique');
+        });
     }
 };
