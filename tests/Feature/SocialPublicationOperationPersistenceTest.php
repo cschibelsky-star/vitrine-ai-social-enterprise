@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\Client;
 use App\Models\ContentProject;
 use App\Models\SocialPublicationOperation;
+use App\Services\Publishing\PublicationOperationClaim;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
@@ -116,6 +117,34 @@ class SocialPublicationOperationPersistenceTest extends TestCase
         } catch (QueryException $expected) {
             $this->assertDatabaseCount('social_publication_operations', 0);
         }
+    }
+
+    public function test_only_one_claim_succeeds_and_repeated_claims_are_blocked(): void
+    {
+        [$client, $project] = $this->fixture();
+        $id = DB::table('social_publication_operations')->insertGetId($this->operation($client->id, $project->id));
+        $gate = new PublicationOperationClaim();
+        $this->assertTrue($gate->claim($id, $client->id));
+        $this->assertFalse($gate->claim($id, $client->id));
+        $this->assertFalse($gate->claim($id, $client->id + 1000));
+        $this->assertDatabaseHas('social_publication_operations', [
+            'id' => $id, 'status' => SocialPublicationOperation::PUBLISHING, 'attempts' => 1,
+        ]);
+    }
+
+    public function test_uncertain_result_never_reclaims_operation(): void
+    {
+        [$client, $project] = $this->fixture();
+        $id = DB::table('social_publication_operations')->insertGetId($this->operation($client->id, $project->id));
+        $gate = new PublicationOperationClaim();
+        $this->assertTrue($gate->claim($id, $client->id));
+        $this->assertTrue($gate->markUncertain($id, $client->id));
+        $this->assertFalse($gate->claim($id, $client->id));
+        $this->assertFalse($gate->markUncertain($id, $client->id));
+        $this->assertDatabaseHas('social_publication_operations', [
+            'id' => $id, 'status' => SocialPublicationOperation::PENDING_CONFIRMATION, 'attempts' => 1,
+        ]);
+        $this->assertDatabaseHas('content_projects', ['id' => $project->id, 'published_at' => null]);
     }
 
     public function test_pending_confirmation_state_does_not_schedule_any_job_by_itself(): void
