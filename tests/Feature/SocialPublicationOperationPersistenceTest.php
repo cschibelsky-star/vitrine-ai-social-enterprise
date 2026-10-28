@@ -9,6 +9,8 @@ use App\Services\Publishing\PublicationOperationClaim;
 use Illuminate\Database\QueryException;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Queue;
 use Tests\TestCase;
 
 class SocialPublicationOperationPersistenceTest extends TestCase
@@ -145,6 +147,28 @@ class SocialPublicationOperationPersistenceTest extends TestCase
             'id' => $id, 'status' => SocialPublicationOperation::PENDING_CONFIRMATION, 'attempts' => 1,
         ]);
         $this->assertDatabaseHas('content_projects', ['id' => $project->id, 'published_at' => null]);
+    }
+
+    public function test_claim_and_uncertain_transition_have_no_http_or_queue_side_effects(): void
+    {
+        Http::fake();
+        Queue::fake();
+        [$client, $project] = $this->fixture();
+        $id = DB::table('social_publication_operations')->insertGetId(
+            $this->operation($client->id, $project->id)
+        );
+
+        $gate = new PublicationOperationClaim();
+        $this->assertTrue($gate->claim($id, $client->id));
+        $this->assertTrue($gate->markUncertain($id, $client->id));
+        $this->assertFalse($gate->claim($id, $client->id));
+
+        Http::assertNothingSent();
+        Queue::assertNothingPushed();
+        $this->assertDatabaseHas('content_projects', [
+            'id' => $project->id,
+            'published_at' => null,
+        ]);
     }
 
     public function test_pending_confirmation_state_does_not_schedule_any_job_by_itself(): void
