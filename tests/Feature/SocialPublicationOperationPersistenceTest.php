@@ -94,6 +94,30 @@ class SocialPublicationOperationPersistenceTest extends TestCase
         $this->assertSame(1, DB::table('social_publication_operations')->where('client_id', $otherClient->id)->count());
     }
 
+    public function test_tenant_cannot_reference_another_clients_project(): void
+    {
+        [$client, $project] = $this->fixture();
+        [$otherClient, $otherProject] = $this->fixture();
+        try {
+            DB::table('social_publication_operations')->insert($this->operation($client->id, $otherProject->id));
+            $this->fail('Cross-tenant project reference was accepted');
+        } catch (QueryException $expected) {
+            $this->assertDatabaseCount('social_publication_operations', 0);
+        }
+    }
+
+    public function test_orphan_project_cannot_be_used_for_publication(): void
+    {
+        [$client, $project] = $this->fixture();
+        $project->update(['client_id' => null]);
+        try {
+            DB::table('social_publication_operations')->insert($this->operation($client->id, $project->id));
+            $this->fail('Unowned project was accepted');
+        } catch (QueryException $expected) {
+            $this->assertDatabaseCount('social_publication_operations', 0);
+        }
+    }
+
     public function test_pending_confirmation_state_does_not_schedule_any_job_by_itself(): void
     {
         [$client, $project] = $this->fixture();
