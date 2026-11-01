@@ -21,6 +21,14 @@ final class IdempotentMetaPublicationService
 
     public function publish(ContentProject $project): array
     {
+        // Fail closed while PR #9 and PR #12 use independent submission ledgers.
+        // A per-project lookup is not sufficient: independent workers could race
+        // before either ledger contains a row. An explicit atomic shared claim
+        // must replace this guard before both publication engines are enabled.
+        if (\Illuminate\Support\Facades\Schema::hasTable('publication_attempts')) {
+            throw new RuntimeException('Publicadores incompatíveis ativos no esquema; integração dos ledgers pendente.');
+        }
+
         if (! $project->exists || ! $project->client_id) {
             throw new RuntimeException('O projeto precisa pertencer a um cliente persistido.');
         }
