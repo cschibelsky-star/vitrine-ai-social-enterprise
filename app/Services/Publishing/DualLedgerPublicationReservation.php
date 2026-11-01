@@ -39,6 +39,33 @@ final class DualLedgerPublicationReservation
                 throw new RuntimeException('Reserva exige publicação aprovada e íntegra.');
             }
 
+            // Recompute exactly the approval fingerprint contract of PR #9.
+            // This validates approved metadata, not the stored binary; file
+            // integrity and payload/capability checks remain separate gates.
+            $asset = json_decode((string) $project->getRawOriginal('publishing_asset'), true);
+            if (! is_array($asset)
+                || empty($asset['path'])
+                || ! preg_match('/^[a-f0-9]{64}$/', (string) ($asset['sha256'] ?? ''))
+                || ! in_array($asset['mime'] ?? '', ['image/jpeg', 'image/png', 'video/mp4'], true)) {
+                throw new RuntimeException('Mídia aprovada ausente ou inválida.');
+            }
+            $expectedFingerprint = hash('sha256', json_encode([
+                $project->client_id,
+                $project->channel,
+                $project->format,
+                $asset,
+                $project->caption,
+                $project->cta,
+                $project->hashtags,
+            ], JSON_THROW_ON_ERROR));
+            if (! hash_equals($expectedFingerprint, (string) $project->approved_fingerprint)) {
+                throw new RuntimeException('Conteúdo alterado após aprovação; nova revisão obrigatória.');
+            }
+            if ($project->status === 'scheduled'
+                && (! $project->scheduled_at || $project->scheduled_at->isFuture())) {
+                throw new RuntimeException('Agendamento ainda não venceu.');
+            }
+
             // A single attempt per content project is the strict PR #9 contract.
             if (DB::table('publication_attempts')
                 ->where('content_project_id', $projectId)->exists()) {
