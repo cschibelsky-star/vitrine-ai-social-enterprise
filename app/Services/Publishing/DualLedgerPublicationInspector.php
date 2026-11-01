@@ -56,27 +56,14 @@ final class DualLedgerPublicationInspector
             return ['status' => 'BLOCKED', 'reason' => 'IDENTITY_MISMATCH'];
         }
 
-        if ($attempt->status === 'published'
-            && $operation->status === SocialPublicationOperation::PUBLISHED
-            && ! empty($attempt->external_id)
-            && hash_equals((string) $attempt->external_id, (string) $operation->external_id)
-            && $project->published_at !== null) {
-            return ['status' => 'PUBLISHED', 'reason' => 'BOTH_CONFIRMED'];
-        }
-
-        if ($attempt->status === 'reserved'
-            && $operation->status === SocialPublicationOperation::QUEUED
-            && (int) $operation->attempts === 0
-            && empty($attempt->external_id)
-            && empty($operation->external_id)
-            && empty($operation->provider_container_id)
-            && $project->published_at === null) {
-            // Diagnostic only: not an authorization to dispatch.
-            return ['status' => 'RESERVED', 'reason' => 'NO_SUBMISSION_RECORDED'];
-        }
-
-        // Any partial confirmation or uncertain result must be reconciled
-        // by an operator against the Marketing receiver/provider before retry.
-        return ['status' => 'BLOCKED', 'reason' => 'RECONCILIATION_REQUIRED'];
+        return (new DualLedgerPublicationStatePolicy)->inspect(
+            (string) $attempt->status,
+            (string) $operation->status,
+            (int) $operation->attempts,
+            $attempt->external_id,
+            $operation->external_id,
+            $operation->provider_container_id,
+            $project->published_at !== null
+        );
     }
 }
