@@ -1,0 +1,53 @@
+name: Social Hub ledger guard (isolated)
+on:
+  pull_request:
+    paths:
+      - 'app/Models/SocialPublicationOperation.php'
+      - 'app/Services/Publishing/**'
+      - 'database/migrations/**'
+      - 'tests/Feature/PublishingLedgerCoexistenceGuardTest.php'
+      - 'tests/Feature/SocialHubPublishingDisabledTest.php'
+      - 'config/social_hub_publishing.php'
+      - 'tests/Feature/SocialPublicationOperationPersistenceTest.php'
+      - 'tests/Unit/SocialPublicationOperationTest.php'
+      - '.github/workflows/social-hub-ledger-guard.yml'
+  push:
+    branches:
+      - 'feature/social-hub-ledger-interop-guard-20261101'
+permissions:
+  contents: read
+jobs:
+  isolated-ledger-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_ENV: testing
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      SOCIAL_PUBLISHING_ENABLED: 'false'
+      SOCIAL_HUB_PUBLISHING_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, pdo_sqlite, sqlite3, intl, bcmath
+          coverage: none
+      - name: Install dependencies without application hooks
+        run: |
+          composer install --no-interaction --prefer-dist --no-progress --no-scripts
+          composer dump-autoload --no-scripts
+      - name: Syntax validation
+        run: |
+          php -l app/Services/Publishing/IdempotentMetaPublicationService.php
+          php -l tests/Feature/PublishingLedgerCoexistenceGuardTest.php
+          php -l tests/Feature/SocialHubPublishingDisabledTest.php
+      - name: Isolated persistence and no-publication safety tests
+        run: |
+          vendor/bin/phpunit tests/Unit/SocialPublicationOperationTest.php
+          vendor/bin/phpunit tests/Feature/SocialPublicationOperationPersistenceTest.php
+          vendor/bin/phpunit tests/Feature/PublishingLedgerCoexistenceGuardTest.php
+          vendor/bin/phpunit tests/Feature/SocialHubPublishingDisabledTest.php

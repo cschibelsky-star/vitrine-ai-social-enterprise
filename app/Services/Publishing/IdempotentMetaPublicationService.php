@@ -21,6 +21,20 @@ final class IdempotentMetaPublicationService
 
     public function publish(ContentProject $project): array
     {
+        // Fail closed while PR #9 and PR #12 use independent submission ledgers.
+        // A per-project lookup is not sufficient: independent workers could race
+        // before either ledger contains a row. An explicit atomic shared claim
+        // must replace this guard before both publication engines are enabled.
+        if (\Illuminate\Support\Facades\Schema::hasTable('publication_attempts')) {
+            throw new RuntimeException('Publicadores incompatíveis ativos no esquema; integração dos ledgers pendente.');
+        }
+
+        // A separate opt-in is required even when the legacy attempts table
+        // is absent. CI, migrations and deployment must not enable Meta calls.
+        if (! config('social_hub_publishing.enabled', false)) {
+            throw new RuntimeException('Publicação do Vitrine Social Hub desativada até homologação.');
+        }
+
         if (! $project->exists || ! $project->client_id) {
             throw new RuntimeException('O projeto precisa pertencer a um cliente persistido.');
         }
