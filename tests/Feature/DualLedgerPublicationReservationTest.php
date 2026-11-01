@@ -21,6 +21,7 @@ class DualLedgerPublicationReservationTest extends TestCase
     private function addLegacySchema(): void
     {
         Schema::table('content_projects', function (Blueprint $table) {
+            $table->json('publishing_asset')->nullable();
             $table->string('approved_fingerprint', 64)->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->unsignedBigInteger('approved_by')->nullable();
@@ -45,8 +46,17 @@ class DualLedgerPublicationReservationTest extends TestCase
             'status' => 'ready',
             'channel' => 'instagram',
         ]);
+        $asset = [
+            'path' => 'publisher/assets/test-approved.jpg',
+            'mime' => 'image/jpeg',
+            'sha256' => str_repeat('a', 64),
+        ];
+        $fingerprint = hash('sha256', json_encode([
+            $client->id, 'instagram', null, $asset, null, null, null,
+        ], JSON_THROW_ON_ERROR));
         DB::table('content_projects')->where('id', $project->id)->update([
-            'approved_fingerprint' => str_repeat('a', 64),
+            'publishing_asset' => json_encode($asset, JSON_THROW_ON_ERROR),
+            'approved_fingerprint' => $fingerprint,
             'approved_at' => now(),
             'approved_by' => 1,
         ]);
@@ -95,6 +105,42 @@ class DualLedgerPublicationReservationTest extends TestCase
         }
         $this->assertDatabaseCount('publication_attempts', 1);
         $this->assertDatabaseCount('social_publication_operations', 1);
+    }
+
+    public function test_changed_caption_after_approval_is_rejected_without_writes(): void
+    {
+        $this->addLegacySchema();
+        [$client, $project] = $this->project();
+        DB::table('content_projects')->where('id', $project->id)
+            ->update(['caption' => 'Alterada após aprovação']);
+
+        try {
+            app(DualLedgerPublicationReservation::class)
+                ->reserve($project->id, $client->id, 'vitrine-ai-social-enterprise');
+            $this->fail('Content mutation must invalidate approval.');
+        } catch (RuntimeException $exception) {
+            $this->assertStringContainsString('Conteúdo alterado', $exception->getMessage());
+        }
+        $this->assertDatabaseCount('publication_attempts', 0);
+        $this->assertDatabaseCount('social_publication_operations', 0);
+    }
+
+    public function test_missing_approved_media_is_rejected(): void
+    {
+        $this->addLegacySchema();
+        [$client, $project] = $this->project();
+        DB::table('content_projects')->where('id', $project->id)
+            ->update(['publishing_asset' => null]);
+
+        try {
+            app(DualLedgerPublicationReservation::class)
+                ->reserve($project->id, $client->id, 'vitrine-ai-social-enterprise');
+            $this->fail('Missing approved asset cannot be reserved.');
+        } catch (RuntimeException $exception) {
+            $this->assertStringContainsString('Mídia aprovada ausente', $exception->getMessage());
+        }
+        $this->assertDatabaseCount('publication_attempts', 0);
+        $this->assertDatabaseCount('social_publication_operations', 0);
     }
 
     public function test_missing_legacy_schema_fails_without_operation(): void
