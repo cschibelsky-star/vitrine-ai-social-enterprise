@@ -99,11 +99,10 @@ class DualLedgerPublicationReservationTest extends TestCase
 
     public function test_missing_legacy_schema_fails_without_operation(): void
     {
-        [$client, $project] = $this->project();
         $this->expectException(RuntimeException::class);
         try {
             app(DualLedgerPublicationReservation::class)
-                ->reserve($project->id, $client->id, 'vitrine-ai-social-enterprise');
+                ->reserve(1, 1, 'vitrine-ai-social-enterprise');
         } finally {
             $this->assertDatabaseCount('social_publication_operations', 0);
         }
