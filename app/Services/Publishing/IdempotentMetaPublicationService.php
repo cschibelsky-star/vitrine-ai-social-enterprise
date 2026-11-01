@@ -29,6 +29,12 @@ final class IdempotentMetaPublicationService
             throw new RuntimeException('Publicadores incompatíveis ativos no esquema; integração dos ledgers pendente.');
         }
 
+        // A separate opt-in is required even when the legacy attempts table
+        // is absent. CI, migrations and deployment must not enable Meta calls.
+        if (! config('social_hub_publishing.enabled', false)) {
+            throw new RuntimeException('Publicação do Vitrine Social Hub desativada até homologação.');
+        }
+
         if (! $project->exists || ! $project->client_id) {
             throw new RuntimeException('O projeto precisa pertencer a um cliente persistido.');
         }
