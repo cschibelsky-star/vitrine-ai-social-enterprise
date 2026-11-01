@@ -7,6 +7,10 @@ on:
       - 'database/migrations/**'
       - 'tests/Feature/PublishingLedgerCoexistenceGuardTest.php'
       - 'tests/Feature/SocialHubPublishingDisabledTest.php'
+      - 'tests/Feature/DualLedgerPublicationReservationTest.php'
+      - 'tests/Feature/DualLedgerPublicationInspectorTest.php'
+      - 'tests/Unit/DualLedgerPublicationStatePolicyTest.php'
+      - 'tests/Feature/MarketingPublicationStatusProbeTest.php'
       - 'config/social_hub_publishing.php'
       - 'tests/Feature/SocialPublicationOperationPersistenceTest.php'
       - 'tests/Unit/SocialPublicationOperationTest.php'
@@ -29,6 +33,7 @@ jobs:
       QUEUE_CONNECTION: sync
       SOCIAL_PUBLISHING_ENABLED: 'false'
       SOCIAL_HUB_PUBLISHING_ENABLED: 'false'
+      SOCIAL_HUB_MARKETING_LOOKUP_ENABLED: 'false'
     steps:
       - uses: actions/checkout@v4
       - uses: shivammathur/setup-php@v2
@@ -45,9 +50,21 @@ jobs:
           php -l app/Services/Publishing/IdempotentMetaPublicationService.php
           php -l tests/Feature/PublishingLedgerCoexistenceGuardTest.php
           php -l tests/Feature/SocialHubPublishingDisabledTest.php
+          php -l app/Services/Publishing/DualLedgerPublicationReservation.php
+          php -l tests/Feature/DualLedgerPublicationReservationTest.php
+          php -l app/Services/Publishing/DualLedgerPublicationInspector.php
+          php -l tests/Feature/DualLedgerPublicationInspectorTest.php
+          php -l app/Services/Publishing/DualLedgerPublicationStatePolicy.php
+          php -l tests/Unit/DualLedgerPublicationStatePolicyTest.php
+          php -l app/Services/Publishing/MarketingPublicationStatusProbe.php
+          php -l tests/Feature/MarketingPublicationStatusProbeTest.php
       - name: Isolated persistence and no-publication safety tests
         run: |
           vendor/bin/phpunit tests/Unit/SocialPublicationOperationTest.php
           vendor/bin/phpunit tests/Feature/SocialPublicationOperationPersistenceTest.php
           vendor/bin/phpunit tests/Feature/PublishingLedgerCoexistenceGuardTest.php
           vendor/bin/phpunit tests/Feature/SocialHubPublishingDisabledTest.php
+          vendor/bin/phpunit tests/Feature/DualLedgerPublicationReservationTest.php
+          vendor/bin/phpunit tests/Feature/DualLedgerPublicationInspectorTest.php
+          vendor/bin/phpunit tests/Unit/DualLedgerPublicationStatePolicyTest.php
+          vendor/bin/phpunit tests/Feature/MarketingPublicationStatusProbeTest.php
