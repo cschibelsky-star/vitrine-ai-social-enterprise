@@ -21,20 +21,15 @@ final class MarketingPublicationStatusProbe
         $token = trim((string) config('services.marketing_engine.token', ''));
         $project = (string) config('services.marketing_engine.project_id', 'vitrine-ai-social-enterprise');
 
+        // Laravel's internal Docker DNS name contains underscores, which
+        // FILTER_VALIDATE_URL rejects. Permit only this exact HML origin by
+        // default; do not accidentally turn lookup into an arbitrary HTTP probe.
+        $allowedOrigin = 'http://vitrine_marketing_web_internal_hml';
         if ($clientId < 1 || $contentProjectId < 1
             || ! preg_match('/^[a-f0-9]{64}$/', $key)
-            || $token === '' || $base === ''
-            || ! filter_var($base, FILTER_VALIDATE_URL)
-            || ! in_array(parse_url($base, PHP_URL_SCHEME), ['https', 'http'], true)
-            || parse_url($base, PHP_URL_USER) !== null
-            || parse_url($base, PHP_URL_PASS) !== null
-            || $project !== 'vitrine-ai-social-enterprise') {
-            return ['status' => 'BLOCKED', 'reason' => 'LOOKUP_CONFIG_INVALID'];
-        }
-
-        // Only explicitly configured internal HTTP hosts may use plaintext.
-        if (parse_url($base, PHP_URL_SCHEME) === 'http'
-            && parse_url($base, PHP_URL_HOST) !== 'vitrine_marketing_web_internal_hml') {
+            || $token === ''
+            || $project !== 'vitrine-ai-social-enterprise'
+            || $base !== $allowedOrigin) {
             return ['status' => 'BLOCKED', 'reason' => 'LOOKUP_CONFIG_INVALID'];
         }
 
