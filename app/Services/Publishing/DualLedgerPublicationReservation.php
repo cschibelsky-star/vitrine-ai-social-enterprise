@@ -49,6 +49,13 @@ final class DualLedgerPublicationReservation
                 || ! in_array($asset['mime'] ?? '', ['image/jpeg', 'image/png', 'video/mp4'], true)) {
                 throw new RuntimeException('Mídia aprovada ausente ou inválida.');
             }
+            // Never reserve an unavailable or modified final file.
+            // Use the same local asset disk as ApprovedAssetService in PR #9.
+            $disk = \Illuminate\Support\Facades\Storage::disk('local');
+            if (! $disk->exists($asset['path'])
+                || ! hash_equals((string) $asset['sha256'], hash_file('sha256', $disk->path($asset['path'])))) {
+                throw new RuntimeException('Arquivo final aprovado ausente ou alterado.');
+            }
             $expectedFingerprint = hash('sha256', json_encode([
                 $project->client_id,
                 $project->channel,
