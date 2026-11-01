@@ -51,15 +51,18 @@ class DualLedgerPublicationReservationTest extends TestCase
             'mime' => 'image/jpeg',
             'sha256' => str_repeat('a', 64),
         ];
-        $fingerprint = hash('sha256', json_encode([
-            $client->id, 'instagram', null, $asset, null, null, null,
-        ], JSON_THROW_ON_ERROR));
         DB::table('content_projects')->where('id', $project->id)->update([
             'publishing_asset' => json_encode($asset, JSON_THROW_ON_ERROR),
-            'approved_fingerprint' => $fingerprint,
             'approved_at' => now(),
             'approved_by' => 1,
         ]);
+        $fresh = ContentProject::query()->findOrFail($project->id);
+        $fingerprint = hash('sha256', json_encode([
+            $fresh->client_id, $fresh->channel, $fresh->format,
+            $asset, $fresh->caption, $fresh->cta, $fresh->hashtags,
+        ], JSON_THROW_ON_ERROR));
+        DB::table('content_projects')->where('id', $project->id)
+            ->update(['approved_fingerprint' => $fingerprint]);
         return [$client, $project];
     }
 
