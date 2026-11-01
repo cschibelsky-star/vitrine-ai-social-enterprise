@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Tests\TestCase;
 
@@ -46,10 +47,14 @@ class DualLedgerPublicationReservationTest extends TestCase
             'status' => 'ready',
             'channel' => 'instagram',
         ]);
+        Storage::fake('local');
+        $bytes = 'vitrine-social-hub-test-media';
+        $path = 'publisher/assets/test-approved.jpg';
+        Storage::disk('local')->put($path, $bytes);
         $asset = [
-            'path' => 'publisher/assets/test-approved.jpg',
+            'path' => $path,
             'mime' => 'image/jpeg',
-            'sha256' => str_repeat('a', 64),
+            'sha256' => hash('sha256', $bytes),
         ];
         DB::table('content_projects')->where('id', $project->id)->update([
             'publishing_asset' => json_encode($asset, JSON_THROW_ON_ERROR),
@@ -123,6 +128,23 @@ class DualLedgerPublicationReservationTest extends TestCase
             $this->fail('Content mutation must invalidate approval.');
         } catch (RuntimeException $exception) {
             $this->assertStringContainsString('Conteúdo alterado', $exception->getMessage());
+        }
+        $this->assertDatabaseCount('publication_attempts', 0);
+        $this->assertDatabaseCount('social_publication_operations', 0);
+    }
+
+    public function test_modified_file_after_approval_is_rejected_without_writes(): void
+    {
+        $this->addLegacySchema();
+        [$client, $project] = $this->project();
+        Storage::disk('local')->put('publisher/assets/test-approved.jpg', 'tampered');
+
+        try {
+            app(DualLedgerPublicationReservation::class)
+                ->reserve($project->id, $client->id, 'vitrine-ai-social-enterprise');
+            $this->fail('Modified final media must be rejected.');
+        } catch (RuntimeException $exception) {
+            $this->assertStringContainsString('Arquivo final aprovado ausente ou alterado', $exception->getMessage());
         }
         $this->assertDatabaseCount('publication_attempts', 0);
         $this->assertDatabaseCount('social_publication_operations', 0);
