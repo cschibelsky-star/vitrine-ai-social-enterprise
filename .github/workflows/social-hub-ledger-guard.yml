@@ -10,6 +10,7 @@ on:
       - 'tests/Feature/DualLedgerPublicationReservationTest.php'
       - 'tests/Feature/DualLedgerPublicationInspectorTest.php'
       - 'tests/Unit/DualLedgerPublicationStatePolicyTest.php'
+      - 'tests/Unit/AccountPublicationCapabilityPolicyTest.php'
       - 'tests/Feature/MarketingPublicationStatusProbeTest.php'
       - 'config/social_hub_publishing.php'
       - 'tests/Feature/SocialPublicationOperationPersistenceTest.php'
@@ -58,6 +59,8 @@ jobs:
           php -l tests/Unit/DualLedgerPublicationStatePolicyTest.php
           php -l app/Services/Publishing/MarketingPublicationStatusProbe.php
           php -l tests/Feature/MarketingPublicationStatusProbeTest.php
+          php -l app/Services/Publishing/AccountPublicationCapabilityPolicy.php
+          php -l tests/Unit/AccountPublicationCapabilityPolicyTest.php
       - name: Isolated persistence and no-publication safety tests
         run: |
           vendor/bin/phpunit tests/Unit/SocialPublicationOperationTest.php
@@ -68,3 +71,4 @@ jobs:
           vendor/bin/phpunit tests/Feature/DualLedgerPublicationInspectorTest.php
           vendor/bin/phpunit tests/Unit/DualLedgerPublicationStatePolicyTest.php
           vendor/bin/phpunit tests/Feature/MarketingPublicationStatusProbeTest.php
+          vendor/bin/phpunit tests/Unit/AccountPublicationCapabilityPolicyTest.php
