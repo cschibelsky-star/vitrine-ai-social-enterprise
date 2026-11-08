@@ -20,6 +20,7 @@ final class ReelDirectorService
             return [
                 'status' => 'briefing_required',
                 'hooks' => [],
+                'catalog' => $this->catalog(),
                 'beats' => [],
                 'duration_seconds' => 0,
                 'target_seconds' => $target,
@@ -31,7 +32,7 @@ final class ReelDirectorService
         $topic = rtrim($idea, " .!?\t\n\r");
         $candidates = [
             ['formula' => '#18 Cold Open Demo', 'spoken' => 'Veja de perto: '.$topic.'.'],
-            ['formula' => '#16 Verbatim Question', 'spoken' => 'Você já conhece '.$topic.'?'],
+            ['formula' => 'Pergunta exploratória (variação própria)', 'spoken' => 'Você já conhece '.$topic.'?'],
             ['formula' => '#24 The Reveal', 'spoken' => 'Aqui está: '.$topic.'.'],
         ];
 
@@ -95,12 +96,40 @@ final class ReelDirectorService
             'status' => 'review_required',
             'method' => 'offline_heuristic_v1',
             'hooks' => $hooks,
+            'catalog' => $this->catalog(),
             'beats' => $beats,
             'duration_seconds' => $elapsed,
             'target_seconds' => $target,
             'warnings' => array_values(array_unique($warnings)),
             'human_approval_required' => true,
         ];
+    }
+
+    /**
+     * Upstream hook grammar is a reference library, not a license to invent
+     * outcomes. Entries requiring evidence are not automatically populated.
+     */
+    private function catalog(): array
+    {
+        $path = dirname(__DIR__, 3).'/resources/reels/instagram-hooks.json';
+        if (! is_file($path)) {
+            return [];
+        }
+
+        $source = json_decode((string) file_get_contents($path), true);
+        if (! is_array($source) || ! is_array($source['hooks'] ?? null)) {
+            return [];
+        }
+
+        return array_map(
+            static fn (array $hook): array => [
+                'id' => (int) ($hook['id'] ?? 0),
+                'name' => (string) ($hook['name'] ?? ''),
+                'best_for' => (string) ($hook['best_for'] ?? ''),
+                'trap' => (string) ($hook['trap'] ?? ''),
+            ],
+            array_filter($source['hooks'], 'is_array')
+        );
     }
 
     private function wordCount(string $value): int
