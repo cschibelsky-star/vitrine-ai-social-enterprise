@@ -1,0 +1,33 @@
+name: Reel Director Offline Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'app/Services/AI/ReelDirectorService.php'
+      - 'app/Filament/Client/Pages/ReelDirector.php'
+      - 'app/Providers/Filament/ClientPanelProvider.php'
+      - 'resources/views/filament/client/pages/reel-director.blade.php'
+      - 'tests/reel_director_smoke.php'
+      - '.github/workflows/reel-director-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: Lint PHP
+        run: |
+          php -l app/Services/AI/ReelDirectorService.php
+          php -l app/Filament/Client/Pages/ReelDirector.php
+          php -l app/Providers/Filament/ClientPanelProvider.php
+          php -l tests/reel_director_smoke.php
+      - name: Offline logic smoke
+        run: php tests/reel_director_smoke.php
