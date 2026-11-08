@@ -17,6 +17,12 @@ class ReelDirectorAccessTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->withoutVite();
+    }
+
     public function test_guest_cannot_read_reel_director(): void
     {
         $response = $this->get('/app/diretor-reels');
