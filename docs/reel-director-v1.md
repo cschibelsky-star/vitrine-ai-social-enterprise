@@ -25,3 +25,13 @@
 5. Só depois de evidências de QA real avaliar UX, catálogo de 26 fórmulas, integração com aprovação VIA e eventual escopo do Marketing IA.
 
 Não realizar merge/deploy/migrations sem autorização específica.
+
+
+## Incremento: catálogo e segurança de autoria (08/11/2026)
+
+- Catálogo integral de 26 fórmulas importado de `Jakeschincariol/instagram-agent-skill` para `resources/reels/instagram-hooks.json`, preservando licença original em `resources/reels/UPSTREAM-LICENSE.txt`.
+- O catálogo é consultivo, sem preenchimento automático dos modelos que exigem métricas, perguntas literais, resultados ou provas externas.
+- A pergunta automática foi relabelada como **variação editorial própria**, não como a fórmula original #16 Verbatim Question.
+- A URL do item usa a classe Filament explícita, em lugar de `static::getUrl` dentro da view.
+- Adicionado teste de autorização/isolamento em `tests/Feature/ReelDirectorAccessTest.php`, que exige execução com dependências Laravel e banco de teste.
+- O pré-voo offline segue com três ganchos; não há execução de modelos pagos, gravação de mídia ou publicação.
