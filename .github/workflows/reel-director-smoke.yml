@@ -1,0 +1,67 @@
+name: Reel Director Offline Smoke
+
+on:
+  pull_request:
+    paths:
+      - 'app/Services/AI/ReelDirectorService.php'
+      - 'app/Filament/Client/Pages/ReelDirector.php'
+      - 'app/Providers/Filament/ClientPanelProvider.php'
+      - 'resources/views/filament/client/pages/reel-director.blade.php'
+      - 'tests/reel_director_smoke.php'
+      - 'tests/Feature/ReelDirectorAccessTest.php'
+      - 'resources/reels/instagram-hooks.json'
+      - '.github/workflows/reel-director-feature.yml'
+      - '.github/workflows/reel-director-smoke.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+      - name: Lint PHP
+        run: |
+          php -l app/Services/AI/ReelDirectorService.php
+          php -l app/Filament/Client/Pages/ReelDirector.php
+          php -l app/Providers/Filament/ClientPanelProvider.php
+          php -l tests/reel_director_smoke.php
+      - name: Offline logic smoke
+        run: php tests/reel_director_smoke.php
+
+  filament-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3, intl, fileinfo, sodium
+          coverage: none
+          tools: composer:v2
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Prepare isolated test environment
+        run: cp .env.example .env
+      - name: Verify Reel Director route and compile views
+        run: |
+          php artisan route:list --path=app/diretor-reels
+          php artisan view:cache
+      - name: Feature tests - Filament and tenant isolation
+        run: php artisan test tests/Feature/ReelDirectorAccessTest.php --stop-on-failure --display-warnings --fail-on-warning
