@@ -17,3 +17,17 @@
 - Adicionado teste Feature de bloqueio de visitantes e seleção de projeto de outro tenant; **não executado** até disponibilizar banco Laravel/CI integrado.
 - Workflow deve ser reavaliado depois dos novos commits; CI anterior não valida este incremento.
 - Pendente: teste Feature Laravel, funcionamento visual em HML isolada e validação multi-tenant operacional. Nenhum deploy/merge/migration.
+
+## Gate CI integrado (08/11/2026) — comprovado
+
+- Suite isolada Laravel/Filament/SQLite em memória, sem uso de banco da VPS nem chamadas externas:
+  - https://github.com/cschibelsky-star/vitrine-ai-social-enterprise/actions/runs/42534775243
+  - Resultado: **2 tests passed (10 assertions)**, sem avisos do PHPUnit.
+  - Rota `GET /app/diretor-reels` registrada; `php artisan view:cache` aprovado.
+  - Anônimo bloqueado; cliente A não vê dados de cliente B; status dos projetos permanece `draft`.
+- Workflow de regressão completo:
+  - https://github.com/cschibelsky-star/vitrine-ai-social-enterprise/actions/runs/42534775263
+  - Jobs `smoke` e `filament-integration` concluídos em **success**.
+- Causa e correção dos avisos iniciais: inexistência de `.env` no runner; workflows agora copiam `.env.example` para o ambiente temporário de CI. O teste também desabilita Vite. Flag `--display-warnings --fail-on-warning` aplicada.
+- Limite de evidência: testado no runner GitHub, não na VPS HML; não existe validação visual do layout, fluxo real de navegador ou integração com supervisão VIA.
+- Gate para merge/deploy continua bloqueado até HML isolada, inspeção visual e autorização específica. Não reconciliar o checkout da VPS (main atrás de origin/main) no escopo deste PR.
