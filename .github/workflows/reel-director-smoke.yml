@@ -57,6 +57,8 @@ jobs:
           tools: composer:v2
       - name: Install Composer dependencies
         run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Prepare isolated test environment
+        run: cp .env.example .env
       - name: Verify Reel Director route and compile views
         run: |
           php artisan route:list --path=app/diretor-reels
