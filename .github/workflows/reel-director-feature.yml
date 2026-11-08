@@ -1,0 +1,46 @@
+name: Reel Director Filament Integration
+
+on:
+  pull_request:
+    paths:
+      - 'app/Filament/Client/Pages/ReelDirector.php'
+      - 'app/Services/AI/ReelDirectorService.php'
+      - 'app/Providers/Filament/ClientPanelProvider.php'
+      - 'resources/views/filament/client/pages/reel-director.blade.php'
+      - 'resources/reels/instagram-hooks.json'
+      - 'tests/Feature/ReelDirectorAccessTest.php'
+      - '.github/workflows/reel-director-feature.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  filament-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      APP_ENV: testing
+      APP_KEY: base64:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      DB_CONNECTION: sqlite
+      DB_DATABASE: ':memory:'
+      CACHE_STORE: array
+      SESSION_DRIVER: array
+      QUEUE_CONNECTION: sync
+      MAIL_MAILER: array
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, pdo_sqlite, sqlite3, intl, fileinfo, sodium
+          coverage: none
+          tools: composer:v2
+      - name: Composer dependencies from lockfile
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Filament routes and Blade compile
+        run: |
+          php artisan route:list --path=app/diretor-reels
+          php artisan view:cache
+      - name: Test client authorization and isolation (SQLite memory)
+        run: php artisan test tests/Feature/ReelDirectorAccessTest.php --stop-on-failure
