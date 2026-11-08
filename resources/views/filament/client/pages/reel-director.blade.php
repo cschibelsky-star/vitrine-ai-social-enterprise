@@ -8,7 +8,7 @@
         <div class="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
             <h3 class="font-semibold">Selecione um Reel do seu cliente</h3>
             @forelse ($projects as $item)
-                <a href="{{ static::getUrl(['project_id' => $item->id]) }}" class="mt-2 block rounded-lg border p-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800" @if ($selected?->id === $item->id) aria-current="page" @endif>
+                <a href="{{ \App\Filament\Client\Pages\ReelDirector::getUrl(['project_id' => $item->id]) }}" class="mt-2 block rounded-lg border p-3 text-sm hover:bg-gray-50 dark:hover:bg-gray-800" @if ($selected?->id === $item->id) aria-current="page" @endif>
                     {{ $item->title ?: $item->idea }} <span class="text-gray-500">(#{{ $item->id }})</span>
                 </a>
             @empty
@@ -19,12 +19,23 @@
         @if ($preview)
             <div class="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
                 <h3 class="font-semibold">Três aberturas para revisão</h3>
+                <p class="text-sm text-gray-500">A geração automática usa duas fórmulas de referência e uma variação própria. As 26 fórmulas originais estão disponíveis para consulta editorial, mas não são preenchidas automaticamente sem dados verificados.</p>
                 @foreach ($preview['hooks'] as $hook)
                     <div class="mt-3 rounded-lg border p-3">
                         <p class="text-xs text-gray-500">{{ $hook['formula'] }} · indicador heurístico {{ $hook['heuristic_score'] }}/100 · aprox. {{ $hook['estimated_seconds'] }}s</p>
                         <p class="font-medium">{{ $hook['spoken'] }}</p>
                     </div>
                 @endforeach
+            </div>
+
+            <div class="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
+                <h3 class="font-semibold">Catálogo de {{ count($preview['catalog']) }} fórmulas de referência</h3>
+                <p class="text-sm text-gray-500">Fonte: Jake Schincariol, MIT. Algumas fórmulas dependem de provas, métricas ou perguntas reais e exigem briefing complementar.</p>
+                <details class="mt-3"><summary class="cursor-pointer font-medium">Consultar fórmulas e cuidados de uso</summary>
+                    @foreach ($preview['catalog'] as $formula)
+                        <p class="mt-2 text-sm"><strong>#{{ $formula['id'] }} — {{ $formula['name'] }}</strong>: {{ $formula['best_for'] }} Atenção: {{ $formula['trap'] }}</p>
+                    @endforeach
+                </details>
             </div>
 
             <div class="rounded-xl border border-gray-200 p-4 dark:border-gray-700">
