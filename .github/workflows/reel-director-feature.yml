@@ -38,9 +38,11 @@ jobs:
           tools: composer:v2
       - name: Composer dependencies from lockfile
         run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Prepare isolated test environment
+        run: cp .env.example .env
       - name: Filament routes and Blade compile
         run: |
           php artisan route:list --path=app/diretor-reels
           php artisan view:cache
       - name: Test client authorization and isolation (SQLite memory)
-        run: php artisan test tests/Feature/ReelDirectorAccessTest.php --stop-on-failure
+        run: php artisan test tests/Feature/ReelDirectorAccessTest.php --stop-on-failure --display-warnings --fail-on-warning
