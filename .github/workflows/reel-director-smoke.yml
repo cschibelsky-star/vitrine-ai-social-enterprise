@@ -62,4 +62,4 @@ jobs:
           php artisan route:list --path=app/diretor-reels
           php artisan view:cache
       - name: Feature tests - Filament and tenant isolation
-        run: php artisan test tests/Feature/ReelDirectorAccessTest.php --stop-on-failure
+        run: php artisan test tests/Feature/ReelDirectorAccessTest.php --stop-on-failure --display-warnings --fail-on-warning
